@@ -51,6 +51,25 @@ const PreviewTheme = ({ themeData, setThemeData, onBack }) => {
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
 
+  const resolveImageUrl = (img) => {
+    if (!img) return "";
+    if (typeof img === "string") return img;
+    if (img instanceof File || img instanceof Blob) {
+      return URL.createObjectURL(img);
+    }
+    if (img?.image && typeof img.image === "string") return img.image;
+    if (img?.url && typeof img.url === "string") return img.url;
+    return "";
+  };
+
+  const bannerImages = [
+    themeData.image,
+    ...(themeData.coverImages || []),
+  ].filter(Boolean);
+
+  const currentImage = bannerImages[activeImage] || bannerImages[0];
+  const currentImageUrl = resolveImageUrl(currentImage);
+
   const handlePublish = async () => {
     try {
       setSaving(true);
@@ -134,16 +153,18 @@ const PreviewTheme = ({ themeData, setThemeData, onBack }) => {
 
         {/* Banner */}
 
-        <div className="relative overflow-hidden rounded-2xl h-[360px]">
-          <img
-            src={
-              themeData.coverImages?.length
-                ? URL.createObjectURL(themeData.coverImages[activeImage])
-                : "/images/no-image.png"
-            }
-            alt=""
-            className="w-full h-full object-cover"
-          />
+        <div className="relative overflow-hidden rounded-2xl h-[360px] bg-[#FAF8F6]">
+          {currentImageUrl ? (
+            <img
+              src={currentImageUrl}
+              alt={themeData.title || "Theme Preview"}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-[#8B5A3C]">
+              No image available
+            </div>
+          )}
 
           {/* overlay */}
 
@@ -159,17 +180,20 @@ const PreviewTheme = ({ themeData, setThemeData, onBack }) => {
 
           {/* Slider dots */}
 
-          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2">
-            {themeData.coverImages.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setActiveImage(index)}
-                className={`w-2.5 h-2.5 rounded-full transition ${
-                  activeImage === index ? "bg-white w-6" : "bg-white/50"
-                }`}
-              />
-            ))}
-          </div>
+          {bannerImages.length > 1 && (
+            <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2">
+              {bannerImages.map((_, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() => setActiveImage(index)}
+                  className={`w-2.5 h-2.5 rounded-full transition ${
+                    activeImage === index ? "bg-white w-6" : "bg-white/50"
+                  }`}
+                />
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Items Heading */}
@@ -223,7 +247,14 @@ const PreviewTheme = ({ themeData, setThemeData, onBack }) => {
                     themeData.theme_items[section.key].map((item) => (
                       <div key={item.id} className="flex items-center gap-3">
                         <img
-                          src={item.thumbnail || item.image}
+                          src={
+                            item.ProductImage ||
+                            item.productImage ||
+                            item.thumbnail ||
+                            item.image ||
+                            item.product_details?.ProductImage ||
+                            ""
+                          }
                           className="w-12 h-12 rounded-lg object-cover"
                           alt=""
                         />

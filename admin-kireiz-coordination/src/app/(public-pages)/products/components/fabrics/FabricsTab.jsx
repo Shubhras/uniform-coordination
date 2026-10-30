@@ -8,12 +8,18 @@ import {
   FiTrash2,
   FiChevronLeft,
   FiChevronRight,
-  FiX, FiPlus
+  FiX,
+  FiPlus,
 } from "react-icons/fi";
+import Select from "react-select";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { toast } from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
-import { apiGetFabricList, apiDeleteFabric } from "@/services/FabricService";
+import {
+  apiGetFabricList,
+  apiDeleteFabric,
+  apiFabricCategoryList,
+} from "@/services/FabricService";
 import AddEditFabricModal from "./AddEditFabricModal";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 import Pagination from "@/components/ui/Pagination";
@@ -51,6 +57,61 @@ const FabricsTab = () => {
     total_items: 0,
   });
 
+  const [categoryOptions, setCategoryOptions] = useState([
+    { value: "", label: t("allCategories") },
+  ]);
+
+  const [category, setCategory] = useState({
+    value: "",
+    label: t("allCategories"),
+  });
+
+  /* ---------- SELECT STYLES ---------- */
+  const selectStyles = {
+    control: (base, state) => ({
+      ...base,
+      minHeight: "38px",
+      borderRadius: "6px",
+      borderColor: state.isFocused ? "#1C2C56" : "#00345F",
+      boxShadow: "none",
+      "&:hover": { borderColor: "#1C2C56" },
+    }),
+    option: (base, state) => ({
+      ...base,
+      backgroundColor: state.isSelected
+        ? "#1C2C56"
+        : state.isFocused
+          ? "#EEF2FF"
+          : "white",
+      color: state.isSelected ? "white" : "#1E293B",
+      fontSize: "14px",
+    }),
+    menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+  };
+
+  /* ---------- FETCH CATEGORIES ---------- */
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await apiFabricCategoryList(accessToken);
+        if (response?.status && response?.data) {
+          const opts = [
+            { value: "", label: t("allCategories") },
+            ...response.data.map((c) => ({
+              value: c.id,
+              label: c.categoryName,
+            })),
+          ];
+          setCategoryOptions(opts);
+        }
+      } catch (err) {
+        console.error("Failed to load categories:", err);
+      }
+    };
+
+    fetchCategories();
+  }, [accessToken, t]);
+
   // Modal states
   const [openAdd, setOpenAdd] = useState(false);
   const [editFabric, setEditFabric] = useState(null);
@@ -65,10 +126,12 @@ const FabricsTab = () => {
     async (page = 1) => {
       try {
         setLoading(true);
+        const catValue = category?.value || "";
         const response = await apiGetFabricList(
           page,
           pageSize,
           debouncedSearch,
+          catValue,
         );
 
         if (response?.status && response?.data) {
@@ -86,7 +149,7 @@ const FabricsTab = () => {
         setLoading(false);
       }
     },
-    [debouncedSearch, pageSize],
+    [category, debouncedSearch, pageSize],
   );
 
   useEffect(() => {
@@ -128,15 +191,25 @@ const FabricsTab = () => {
 
   // Local filter fallback
   const filteredFabrics = useMemo(() => {
-    if (!searchQuery) return fabrics;
+    let result = fabrics;
+    if (category?.value) {
+      result = result.filter(
+        (f) =>
+          f.category?.id === category.value ||
+          f.category_id === category.value ||
+          f.category === category.value,
+      );
+    }
+    if (!searchQuery) return result;
     const query = searchQuery.toLowerCase();
-    return fabrics.filter(
+    return result.filter(
       (f) =>
         f.fabricName?.toLowerCase().includes(query) ||
         f.color?.toLowerCase().includes(query) ||
-        f.materialType?.toLowerCase().includes(query),
+        f.materialType?.toLowerCase().includes(query) ||
+        f.category?.categoryName?.toLowerCase().includes(query),
     );
-  }, [fabrics, searchQuery]);
+  }, [fabrics, searchQuery, category]);
 
   return (
     <div className="bg-[#F4F7FC] rounded-xl shadow md:p-6 p-4">
@@ -163,29 +236,57 @@ const FabricsTab = () => {
         </button>
       </div>
 
-      {/* Search */}
-      <div className="relative w-full md:w-72 mb-4">
-        <FiSearch
-          className="absolute left-3 top-2.5 text-[#64748B]"
-          size={16}
-        />
-        <input
-          type="text"
-          placeholder={t("searchPlaceholder")}
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full border border-[#00345F] rounded-md pl-9 pr-3 py-2 text-sm"
-        />
+      {/* Search & Filter */}
+      <div className="flex flex-wrap gap-4 items-center mb-6">
+        <div className="relative w-full md:w-72">
+          <FiSearch
+            className="absolute left-3 top-2.5 text-[#64748B]"
+            size={16}
+          />
+          <input
+            type="text"
+            placeholder={t("searchPlaceholder")}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full border border-[#00345F] rounded-md pl-9 pr-3 py-2 text-sm"
+          />
 
-        {searchQuery && (
-          <button
-            type="button"
-            onClick={() => setSearchQuery("")}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B] hover:text-[#1C2C56]"
-          >
-            <FiX size={16} />
-          </button>
-        )}
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B] hover:text-[#1C2C56]"
+            >
+              <FiX size={16} />
+            </button>
+          )}
+        </div>
+
+        <Select
+          options={categoryOptions}
+          value={category}
+          onChange={(val) => {
+            setCategory(val);
+            setCurrentPage(1);
+          }}
+          styles={selectStyles}
+          menuPortalTarget={
+            typeof document !== "undefined" ? document.body : null
+          }
+          menuPosition="fixed"
+          className="w-48 text-sm"
+        />
+        <button
+          type="button"
+          onClick={() => {
+            setSearchQuery("");
+            setCategory(categoryOptions[0]);
+            setCurrentPage(1);
+          }}
+          className="border border-[#CBD5E1] px-4 py-2 rounded-md text-sm text-white bg-[#1C4FA8] hover:bg-[#163F86] transition-colors"
+        >
+          {t("reset")}
+        </button>
       </div>
 
       {/* Table */}

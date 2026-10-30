@@ -12,6 +12,7 @@ import { apiGetMaterialList } from "@/services/CategoryService";
 import { apiGetColorList } from "@/services/CategoryService";
 import { apiGetBrowseByColorProductData } from "@/services/ProductService";
 import { apiToggleProductFavourite } from "@/services/AuthProfileService";
+import Pagination from "@/components/ui/Pagination";
 
 /**
  * Filter tab navigation options for product categorization.
@@ -82,6 +83,9 @@ const BrowseCards = () => {
   const [colorData, setColorData] = useState([]);
   const [browseByColorProduct, setBrowseByColorProduct] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const pageSize = 8;
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedMaterial, setSelectedMaterial] = useState("");
   const [selectedType, setSelectedType] = useState("");
@@ -174,24 +178,31 @@ const BrowseCards = () => {
     fetchColorList();
   }, []);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategory, selectedMaterial, selectedColor, selectedType]);
+
   /**
-   * Effect hook to fetch filtered products whenever filter selections change.
+   * Effect hook to fetch filtered products whenever filter selections change or page changes.
    */
   useEffect(() => {
     const fetchBrowseByColorProductData = async () => {
       setLoading(true);
       try {
-        const response = await apiGetBrowseByColorProductData({
-          category_id: selectedCategory,
-          fabric_id: selectedMaterial,
-          color_id: selectedColor,
-          search: "",
-          isActive: true,
-          ordering: "",
-          type: selectedType,
-          page: 1,
-          page_size: 10,
-        }, session?.accessToken);
+        const response = await apiGetBrowseByColorProductData(
+          {
+            category_id: selectedCategory,
+            fabric_id: selectedMaterial,
+            color_id: selectedColor,
+            search: "",
+            isActive: true,
+            ordering: "",
+            type: selectedType,
+            page: currentPage,
+            page_size: pageSize,
+          },
+          session?.accessToken
+        );
 
         if (
           response &&
@@ -199,12 +210,20 @@ const BrowseCards = () => {
           Array.isArray(response.data)
         ) {
           setBrowseByColorProduct(response.data);
+          const total =
+            response.total_items ??
+            response.pagination?.total_items ??
+            response.count ??
+            response.data.length;
+          setTotalItems(total);
         } else {
           setBrowseByColorProduct([]);
+          setTotalItems(0);
         }
       } catch (error) {
         console.error("Error fetching products:", error);
         setBrowseByColorProduct([]);
+        setTotalItems(0);
       } finally {
         setLoading(false);
       }
@@ -216,6 +235,7 @@ const BrowseCards = () => {
     selectedMaterial,
     selectedColor,
     selectedType,
+    currentPage,
     refresh,
     session?.accessToken,
   ]);
@@ -272,6 +292,7 @@ const BrowseCards = () => {
             setActiveTab("");
             setCategorySearch("");
             setMaterialSearch("");
+            setCurrentPage(1);
             setRefresh((prev) => prev + 1);
           }}
           className="px-4 sm:px-5 py-2 rounded-lg font-medium text-xs sm:text-sm transition whitespace-nowrap text-[#A0522D] border border-[#A0522D] hover:bg-[#A0522D] hover:text-white"
@@ -627,73 +648,87 @@ const BrowseCards = () => {
         </section>
       ) : (
         /* Product Cards Grid */
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-5">
-          {browseByColorProduct.map((item, i) => (
-            <div
-              key={item.id || i}
-              className="group bg-[#EDEDED] border border-[#A0522D4F] rounded-br-4xl overflow-hidden shadow-lg hover:shadow-xl transition"
-            >
-              {/* <div className="relative h-[220px] sm:h-[260px] lg:h-[300px] overflow-hidden">
-                                <Image
-                                    src={item.ProductImage}
-                                    alt={item.productName}
-                                    fill
-                                    className="object-cover p-8 sm:p-10"
-                                    unoptimized
-                                />
-                            </div> */}
-              <div className="relative h-[220px] sm:h-[260px] lg:h-[300px] overflow-hidden">
-                {item.ProductImage ? (
-                  <Image
-                    src={item.ProductImage}
-                    alt={item.productName || "Product"}
-                    fill
-                    className="object-cover p-8 sm:p-10"
-                    unoptimized
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-gray-100 text-sm text-gray-500">
-                    No Image
-                  </div>
-                )}
-              </div>
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-5">
+            {browseByColorProduct.map((item, i) => (
+              <div
+                key={item.id || i}
+                className="group bg-[#EDEDED] border border-[#A0522D4F] rounded-br-4xl overflow-hidden shadow-lg hover:shadow-xl transition"
+              >
+                {/* <div className="relative h-[220px] sm:h-[260px] lg:h-[300px] overflow-hidden">
+                                  <Image
+                                      src={item.ProductImage}
+                                      alt={item.productName}
+                                      fill
+                                      className="object-cover p-8 sm:p-10"
+                                      unoptimized
+                                  />
+                              </div> */}
+                <div className="relative h-[220px] sm:h-[260px] lg:h-[300px] overflow-hidden">
+                  {item.ProductImage ? (
+                    <Image
+                      src={item.ProductImage}
+                      alt={item.productName || "Product"}
+                      fill
+                      className="object-cover p-8 sm:p-10"
+                      unoptimized
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-gray-100 text-sm text-gray-500">
+                      No Image
+                    </div>
+                  )}
+                </div>
 
-              <div className="p-4 bg-white">
-                <h3 className="font-semibold text-lg text-[#3B3B3B]">
-                  {item.productName}
-                </h3>
-                <p className="text-sm text-[#6B5D57] mb-6">
-                  Color : {item.color_details?.name || item.color}
-                </p>
-                <div className="flex items-center gap-3">
-                  <button
-                    className="flex-1 py-2 text-sm bg-[#A0614D] text-white rounded-lg hover:bg-[#8B4513] transition"
-                    onClick={() => previewInCanvas(item.id)}
-                  >
-                    Preview in Canvas
-                  </button>
-                  <button
-                    onClick={() => handleToggleFavourite(item.id)}
-                    className="p-1 rounded-full hover:bg-gray-100 transition"
-                    title={item.is_favourite ? "Remove from favorites" : "Add to favorites"}
-                  >
-                    {item.is_favourite ? (
-                      <FaHeart
-                        size={20}
-                        className="text-red-500 cursor-pointer"
-                      />
-                    ) : (
-                      <FaRegHeart
-                        size={20}
-                        className="text-black cursor-pointer hover:text-red-500 transition"
-                      />
-                    )}
-                  </button>
+                <div className="p-4 bg-white">
+                  <h3 className="font-semibold text-lg text-[#3B3B3B]">
+                    {item.productName}
+                  </h3>
+                  <p className="text-sm text-[#6B5D57] mb-6">
+                    Color : {item.color_details?.name || item.color}
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <button
+                      className="flex-1 py-2 text-sm bg-[#A0614D] text-white rounded-lg hover:bg-[#8B4513] transition"
+                      onClick={() => previewInCanvas(item.id)}
+                    >
+                      Preview in Canvas
+                    </button>
+                    <button
+                      onClick={() => handleToggleFavourite(item.id)}
+                      className="p-1 rounded-full hover:bg-gray-100 transition"
+                      title={item.is_favourite ? "Remove from favorites" : "Add to favorites"}
+                    >
+                      {item.is_favourite ? (
+                        <FaHeart
+                          size={20}
+                          className="text-red-500 cursor-pointer"
+                        />
+                      ) : (
+                        <FaRegHeart
+                          size={20}
+                          className="text-black cursor-pointer hover:text-red-500 transition"
+                        />
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
+            ))}
+          </div>
+
+          {/* Pagination at right side */}
+          {totalItems > pageSize && (
+            <div className="flex justify-end mt-8 mb-10">
+              <Pagination
+                currentPage={currentPage}
+                pageSize={pageSize}
+                total={totalItems}
+                onChange={(page) => setCurrentPage(page)}
+              />
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
     </section>
   );

@@ -281,7 +281,41 @@
         "tabs": {
             "generalSettings": "Configuración General",
             "paymentSettings": "Configuración de Pago",
-            "emailNotifications": "Correo y Notificaciones"
+            "emailNotifications": "Correo y Notificaciones",
+            "privacyPolicy": "Términos y Políticas",
+            "termsAndPolicy": "Términos y Políticas"
+        },
+        "policyTab": {
+            "privacyPolicy": "Política de Privacidad",
+            "termsAndConditions": "Términos y Condiciones",
+            "agreements": "Acuerdos",
+            "noDataAvailable": "No hay datos disponibles",
+            "noContentAvailable": "No hay contenido disponible.",
+            "add": "Agregar",
+            "edit": "Editar",
+            "active": "Activo",
+            "inactive": "Inactivo",
+            "form": {
+                "editTitle": "Editar {section}",
+                "createTitle": "Crear {section}",
+                "back": "Volver",
+                "titleLabel": "Título",
+                "titlePlaceholder": "ej. {section} para Space App",
+                "titleRequired": "El título es obligatorio",
+                "contentLabel": "Contenido",
+                "contentRequired": "El contenido es obligatorio",
+                "cancel": "Cancelar",
+                "updating": "Actualizando...",
+                "creating": "Creando...",
+                "updateBtn": "Actualizar {section}",
+                "createBtn": "Crear {section}",
+                "updateSuccess": "¡{section} actualizado con éxito!",
+                "createSuccess": "¡{section} creado con éxito!",
+                "updateFailed": "Error al actualizar {section}",
+                "createFailed": "Error al crear {section}",
+                "successTitle": "Éxito",
+                "errorTitle": "Error"
+            }
         },
         "generalSettings": {
             "companyNameLabel": "Nombre de la Empresa",

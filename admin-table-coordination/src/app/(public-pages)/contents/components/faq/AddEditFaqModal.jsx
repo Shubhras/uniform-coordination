@@ -85,8 +85,8 @@ const AddEditFaqModal = ({
         descriptions:
           initialData.descriptions?.length > 0
             ? initialData.descriptions.map((d) => ({
-                description: d.description || "",
-              }))
+              description: d.description || "",
+            }))
             : [{ description: "" }],
       });
     } else {
@@ -286,28 +286,27 @@ const AddEditFaqModal = ({
         </div>
 
         <div className="border-t px-6 py-4 flex justify-end sm:flex-row flex-col gap-3">
-          <Button
-            variant="plain"
+          <button
+
             onClick={onClose}
             size="sm"
             disabled={saving}
-            className="bg-blue-100 rounded-lg"
+            className="h-10 px-5 rounded-md border border-[#E9DDD3] bg-white text-[#6E6258] font-medium hover:bg-[#F8F3EF] transition"
           >
             {t("cancel")}
-          </Button>
+          </button>
 
-          <Button
-            variant="plain"
+          <button
             size="sm"
             // onClick={() => handleSave({ keepOpen: true })}
             onClick={handleSubmit((values) =>
               handleSave(values, { keepOpen: true }),
             )}
             disabled={saving}
-            className="bg-blue-100 rounded-lg"
+            className="h-10 px-5 rounded-md border border-[#E9DDD3] bg-white text-[#6E6258] font-medium hover:bg-[#F8F3EF] transition"
           >
             {t("saveAddAnother")}
-          </Button>
+          </button>
 
           <Button
             variant="solid"

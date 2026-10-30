@@ -46,12 +46,13 @@ import Drawer from "@/components/ui/Drawer";
 import Image from "next/image";
 import Link from "next/link";
 import { TbMenu2 } from "react-icons/tb";
+import { FiSidebar } from "react-icons/fi";
 import useCurrentSession from '@/utils/hooks/useCurrentSession'
 import NavList from '@/app/(public-pages)/header/NavList';
 import NavOtherList from '@/app/(public-pages)/header/NavOtherList';
 import AuthButtons from '@/app/(public-pages)/header/AuthButtons';
 import { IoClose } from 'react-icons/io5';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 const navMenu = [
     { title: "Home", value: "home", to: "home", url: "/table-form" },
     //   { title: "Table Design", value: "tableDesign", to: "tableDesign", url: "/" },
@@ -67,14 +68,15 @@ const Header = ({ toggleMode, mode }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [activeLoginUser, setActiveLoginUser] = useState("");
     const router = useRouter();
+    const pathname = usePathname();
     return (
         <header className="fixed inset-x-0 top-0 z-50 bg-[#E8B4A9]">
             <div className="mx-auto px-5 md:px-8 lg:px-12">
                 <div className="flex h-14 items-center justify-between">
 
-                    {/* LEFT: Hamburger + Logo */}
+                    {/* LEFT: Hamburger + Logo + Profile Quick Trigger */}
                     <div className="flex items-center gap-3">
-                        {/* Hamburger (sm & md only) */}
+                        {/* Hamburger (sm & md only) -> Site Navigation */}
                         <button
                             className="lg:hidden text-white text-2xl transition-transform duration-200"
                             onClick={() => setIsOpen((prev) => !prev)}
@@ -82,7 +84,6 @@ const Header = ({ toggleMode, mode }) => {
                         >
                             {isOpen ? <IoClose /> : <TbMenu2 />}
                         </button>
-
 
                         {/* Logo */}
                         <Image
@@ -94,6 +95,20 @@ const Header = ({ toggleMode, mode }) => {
                             onClick={() => router.push("/table-form")}
                             className="cursor-pointer"
                         />
+
+                        {/* Profile Sidebar Quick Toggle (sm & md only, on profile pages) */}
+                        {/* {pathname?.startsWith('/profile') && (
+                            <button
+                                type="button"
+                                className="lg:hidden flex items-center gap-1.5 text-white bg-white/20 hover:bg-white/30 px-2 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer"
+                                onClick={() => window.dispatchEvent(new CustomEvent('openProfileSidebar'))}
+                                title="Open Profile Menu"
+                                aria-label="Open profile menu"
+                            >
+                                <FiSidebar size={16} />
+                                <span className="hidden xs:inline">Profile</span>
+                            </button>
+                        )} */}
                     </div>
 
                     {/* CENTER: Desktop Nav */}

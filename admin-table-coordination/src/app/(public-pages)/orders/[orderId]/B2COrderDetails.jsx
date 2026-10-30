@@ -123,24 +123,24 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
 
   return (
     <>
-      <div className="min-h-screen bg-[#F8F7F5] p-6">
+      <div className="min-h-screen bg-[#F8F7F5] p-4 sm:p-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-wrap">
             <button
               onClick={() => router.back()}
-              className="w-9 h-9 rounded-full border border-[#E9DED4] bg-white flex items-center justify-center hover:bg-[#F8F3EE]"
+              className="w-9 h-9 rounded-full border border-[#E9DED4] bg-white flex items-center justify-center hover:bg-[#F8F3EE] shrink-0"
             >
               <FiArrowLeft className="text-lg text-[#5B4434]" />
             </button>
 
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-semibold text-[#222]">
+            <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
+              <h1 className="text-xl xs:text-2xl font-semibold text-[#222]">
                 {t("orderDetails")}
               </h1>
 
               <span
-                className={`px-3 py-1 rounded-lg border text-xs font-semibold capitalize
+                className={`px-3 py-1 rounded-lg border text-xs font-semibold capitalize whitespace-nowrap
     ${
       order?.status === "completed"
         ? "bg-[#E9F9F0] text-[#22A06B] border-[#22A06B]"
@@ -154,18 +154,12 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
             </div>
           </div>
 
-          {/* <button
-            onClick={handleAction}
-            className="bg-[#8C4A2F] text-white rounded-lg px-5 py-2 text-sm font-medium hover:bg-[#723A24]"
-          >
-            {currentAction.action}
-          </button> */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap shrink-0">
             {canCancelOrder && (
               <button
                 type="button"
                 onClick={() => setOpenCancelModal(true)}
-                className="rounded-lg border border-red-200 bg-white px-5 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50"
+                className="flex-1 sm:flex-none rounded-lg border border-red-200 bg-white px-4 sm:px-5 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 whitespace-nowrap"
               >
                 {t("cancelOrder")}
               </button>
@@ -174,7 +168,7 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
             {isCancelled ? (
               <button
                 type="button"
-                className="rounded-lg bg-[#A85A32] px-5 py-2.5 text-sm font-medium text-white"
+                className="flex-1 sm:flex-none rounded-lg bg-[#A85A32] px-4 sm:px-5 py-2.5 text-sm font-medium text-white whitespace-nowrap"
               >
                 Refund
               </button>
@@ -182,7 +176,7 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
               <button
                 type="button"
                 onClick={handleAction}
-                className="rounded-lg bg-[#A85A32] px-5 py-2.5 text-sm font-medium text-white"
+                className="flex-1 sm:flex-none rounded-lg bg-[#A85A32] px-4 sm:px-5 py-2.5 text-sm font-medium text-white whitespace-nowrap"
               >
                 {currentAction.action}
               </button>
@@ -192,7 +186,7 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
 
         {/* Top Cards */}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-6">
           {/* Customer */}
 
           <div className="bg-white rounded-xl border border-[#EEE] p-5">

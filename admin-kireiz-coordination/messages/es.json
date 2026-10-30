@@ -715,6 +715,8 @@
       "totalCount": "{count} fabrics total",
       "addNew": "Add New Fabric",
       "searchPlaceholder": "Search Fabrics...",
+      "allCategories": "All Categories",
+      "reset": "Reset",
       "successTitle": "Success",
       "tableHeaders": {
         "fabricName": "Fabric Name",

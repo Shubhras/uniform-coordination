@@ -1,6 +1,6 @@
 import ApiService from "./ApiService";
 
-export async function apiGetFabricList(page = 1, pageSize = 10, search = "") {
+export async function apiGetFabricList(page = 1, pageSize = 10, search = "", categoryId = "") {
   const params = new URLSearchParams({
     page,
     page_size: pageSize,
@@ -8,6 +8,10 @@ export async function apiGetFabricList(page = 1, pageSize = 10, search = "") {
 
   if (search) {
     params.append("search", search);
+  }
+
+  if (categoryId) {
+    params.append("category_id", categoryId);
   }
 
   return ApiService.fetchDataWithAxios({
@@ -39,12 +43,14 @@ export async function apiUpdateFabric(accessToken, id, payload) {
 }
 
 export async function apiFabricCategoryList(accessToken) {
+  const headers = {};
+  if (accessToken) {
+    headers.Authorization = `Bearer ${accessToken}`;
+  }
   return ApiService.fetchDataWithAxios({
     url: "/v1/uniformAdmin/categories/list/",
     method: "get",
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
+    headers,
   });
 }
 

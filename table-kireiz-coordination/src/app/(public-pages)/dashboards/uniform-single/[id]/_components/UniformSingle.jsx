@@ -515,16 +515,6 @@ const UniformSingle = () => {
                             </span>
                           </div>
                         )}
-                        {singleProductData.productType && (
-                          <div>
-                            <span className="text-gray-500 text-[15px]">
-                              Type:{" "}
-                            </span>
-                            <span className="font-medium text-gray-800 capitalize text-[15px]">
-                              {singleProductData.productType}
-                            </span>
-                          </div>
-                        )}
                       </div>
                     </div>
                   </div>

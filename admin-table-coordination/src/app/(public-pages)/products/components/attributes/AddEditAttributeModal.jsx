@@ -349,7 +349,7 @@ const AddEditAttributeModal = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 h-10 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+              className="h-10 px-5 rounded-md border border-[#E9DDD3] bg-white text-[#6E6258] font-medium hover:bg-[#F8F3EF] transition"
             >
               {t("cancel")}
             </button>

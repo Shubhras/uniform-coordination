@@ -126,6 +126,17 @@ export default function InventoryItemsModal({ isOpen, onClose, onAdd }) {
     })),
   ];
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const selectStyles = {
@@ -154,6 +165,11 @@ export default function InventoryItemsModal({ isOpen, onClose, onAdd }) {
       ...base,
       zIndex: 9999,
     }),
+
+    menuPortal: (base) => ({
+      ...base,
+      zIndex: 9999,
+    }),
   };
 
   const handleSelect = (item) => {
@@ -169,11 +185,11 @@ export default function InventoryItemsModal({ isOpen, onClose, onAdd }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 sm:p-6 overflow-y-auto">
+      <div className="bg-white w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] my-auto">
         {/* Header */}
 
-        <div className="flex justify-between items-start px-6 py-5 border-b">
+        <div className="flex justify-between items-start px-6 py-5 border-b shrink-0">
           <div>
             <h2 className="text-lg font-semibold text-[#1A1410]">
               {t("addInvItems")}
@@ -184,17 +200,17 @@ export default function InventoryItemsModal({ isOpen, onClose, onAdd }) {
             </p>
           </div>
 
-          <button onClick={onClose}>
+          <button onClick={onClose} className="p-1 text-gray-400 hover:text-gray-600 transition-colors">
             <FiX size={20} />
           </button>
         </div>
 
         {/* Body */}
 
-        <div className="p-5">
+        <div className="p-5 flex-1 min-h-0 flex flex-col overflow-hidden">
           {/* Search */}
 
-          <div className="relative mb-4">
+          <div className="relative mb-4 shrink-0">
             <FiSearch
               className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
               size={16}
@@ -210,7 +226,7 @@ export default function InventoryItemsModal({ isOpen, onClose, onAdd }) {
 
           {/* Filters */}
 
-          <div className="flex gap-3 mb-4">
+          <div className="flex gap-3 mb-4 shrink-0">
             <div className="flex-1">
               <Select
                 value={category}
@@ -218,6 +234,7 @@ export default function InventoryItemsModal({ isOpen, onClose, onAdd }) {
                 options={categoryOptions}
                 styles={selectStyles}
                 isSearchable={false}
+                menuPortalTarget={typeof document !== "undefined" ? document.body : null}
               />
             </div>
 
@@ -228,18 +245,18 @@ export default function InventoryItemsModal({ isOpen, onClose, onAdd }) {
                 options={materialOptions}
                 styles={selectStyles}
                 isSearchable={false}
+                menuPortalTarget={typeof document !== "undefined" ? document.body : null}
               />
             </div>
           </div>
 
           {/* Count */}
 
-          <div className="flex justify-between text-[13px] text-[#8A8078] mb-3">
+          <div className="flex justify-between text-[13px] text-[#8A8078] mb-3 shrink-0">
             <span>
               {inventoryData.length} {t("reuslts")}
             </span>
 
-            {/* <span>{selected ? "1 selected" : "0 selected"}</span> */}
             <span>
               {selected.length} {t("selected")}
             </span>
@@ -247,20 +264,18 @@ export default function InventoryItemsModal({ isOpen, onClose, onAdd }) {
 
           {/* List */}
 
-          <div className="space-y-3 max-h-[380px] overflow-y-auto pr-1">
+          <div className="space-y-3 overflow-y-auto pr-1 flex-1 min-h-0">
             {loading ? (
               <div className="flex justify-center items-center h-[180px]">
                 <Spinner size={40} customColorClass="text-[#A0522D]" />
               </div>
             ) : inventoryData.length > 0 ? (
               inventoryData.map((item) => {
-                // const active = selected?.id === item.id;
                 const active = selected.some((i) => i.id === item.id);
 
                 return (
                   <div
                     key={item.id}
-                    // onClick={() => setSelected(item)}
                     onClick={() => handleSelect(item)}
                     className={`flex items-center justify-between rounded-2xl border px-4 py-3 cursor-pointer transition ${
                       active
@@ -307,28 +322,23 @@ export default function InventoryItemsModal({ isOpen, onClose, onAdd }) {
         </div>
         {/* Footer */}
 
-        <div className="border-t px-5 py-4 flex gap-4 bg-white">
+        <div className="border-t px-5 py-4 flex gap-4 bg-white shrink-0">
           <button
             onClick={onClose}
-            className="flex-1 h-11 rounded-xl border border-[#E6DDD6] font-medium"
+            className="flex-1 h-11 rounded-xl border border-[#E6DDD6] font-medium hover:bg-gray-50 transition"
           >
             {t("cancel")}
           </button>
 
           <button
-            // onClick={() => {
-            //   if (!selected) return;
-
-            //   onAdd(selected);
-            // }}
             onClick={() => {
               if (!selected.length) return;
 
               onAdd(selected);
             }}
-            className="flex-1 h-11 rounded-xl bg-[#A0522D] text-white font-medium hover:bg-[#8D4524]"
+            className="flex-1 h-11 rounded-xl bg-[#A0522D] text-white font-medium hover:bg-[#8D4524] transition disabled:opacity-50"
+            disabled={!selected.length}
           >
-            {/* Add Selected ({selected ? 1 : 0}) */}
             {t("addSelected")} ({selected.length})
           </button>
         </div>

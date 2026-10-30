@@ -97,7 +97,7 @@ const config = {
 		},
 	},
 	plugins: [
-        require('@tailwindcss/typography'),
+		require('@tailwindcss/typography'),
 	],
 };
 module.exports = config;

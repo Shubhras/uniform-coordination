@@ -1605,7 +1605,41 @@
         "tabs": {
             "generalSettings": "一般設定",
             "paymentSettings": "支払い設定",
-            "emailNotifications": "メールと通知"
+            "emailNotifications": "メールと通知",
+            "privacyPolicy": "利用規約とポリシー",
+            "termsAndPolicy": "利用規約とポリシー"
+        },
+        "policyTab": {
+            "privacyPolicy": "プライバシーポリシー",
+            "termsAndConditions": "利用規約",
+            "agreements": "合意事項",
+            "noDataAvailable": "データがありません",
+            "noContentAvailable": "利用可能なコンテンツはありません。",
+            "add": "追加",
+            "edit": "編集",
+            "active": "有効",
+            "inactive": "無効",
+            "form": {
+                "editTitle": "{section}の編集",
+                "createTitle": "{section}の作成",
+                "back": "戻る",
+                "titleLabel": "タイトル",
+                "titlePlaceholder": "例: Space Appの{section}",
+                "titleRequired": "タイトルは必須です",
+                "contentLabel": "本文",
+                "contentRequired": "本文は必須です",
+                "cancel": "キャンセル",
+                "updating": "更新中...",
+                "creating": "作成中...",
+                "updateBtn": "{section}を更新",
+                "createBtn": "{section}を作成",
+                "updateSuccess": "{section}が正常に更新されました！",
+                "createSuccess": "{section}が正常に作成されました！",
+                "updateFailed": "{section}の更新に失敗しました",
+                "createFailed": "{section}の作成に失敗しました",
+                "successTitle": "成功",
+                "errorTitle": "エラー"
+            }
         },
         "generalSettings": {
             "companyNameLabel": "会社名",

@@ -56,16 +56,16 @@ const InventoryManagement = () => {
   };
 
   return (
-    <div className="px-3 md:px-4 lg:px-8 py-6 bg-white min-h-screen">
+    <div className="px-3 xs:px-4 sm:px-6 lg:px-8 py-4 sm:py-6 bg-white min-h-screen">
       {!isDetailMode && (
         <>
-          <div className="flex items-start justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-[28px] font-semibold text-[#1A1410]">
+              <h1 className="text-xl xs:text-2xl sm:text-[28px] font-semibold text-[#1A1410] tracking-tight">
                 {t("invenotyrTitle")}
               </h1>
 
-              <p className="text-[16px] text-[#757575] mt-1">
+              <p className="text-sm sm:text-[16px] text-[#757575] mt-1 max-w-2xl">
                 {t("inventoryContent")}
               </p>
             </div>
@@ -73,10 +73,10 @@ const InventoryManagement = () => {
             {activeTab === "inventory" && (
               <button
                 onClick={() => router.push("/inventory-management/add")}
-                className="flex items-center gap-2 bg-[#A85A32] hover:bg-[#8F4D2A] text-white px-3 py-2 rounded-lg font-medium transition"
+                className="flex items-center justify-center gap-2 bg-[#A85A32] hover:bg-[#8F4D2A] text-white px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-lg text-sm sm:text-base font-medium transition shrink-0 self-start sm:self-auto shadow-sm"
               >
                 <FiPlus size={18} />
-                {t("add")}
+                <span>{t("add")}</span>
               </button>
             )}
           </div>

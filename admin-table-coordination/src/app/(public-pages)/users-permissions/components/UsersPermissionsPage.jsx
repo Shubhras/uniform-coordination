@@ -281,8 +281,8 @@ const UsersPermissionsPage = () => {
       key === "Users"
         ? "customers"
         : key === "Permissions"
-        ? "permissions"
-        : "admin-users";
+          ? "permissions"
+          : "admin-users";
     router.replace(`/users-permissions?tab=${param}`, { scroll: false });
   };
 
@@ -915,16 +915,16 @@ const UsersPermissionsPage = () => {
   return (
     <div className="min-h-screen bg-white px-4 py-6 sm:px-6 sm:py-8">
       {/* Title & Description */}
-      <h1 className="text-[30px] font-semibold leading-tight text-[#2A211D]">
+      <h1 className="text-xl xs:text-2xl sm:text-[30px] font-semibold leading-tight text-[#2A211D] tracking-tight">
         {t("title") || "Users & Permissions"}
       </h1>
-      <p className="mt-1 text-[13px] text-[#B29D8C]">
+      <p className="mt-1 text-xs sm:text-[13px] text-[#B29D8C]">
         {t("subtitle") ||
           "Manage administrator and staff accounts, customer profiles, and system role permissions."}
       </p>
 
       {/* Navigation Tabs */}
-      <div className="mt-5 flex gap-8 border-b border-[#E8DDD4]">
+      <div className="mt-5 flex gap-6 sm:gap-8 border-b border-[#E8DDD4] overflow-x-auto">
         {[
           { key: "AdminUsers", label: t("adminUsers") || "Admin Users" },
           { key: "Users", label: t("customers") || "Customers" },
@@ -950,8 +950,8 @@ const UsersPermissionsPage = () => {
       {activeTab === "AdminUsers" && (
         <>
           {/* Controls bar */}
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mt-5">
-            <div className="relative w-full lg:max-w-xl">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mt-5">
+            <div className="relative w-full lg:max-w-md xl:max-w-lg">
               <FiSearch
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A85A32B2]"
                 size={16}
@@ -965,6 +965,7 @@ const UsersPermissionsPage = () => {
               />
               {adminSearchQuery && (
                 <button
+                  type="button"
                   onClick={() => setAdminSearchQuery("")}
                   className="absolute right-3 top-1/2 -translate-y-1/2"
                 >
@@ -975,7 +976,7 @@ const UsersPermissionsPage = () => {
 
             <div className="flex flex-wrap items-center gap-3">
               {/* Role filter */}
-              <div className="w-48">
+              <div className="w-full sm:w-44 flex-1 sm:flex-initial min-w-[130px]">
                 <Select
                   // value={adminRoleFilter}
                   value={
@@ -991,7 +992,7 @@ const UsersPermissionsPage = () => {
               </div>
 
               {/* Status filter */}
-              <div className="w-40">
+              <div className="w-full sm:w-40 flex-1 sm:flex-initial min-w-[130px]">
                 <Select
                   // value={adminStatusFilter}
                   value={
@@ -1010,10 +1011,10 @@ const UsersPermissionsPage = () => {
               <button
                 type="button"
                 onClick={handleAdminReset}
-                className="flex h-10 items-center gap-2 rounded-lg border border-[#EFE5DD] bg-white px-4 text-sm font-medium text-[#C08457] transition hover:bg-[#FCF7F3]"
+                className="flex h-10 items-center justify-center gap-2 rounded-lg border border-[#EFE5DD] bg-white px-4 text-sm font-medium text-[#C08457] transition hover:bg-[#FCF7F3] shrink-0"
               >
                 <FiRotateCcw size={14} />
-                {t("reset")}
+                <span>{t("reset")}</span>
               </button>
 
               {/* Add Admin User button */}
@@ -1024,10 +1025,10 @@ const UsersPermissionsPage = () => {
                   setCreateAdminError("");
                   setAdminFormErrors({});
                 }}
-                className="flex h-10 items-center gap-2 rounded-lg bg-[#A0522D] hover:bg-[#854122] px-4 text-sm font-medium text-white transition shadow-sm whitespace-nowrap"
+                className="flex h-10 items-center justify-center gap-2 rounded-lg bg-[#A0522D] hover:bg-[#854122] px-4 text-sm font-medium text-white transition shadow-sm whitespace-nowrap shrink-0 w-full sm:w-auto"
               >
                 <FiPlus size={16} />
-                {t("addAdminStaff")}
+                <span>{t("addAdminStaff")}</span>
               </button>
             </div>
           </div>
@@ -1193,8 +1194,8 @@ const UsersPermissionsPage = () => {
       {/* ======================================================== */}
       {activeTab === "Users" && (
         <>
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mt-5">
-            <div className="relative w-full lg:max-w-xl">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mt-5">
+            <div className="relative w-full lg:max-w-md xl:max-w-lg">
               <FiSearch
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A85A32B2]"
                 size={16}
@@ -1204,10 +1205,11 @@ const UsersPermissionsPage = () => {
                 placeholder={t("searchUsers") || "Search Customers..."}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-10 border border-[#D1D5DB] text-[#A85A32B2] rounded-lg pl-10 pr-10 outline-none focus:border-[#A85A32B2]"
+                className="w-full h-10 border border-[#D1D5DB] text-[#2A211D] text-sm rounded-lg pl-10 pr-10 outline-none focus:border-[#A85A32B2]"
               />
               {searchQuery && (
                 <button
+                  type="button"
                   onClick={() => setSearchQuery("")}
                   className="absolute right-3 top-1/2 -translate-y-1/2"
                 >
@@ -1216,58 +1218,62 @@ const UsersPermissionsPage = () => {
               )}
             </div>
 
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-              <div className="flex gap-3">
-                <div className="w-52">
-                  <Select
-                    // value={status}
-                    value={
-                      statusOptions.find(
-                        (option) => option.value === status.value,
-                      ) || statusOptions[0]
-                    }
-                    onChange={setStatus}
-                    options={statusOptions}
-                    styles={selectStyles}
-                    isSearchable={false}
-                  />
-                </div>
-
-                <div className="w-52">
-                  <Select
-                    // value={userType}
-                    value={
-                      typeOptions.find(
-                        (option) => option.value === userType.value,
-                      ) || typeOptions[0]
-                    }
-                    onChange={setUserType}
-                    options={typeOptions}
-                    styles={selectStyles}
-                    isSearchable={false}
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={handleReset}
-                  className="flex h-10 items-center gap-2 rounded-lg border border-[#EFE5DD] bg-white px-4 text-sm font-medium text-[#C08457] transition hover:bg-[#FCF7F3]"
-                >
-                  <FiRotateCcw size={14} />
-                  {t("reset") || "Reset"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsAddUserModalOpen(true);
-                    setCreateUserError("");
-                    setUserFormErrors({});
-                  }}
-                  className="flex h-10 items-center gap-2 rounded-lg bg-[#A0522D] hover:bg-[#854122] px-4 text-sm font-medium text-white transition shadow-sm whitespace-nowrap"
-                >
-                  <FiPlus size={16} />
-                  {t("addCustomer")}
-                </button>
+            <div className="flex flex-wrap items-center gap-3">
+              {/* Status filter */}
+              <div className="w-full sm:w-44 flex-1 sm:flex-initial min-w-[130px]">
+                <Select
+                  // value={status}
+                  value={
+                    statusOptions.find(
+                      (option) => option.value === status.value,
+                    ) || statusOptions[0]
+                  }
+                  onChange={setStatus}
+                  options={statusOptions}
+                  styles={selectStyles}
+                  isSearchable={false}
+                />
               </div>
+
+              {/* Type filter */}
+              <div className="w-full sm:w-44 flex-1 sm:flex-initial min-w-[130px]">
+                <Select
+                  // value={userType}
+                  value={
+                    typeOptions.find(
+                      (option) => option.value === userType.value,
+                    ) || typeOptions[0]
+                  }
+                  onChange={setUserType}
+                  options={typeOptions}
+                  styles={selectStyles}
+                  isSearchable={false}
+                />
+              </div>
+
+              {/* Reset button */}
+              <button
+                type="button"
+                onClick={handleReset}
+                className="flex h-10 items-center justify-center gap-2 rounded-lg border border-[#EFE5DD] bg-white px-4 text-sm font-medium text-[#C08457] transition hover:bg-[#FCF7F3] shrink-0"
+              >
+                <FiRotateCcw size={14} />
+                <span>{t("reset") || "Reset"}</span>
+              </button>
+
+              {/* Add Customer button */}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsAddUserModalOpen(true);
+                  setCreateUserError("");
+                  setUserFormErrors({});
+                }}
+                className="flex h-10 items-center justify-center gap-2 rounded-lg bg-[#A0522D] hover:bg-[#854122] px-4 text-sm font-medium text-white transition shadow-sm whitespace-nowrap shrink-0 w-full sm:w-auto"
+              >
+                <FiPlus size={16} />
+                <span>{t("addCustomer")}</span>
+              </button>
             </div>
           </div>
 
@@ -1475,11 +1481,10 @@ const UsersPermissionsPage = () => {
                   }
                 }}
                 placeholder={t("fullNamePlaceholder")}
-                className={`w-full px-3 py-2 rounded-lg border text-sm outline-none ${
-                  adminFormErrors.name
-                    ? "border-red-500 focus:border-red-500"
-                    : "border-[#D1D5DB] focus:border-[#A0522D]"
-                }`}
+                className={`w-full px-3 py-2 rounded-lg border text-sm outline-none ${adminFormErrors.name
+                  ? "border-red-500 focus:border-red-500"
+                  : "border-[#D1D5DB] focus:border-[#A0522D]"
+                  }`}
               />
               {adminFormErrors.name && (
                 <p className="text-red-500 text-xs mt-1">{adminFormErrors.name}</p>
@@ -1500,11 +1505,10 @@ const UsersPermissionsPage = () => {
                   }
                 }}
                 placeholder={t("emailPlaceholder")}
-                className={`w-full px-3 py-2 rounded-lg border text-sm outline-none ${
-                  adminFormErrors.email
-                    ? "border-red-500 focus:border-red-500"
-                    : "border-[#D1D5DB] focus:border-[#A0522D]"
-                }`}
+                className={`w-full px-3 py-2 rounded-lg border text-sm outline-none ${adminFormErrors.email
+                  ? "border-red-500 focus:border-red-500"
+                  : "border-[#D1D5DB] focus:border-[#A0522D]"
+                  }`}
               />
               {adminFormErrors.email && (
                 <p className="text-red-500 text-xs mt-1">{adminFormErrors.email}</p>
@@ -1525,11 +1529,10 @@ const UsersPermissionsPage = () => {
                   }
                 }}
                 placeholder={t("passwordPlaceholder")}
-                className={`w-full px-3 py-2 rounded-lg border text-sm outline-none ${
-                  adminFormErrors.password
-                    ? "border-red-500 focus:border-red-500"
-                    : "border-[#D1D5DB] focus:border-[#A0522D]"
-                }`}
+                className={`w-full px-3 py-2 rounded-lg border text-sm outline-none ${adminFormErrors.password
+                  ? "border-red-500 focus:border-red-500"
+                  : "border-[#D1D5DB] focus:border-[#A0522D]"
+                  }`}
               />
               {adminFormErrors.password ? (
                 <p className="text-red-500 text-xs mt-1">{adminFormErrors.password}</p>
@@ -1559,11 +1562,10 @@ const UsersPermissionsPage = () => {
                     }
                   }}
                   placeholder="+81..."
-                  className={`w-full px-3 py-2 rounded-lg border text-sm outline-none ${
-                    adminFormErrors.mobile
-                      ? "border-red-500 focus:border-red-500"
-                      : "border-[#D1D5DB] focus:border-[#A0522D]"
-                  }`}
+                  className={`w-full px-3 py-2 rounded-lg border text-sm outline-none ${adminFormErrors.mobile
+                    ? "border-red-500 focus:border-red-500"
+                    : "border-[#D1D5DB] focus:border-[#A0522D]"
+                    }`}
                 />
                 {adminFormErrors.mobile ? (
                   <p className="text-red-500 text-xs mt-1">{adminFormErrors.mobile}</p>
@@ -1586,11 +1588,10 @@ const UsersPermissionsPage = () => {
                       setAdminFormErrors((prev) => ({ ...prev, role: "" }));
                     }
                   }}
-                  className={`w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white font-medium ${
-                    adminFormErrors.role
-                      ? "border-red-500 focus:border-red-500"
-                      : "border-[#D1D5DB] focus:border-[#A0522D]"
-                  }`}
+                  className={`w-full px-3 py-2 rounded-lg border text-sm outline-none bg-white font-medium ${adminFormErrors.role
+                    ? "border-red-500 focus:border-red-500"
+                    : "border-[#D1D5DB] focus:border-[#A0522D]"
+                    }`}
                 >
                   <option value="staff">{t("roleStaffOperational")}</option>
                   <option value="admin">{t("roleAdminFullAccess")}</option>
@@ -1922,11 +1923,10 @@ const UsersPermissionsPage = () => {
                   }
                 }}
                 placeholder={t("customerEmailPlaceholder")}
-                className={`w-full px-3 py-2 rounded-lg border text-sm outline-none ${
-                  userFormErrors.email
-                    ? "border-red-500 focus:border-red-500"
-                    : "border-[#D1D5DB] focus:border-[#A0522D]"
-                }`}
+                className={`w-full px-3 py-2 rounded-lg border text-sm outline-none ${userFormErrors.email
+                  ? "border-red-500 focus:border-red-500"
+                  : "border-[#D1D5DB] focus:border-[#A0522D]"
+                  }`}
               />
               {userFormErrors.email && (
                 <p className="text-red-500 text-xs mt-1">{userFormErrors.email}</p>
@@ -1947,11 +1947,10 @@ const UsersPermissionsPage = () => {
                   }
                 }}
                 placeholder={t("customerPasswordPlaceholder")}
-                className={`w-full px-3 py-2 rounded-lg border text-sm outline-none ${
-                  userFormErrors.password
-                    ? "border-red-500 focus:border-red-500"
-                    : "border-[#D1D5DB] focus:border-[#A0522D]"
-                }`}
+                className={`w-full px-3 py-2 rounded-lg border text-sm outline-none ${userFormErrors.password
+                  ? "border-red-500 focus:border-red-500"
+                  : "border-[#D1D5DB] focus:border-[#A0522D]"
+                  }`}
               />
               {userFormErrors.password ? (
                 <p className="text-red-500 text-xs mt-1">{userFormErrors.password}</p>
@@ -1981,11 +1980,10 @@ const UsersPermissionsPage = () => {
                     }
                   }}
                   placeholder="+81..."
-                  className={`w-full px-3 py-2 rounded-lg border text-sm outline-none ${
-                    userFormErrors.phone
-                      ? "border-red-500 focus:border-red-500"
-                      : "border-[#D1D5DB] focus:border-[#A0522D]"
-                  }`}
+                  className={`w-full px-3 py-2 rounded-lg border text-sm outline-none ${userFormErrors.phone
+                    ? "border-red-500 focus:border-red-500"
+                    : "border-[#D1D5DB] focus:border-[#A0522D]"
+                    }`}
                 />
                 {userFormErrors.phone ? (
                   <p className="text-red-500 text-xs mt-1">{userFormErrors.phone}</p>
