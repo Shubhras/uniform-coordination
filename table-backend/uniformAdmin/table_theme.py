@@ -7,7 +7,7 @@ from .authentication import StaffJWTAuthentication
 from django.db import transaction
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiTypes, OpenApiExample, OpenApiResponse
 
-from .models import TableTheme, ThemeCoverImage, ThemeItem
+from .models import TableTheme, ThemeCoverImage, ThemeItem, Product
 from .serializers import TableThemeSerializer
 from uniformAdmin.fabric import CustomPagination
 from rest_framework.pagination import PageNumberPagination
@@ -50,18 +50,32 @@ class TableThemeCreateAPIView(APIView):
                         ThemeCoverImage.objects.create(theme=theme, image=img)
                         
                     # Handle theme items builder
-                    theme_items_json = request.data.get('theme_items')
-                    if theme_items_json:
+                    theme_items_raw = request.data.get('theme_items')
+                    if theme_items_raw:
                         try:
-                            items_data = json.loads(theme_items_json)
+                            if isinstance(theme_items_raw, str):
+                                items_data = json.loads(theme_items_raw)
+                            elif isinstance(theme_items_raw, list):
+                                items_data = theme_items_raw
+                            else:
+                                items_data = []
+
                             for item in items_data:
-                                ThemeItem.objects.create(
+                                if not isinstance(item, dict):
+                                    continue
+                                product_id = item.get('product_id') or item.get('product')
+                                section = item.get('section')
+                                if not product_id or not section:
+                                    continue
+                                if not Product.objects.filter(id=product_id, isDeleted=False).exists():
+                                    continue
+                                ThemeItem.objects.get_or_create(
                                     theme=theme,
-                                    product_id=item.get('product_id'),
-                                    section=item.get('section')
+                                    product_id=product_id,
+                                    section=section
                                 )
                         except Exception as e:
-                            pass # For simplicity in this iteration
+                            pass
 
                     # Re-serialize to include newly created nested objects
                     response_serializer = TableThemeSerializer(theme, context={"request": request})
@@ -171,12 +185,36 @@ class TableThemeListAPIView(APIView):
                 context={"request": request}
             )
 
-            return paginator.get_paginated_response({
+            page_number = paginator.page.number if paginator.page else 1
+            page_size = paginator.get_page_size(request) or 10
+            total_items = paginator.page.paginator.count if paginator.page else queryset.count()
+            total_pages = paginator.page.paginator.num_pages if paginator.page else 1
+
+            return Response({
                 "statusCode": 200,
                 "status": True,
                 "message": "Table Themes fetched successfully.",
-                "data": serializer.data
-            })
+                "count": total_items,
+                "next": paginator.get_next_link(),
+                "previous": paginator.get_previous_link(),
+                "page": page_number,
+                "page_size": page_size,
+                "total_pages": total_pages,
+                "total_items": total_items,
+                "pagination": {
+                    "page": page_number,
+                    "page_size": page_size,
+                    "total_pages": total_pages,
+                    "total_items": total_items,
+                },
+                "data": serializer.data,
+                "results": {
+                    "statusCode": 200,
+                    "status": True,
+                    "message": "Table Themes fetched successfully.",
+                    "data": serializer.data
+                }
+            }, status=status.HTTP_200_OK)
 
         except Exception as e:
             return Response({
@@ -263,24 +301,39 @@ class TableThemeUpdateAPIView(APIView):
                 if serializer.is_valid():
                     theme = serializer.save()
                     
-                    # Handle cover images append/replace (for now append, but typically we might provide an API to delete specific ones)
+                    # Handle cover images append/replace
                     cover_images = request.FILES.getlist('cover_images')
                     if cover_images:
                         for img in cover_images:
                             ThemeCoverImage.objects.create(theme=theme, image=img)
                             
-                    # Handle theme items builder updates (Replacing all for simplicity if provided)
-                    theme_items_json = request.data.get('theme_items')
-                    if theme_items_json:
+                    # Handle theme items builder updates
+                    theme_items_raw = request.data.get('theme_items')
+                    if theme_items_raw is not None:
                         try:
-                            items_data = json.loads(theme_items_json)
-                            ThemeItem.objects.filter(theme=theme).delete() # clear existing
-                            for item in items_data:
-                                ThemeItem.objects.create(
-                                    theme=theme,
-                                    product_id=item.get('product_id'),
-                                    section=item.get('section')
-                                )
+                            if isinstance(theme_items_raw, str):
+                                items_data = json.loads(theme_items_raw)
+                            elif isinstance(theme_items_raw, list):
+                                items_data = theme_items_raw
+                            else:
+                                items_data = []
+
+                            if isinstance(items_data, list):
+                                ThemeItem.objects.filter(theme=theme).delete() # clear existing
+                                for item in items_data:
+                                    if not isinstance(item, dict):
+                                        continue
+                                    product_id = item.get('product_id') or item.get('product')
+                                    section = item.get('section')
+                                    if not product_id or not section:
+                                        continue
+                                    if not Product.objects.filter(id=product_id, isDeleted=False).exists():
+                                        continue
+                                    ThemeItem.objects.get_or_create(
+                                        theme=theme,
+                                        product_id=product_id,
+                                        section=section
+                                    )
                         except Exception as e:
                             pass
                             
@@ -293,12 +346,12 @@ class TableThemeUpdateAPIView(APIView):
                         "data": response_serializer.data
                     }, status=status.HTTP_200_OK)
 
-            return Response({
-                "status": False,
-                "statusCode": 400,
-                "message": "Validation error",
-                "errors": serializer.errors
-            }, status=status.HTTP_400_BAD_REQUEST)
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "Validation error",
+                    "errors": serializer.errors
+                }, status=status.HTTP_400_BAD_REQUEST)
 
         except TableTheme.DoesNotExist:
             return Response({
@@ -306,6 +359,13 @@ class TableThemeUpdateAPIView(APIView):
                 "statusCode": 404,
                 "message": "Table theme not found"
             }, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": f"Server error while updating table theme: {str(e)}",
+                "error": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 
 class TableThemeDeleteAPIView(APIView):

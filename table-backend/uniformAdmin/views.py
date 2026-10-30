@@ -369,13 +369,28 @@ class AdminListProductsAPIView(APIView):
                 context={"request": request}
             )
 
+            page_number = pagination.page.number if pagination.page else 1
+            page_size = pagination.get_page_size(request) or 10
+            total_items = pagination.page.paginator.count if pagination.page else products.count()
+            total_pages = pagination.page.paginator.num_pages if pagination.page else 1
+
             return Response({
                 "status": True,
                 "statusCode": 200,
                 "message": "Products fetched successfully.",
-                "count": pagination.page.paginator.count,
+                "count": total_items,
                 "next": pagination.get_next_link(),
                 "previous": pagination.get_previous_link(),
+                "page": page_number,
+                "page_size": page_size,
+                "total_pages": total_pages,
+                "total_items": total_items,
+                "pagination": {
+                    "page": page_number,
+                    "page_size": page_size,
+                    "total_pages": total_pages,
+                    "total_items": total_items,
+                },
                 "data": serializer.data
             }, status=status.HTTP_200_OK)
 
