@@ -828,10 +828,10 @@ const Uniform3DmoduleDegisn = () => {
     singleProductData?.cover_image;
 
   return (
-    <section className="w-full mx-auto bg-white flex flex-col px-6 lg:px-4 py-4 gap-10 mt-15">
-      <div className="flex gap-6">
-        {/* Left Toolbar: Navigation Selector */}
-        <div className="w-[80px] flex flex-col items-center gap-4 py-4">
+    <section className="w-full max-w-[1920px] mx-auto bg-white flex flex-col px-3 sm:px-6 lg:px-8 py-4 gap-4 lg:gap-8 mt-15">
+      <div className="w-full flex flex-col lg:flex-row gap-4 lg:gap-6 items-start">
+        {/* Navigation Selector Toolbar */}
+        <div className="w-full lg:w-[80px] shrink-0 flex flex-row lg:flex-col items-center justify-center lg:justify-start gap-2 sm:gap-3 lg:gap-4 py-2 lg:py-4 order-2 lg:order-1 overflow-x-auto">
           {[
             { key: "tableShape", label: "Table Shape", icon: FiTag },
             { key: "category", label: "Categories", icon: FiLayers },
@@ -851,16 +851,16 @@ const Uniform3DmoduleDegisn = () => {
               <button
                 key={item.key}
                 onClick={() => onIconClick(item.key)}
-                className={`w-[75px] h-[100px] rounded-lg p-2 flex flex-col justify-center items-center transition ${isActive
-                  ? "border-l-[0px] border-b-[0px] border-t-[3.5px] border-r-[3.5px] border-[#A0522D] shadow-md bg-white"
-                  : "bg-white border border-gray-200 shadow-sm hover:bg-gray-50"
+                className={`flex-1 sm:flex-initial max-w-[130px] sm:max-w-[160px] lg:w-[75px] h-[65px] sm:h-[75px] lg:h-[100px] rounded-xl p-2 flex flex-col justify-center items-center transition ${isActive
+                  ? "border-2 lg:border-l-0 lg:border-b-0 lg:border-t-[3.5px] lg:border-r-[3.5px] border-[#A0522D] shadow-md bg-[#FFF5F1] lg:bg-white text-[#A0522D]"
+                  : "bg-white border border-gray-200 shadow-sm hover:bg-gray-50 text-gray-600"
                   }`}
               >
                 <Icon
-                  className={`w-6 h-6 mb-1.5 ${isActive ? "text-[#A0522D]" : "text-gray-500"}`}
+                  className={`w-5 h-5 sm:w-6 sm:h-6 mb-1 lg:mb-1.5 ${isActive ? "text-[#A0522D]" : "text-gray-500"}`}
                 />
                 <span
-                  className={`text-xs font-medium text-center leading-tight ${isActive ? "font-semibold text-[#A0522D]" : "text-gray-600"}`}
+                  className={`text-[11px] sm:text-xs font-medium text-center leading-tight ${isActive ? "font-semibold text-[#A0522D]" : "text-gray-600"}`}
                 >
                   {item.label}
                 </span>
@@ -870,13 +870,27 @@ const Uniform3DmoduleDegisn = () => {
         </div>
 
         {/* Configuration Side Panel */}
-        <div className="max-w-sm py-4">
+        <div className={`w-full lg:w-[340px] xl:w-[380px] shrink-0 order-3 lg:order-2 transition-all duration-300 ${active ? "block py-2 lg:py-4" : "hidden"}`}>
           {/* Panel Option 1: Table Shape & Seating Options */}
           {active === "tableShape" && (
             <div
               ref={panelRef}
-              className="w-full h-full bg-[#FFF5F1] border border-[#F3D3C8] rounded-2xl p-5 shadow-lg"
+              className="w-full bg-[#FFF5F1] border border-[#F3D3C8] rounded-2xl p-4 sm:p-5 shadow-lg"
             >
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="text-sm font-semibold text-[#1C2C56]">
+                  Table Shape & Settings
+                </h4>
+                <button
+                  type="button"
+                  onClick={() => setActive("")}
+                  className="text-gray-400 hover:text-gray-700 text-xl font-bold p-1 lg:hidden leading-none"
+                  aria-label="Close panel"
+                >
+                  &times;
+                </button>
+              </div>
+
               {/* Table Shape Selector */}
               <div className="mb-6">
                 <p className="text-sm text-[#1C2C56] block mb-2 font-medium">
@@ -1029,11 +1043,21 @@ const Uniform3DmoduleDegisn = () => {
           {active === "category" && (
             <div
               ref={panelRef}
-              className="min-w-sm h-[calc(100vh-178px)] overflow-y-auto overflow-x-hidden bg-[#FFF5F1] border border-[#F3D3C8] rounded-2xl p-5 shadow-lg custom-scroll"
+              className="w-full max-h-[500px] lg:h-[calc(100vh-178px)] lg:max-h-none overflow-y-auto overflow-x-hidden bg-[#FFF5F1] border border-[#F3D3C8] rounded-2xl p-4 sm:p-5 shadow-lg custom-scroll"
             >
-              <h4 className="text-sm font-semibold text-[#1C2C56] mb-4">
-                Categories & Inventory
-              </h4>
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="text-sm font-semibold text-[#1C2C56]">
+                  Categories & Inventory
+                </h4>
+                <button
+                  type="button"
+                  onClick={() => setActive("")}
+                  className="text-gray-400 hover:text-gray-700 text-xl font-bold p-1 lg:hidden leading-none"
+                  aria-label="Close panel"
+                >
+                  &times;
+                </button>
+              </div>
 
               {categoryView === "list" && (
                 <div className="space-y-3 w-full">
@@ -1389,11 +1413,21 @@ const Uniform3DmoduleDegisn = () => {
           {active === "simulationProducts" && !isThemeMode && (
             <div
               ref={panelRef}
-              className="min-w-sm h-[calc(100vh-178px)] overflow-y-auto overflow-x-hidden bg-[#FFF5F1] border border-[#F3D3C8] rounded-2xl p-5 shadow-lg custom-scroll"
+              className="w-full max-h-[500px] lg:h-[calc(100vh-178px)] lg:max-h-none overflow-y-auto overflow-x-hidden bg-[#FFF5F1] border border-[#F3D3C8] rounded-2xl p-4 sm:p-5 shadow-lg custom-scroll"
             >
-              <h4 className="text-sm font-semibold text-[#1C2C56] mb-4">
-                Simulation Products
-              </h4>
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="text-sm font-semibold text-[#1C2C56]">
+                  Simulation Products
+                </h4>
+                <button
+                  type="button"
+                  onClick={() => setActive("")}
+                  className="text-gray-400 hover:text-gray-700 text-xl font-bold p-1 lg:hidden leading-none"
+                  aria-label="Close panel"
+                >
+                  &times;
+                </button>
+              </div>
 
               {loadingAllSimProducts ? (
                 <div className="flex justify-center py-8">
@@ -1455,37 +1489,40 @@ const Uniform3DmoduleDegisn = () => {
         </div>
 
         {/* CENTER MODEL VIEWER */}
-        <div className=" border-l pl-10 border-[#A0522D33] relative flex-1 flex flex-col gap-5 items-center justify-between mt-6">
-          <div className="bg-white shadow-xl rounded-xl p-2 flex gap-1 max-w-xs w-full">
+        <div className="w-full flex-1 min-w-0 border-transparent lg:border-l lg:pl-6 xl:pl-10 lg:border-[#A0522D33] relative flex flex-col gap-4 sm:gap-6 items-center justify-between order-1 lg:order-3 pt-2 lg:pt-4">
+          <div className="bg-white shadow-xl rounded-xl p-1.5 sm:p-2 flex gap-1 w-full max-w-[280px] sm:max-w-xs mx-auto">
             {/* SINGLE TABLE */}
             <button
+              type="button"
               onClick={() => setFullView(false)}
-              className={` w-full flex items-center justify-center font-bold gap-2 px-4 py-2 rounded-lg text-sm transition-all
-                                ${!fullView
-                  ? "bg-[#A0522D] hover:bg-[#A0522D shadow text-white "
+              className={`w-full flex items-center justify-center font-bold gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 rounded-lg text-xs sm:text-sm transition-all whitespace-nowrap ${
+                !fullView
+                  ? "bg-[#A0522D] hover:bg-[#A0522D]/90 shadow text-white"
                   : "bg-transparent text-gray-700 hover:bg-gray-100"
-                }`}
+              }`}
             >
-              <TbTable className="text-lg" />
-              Single Table
+              <TbTable className="text-base sm:text-lg shrink-0" />
+              <span>Single Table</span>
             </button>
 
             {/* FULL VENUE */}
             <button
+              type="button"
               onClick={() => setFullView(true)}
-              className={` w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm transition-all
-                                ${fullView
-                  ? "bg-[#A0522D] hover:bg-[#A0522D] text-white shadow"
+              className={`w-full flex items-center justify-center font-bold gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 rounded-lg text-xs sm:text-sm transition-all whitespace-nowrap ${
+                fullView
+                  ? "bg-[#A0522D] hover:bg-[#A0522D]/90 text-white shadow"
                   : "bg-transparent text-gray-700 hover:bg-gray-100"
-                }`}
+              }`}
             >
-              <RiTable2 className="text-lg" />
-              Full Venue
+              <RiTable2 className="text-base sm:text-lg shrink-0" />
+              <span>Full Venue</span>
             </button>
           </div>
+
           <div
-            className="relative z-10  overflow-hidden 
-                h-[620px] w-full flex items-center justify-center"
+            className="relative z-10 overflow-hidden 
+                h-[280px] xs:h-[340px] sm:h-[420px] md:h-[500px] lg:h-[560px] xl:h-[620px] w-full flex items-center justify-center p-2"
           >
             {isThemeMode ? (
               fullView ? (
@@ -1498,7 +1535,7 @@ const Uniform3DmoduleDegisn = () => {
                   alt={selectedTheme.title || "Venue Preview"}
                   width={700}
                   height={500}
-                  className="object-contain"
+                  className="max-w-full max-h-full w-auto h-auto object-contain select-none"
                   priority
                   unoptimized
                 />
@@ -1512,7 +1549,7 @@ const Uniform3DmoduleDegisn = () => {
                   alt={selectedTheme.title || "Table Preview"}
                   width={500}
                   height={500}
-                  className="object-contain"
+                  className="max-w-full max-h-full w-auto h-auto object-contain select-none"
                   priority
                   unoptimized
                 />
@@ -1528,7 +1565,7 @@ const Uniform3DmoduleDegisn = () => {
                   }
                   width={700}
                   height={500}
-                  className="object-contain"
+                  className="max-w-full max-h-full w-auto h-auto object-contain select-none"
                   priority
                   unoptimized
                 />
@@ -1542,17 +1579,17 @@ const Uniform3DmoduleDegisn = () => {
                   }
                   width={500}
                   height={500}
-                  className="object-contain"
+                  className="max-w-full max-h-full w-auto h-auto object-contain select-none"
                   priority
                   unoptimized
                 />
               )
             ) : (
-              <div className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-[#F3D3C8] rounded-2xl bg-[#FFF5F1]/50 max-w-sm mx-auto shadow-sm">
-                <div className="w-16 h-16 rounded-full bg-white border border-[#F3D3C8] flex items-center justify-center mb-3 text-[#A0522D] shadow-sm">
-                  <TbTable className="w-8 h-8 text-[#A0522D]" />
+              <div className="flex flex-col items-center justify-center text-center p-6 sm:p-8 border-2 border-dashed border-[#F3D3C8] rounded-2xl bg-[#FFF5F1]/50 max-w-sm mx-auto shadow-sm">
+                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white border border-[#F3D3C8] flex items-center justify-center mb-3 text-[#A0522D] shadow-sm">
+                  <TbTable className="w-7 h-7 sm:w-8 sm:h-8 text-[#A0522D]" />
                 </div>
-                <h3 className="text-base font-semibold text-[#1C2C56] mb-1">
+                <h3 className="text-sm sm:text-base font-semibold text-[#1C2C56] mb-1">
                   Please select the product
                 </h3>
                 <p className="text-xs text-gray-500 max-w-xs">
@@ -1562,49 +1599,50 @@ const Uniform3DmoduleDegisn = () => {
             )}
           </div>
 
-          <div className="flex items-center">
-            <div className="z-20 mt-6 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.12)] rounded-2xl px-3 py-2 flex items-center gap-4">
-              <button className="p-2 rounded-md">
+          <div className="w-full flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 mt-4 pb-2">
+            <div className="z-20 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.12)] rounded-2xl px-2.5 sm:px-3 py-1.5 sm:py-2 flex items-center gap-1.5 sm:gap-3 max-w-full overflow-x-auto">
+              <button type="button" className="p-1.5 sm:p-2 rounded-md hover:bg-gray-100 transition shrink-0" title="Cursor">
                 <img
                   src="/img/top-left-image/cursor.png"
-                  className="w-5 h-5 invert"
+                  className="w-4 h-4 sm:w-5 sm:h-5 invert"
+                  alt="Cursor"
                 />
               </button>
-              <div className="w-px h-6 bg-gray-300"></div>
-              <button className="p-2">
-                <img src="/img/top-left-image/hand.png" className="w-5 h-5" />
+              <div className="w-px h-5 sm:h-6 bg-gray-300 shrink-0"></div>
+              <button type="button" className="p-1.5 sm:p-2 rounded-md hover:bg-gray-100 transition shrink-0" title="Pan">
+                <img src="/img/top-left-image/hand.png" className="w-4 h-4 sm:w-5 sm:h-5" alt="Hand" />
               </button>
-              <div className="w-px h-6 bg-gray-300"></div>
-              <button className="p-2">
-                <img src="/img/top-left-image/undo.png" className="w-5 h-5" />
+              <div className="w-px h-5 sm:h-6 bg-gray-300 shrink-0"></div>
+              <button type="button" className="p-1.5 sm:p-2 rounded-md hover:bg-gray-100 transition shrink-0" title="Undo">
+                <img src="/img/top-left-image/undo.png" className="w-4 h-4 sm:w-5 sm:h-5" alt="Undo" />
               </button>
-              <button className="p-2">
-                <img src="/img/top-left-image/redo.png" className="w-5 h-5" />
+              <button type="button" className="p-1.5 sm:p-2 rounded-md hover:bg-gray-100 transition shrink-0" title="Redo">
+                <img src="/img/top-left-image/redo.png" className="w-4 h-4 sm:w-5 sm:h-5" alt="Redo" />
               </button>
-              <div className="w-px h-6 bg-gray-300"></div>
-              <button className="p-2">
-                <span className="text-lg font-bold">+</span>
+              <div className="w-px h-5 sm:h-6 bg-gray-300 shrink-0"></div>
+              <button type="button" className="p-1.5 sm:p-2 rounded-md hover:bg-gray-100 transition shrink-0 leading-none" title="Zoom In">
+                <span className="text-base sm:text-lg font-bold">+</span>
               </button>
-              <button className="p-2">
-                <span className="text-lg font-bold">−</span>
+              <button type="button" className="p-1.5 sm:p-2 rounded-md hover:bg-gray-100 transition shrink-0 leading-none" title="Zoom Out">
+                <span className="text-base sm:text-lg font-bold">&minus;</span>
               </button>
-              <div className="w-px h-6 bg-gray-300"></div>
-              <button className="p-2 flex items-center gap-1">
-                <img src="/img/top-left-image/rotate.png" className="w-5 h-5" />
-                <span className="text-sm text-gray-700">90°</span>
+              <div className="w-px h-5 sm:h-6 bg-gray-300 shrink-0"></div>
+              <button type="button" className="p-1.5 sm:p-2 rounded-md hover:bg-gray-100 transition flex items-center gap-1 shrink-0" title="Rotate">
+                <img src="/img/top-left-image/rotate.png" className="w-4 h-4 sm:w-5 sm:h-5" alt="Rotate" />
+                <span className="text-xs sm:text-sm text-gray-700">90&deg;</span>
               </button>
-              <div className="w-px h-6 bg-gray-300"></div>
-              <button className="p-2 flex items-center gap-1">
-                <img src="/img/top-left-image/Group.png" className="w-5 h-5" />
-                <span className="text-sm text-gray-700">3D</span>
+              <div className="w-px h-5 sm:h-6 bg-gray-300 shrink-0"></div>
+              <button type="button" className="p-1.5 sm:p-2 rounded-md hover:bg-gray-100 transition flex items-center gap-1 shrink-0" title="3D View">
+                <img src="/img/top-left-image/Group.png" className="w-4 h-4 sm:w-5 sm:h-5" alt="3D" />
+                <span className="text-xs sm:text-sm text-gray-700">3D</span>
               </button>
             </div>
-            <div>
+            <div className="shrink-0">
               <Button
                 type="submit"
                 variant="solid"
                 loading={isSubmitting || isSaving}
-                className="ml-10 mt-7 bg-[#A0522D] hover:bg-[#A0522D] text-[16px] text-white py-1 px-5"
+                className="bg-[#A0522D] hover:bg-[#A0522D]/90 text-sm sm:text-base text-white py-2 px-6 rounded-xl shadow-md whitespace-nowrap font-medium"
                 onClick={handleUniformDesignResult}
               >
                 Confirm Design

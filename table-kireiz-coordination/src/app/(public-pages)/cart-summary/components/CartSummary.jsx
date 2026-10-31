@@ -203,27 +203,27 @@ const CartSummary = () => {
     }, [session?.accessToken])
 
     return (
-        <section className="w-full bg-white px-5 md:px-8 lg:px-12 mt-14">
-            <div className="py-10">
+        <section className="w-full bg-white px-3 sm:px-6 md:px-8 lg:px-12 mt-8 sm:mt-12 md:mt-14">
+            <div className="py-6 sm:py-8 lg:py-10">
                 <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_0.6fr] gap-6">
 
                     {/* Left Panel: Cart Items List */}
-                    <div className="bg-[#FBF4F3] rounded-xl p-5 min-h-[300px] flex flex-col justify-between">
+                    <div className="bg-[#FBF4F3] rounded-xl p-3.5 sm:p-5 md:p-6 min-h-[300px] flex flex-col justify-between">
                         <div>
-                            <h2 className="text-xl font-medium mb-6">
+                            <h2 className="text-lg sm:text-xl font-medium mb-4 sm:mb-6">
                                 Items in your Cart ({cartItems.length})
                             </h2>
 
                             {cartLoading ? (
                                 /* Loading Spinner */
-                                <div className="flex justify-center items-center py-20">
-                                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#8B4513]"></div>
+                                <div className="flex justify-center items-center py-12 sm:py-20">
+                                    <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-[#8B4513]"></div>
                                 </div>
                             ) : cartItems.length === 0 ? (
                                 /* Empty Cart View */
-                                <div className="flex flex-col items-center justify-center py-20">
-                                    <FiShoppingCart size={64} className="text-gray-400 mb-4" />
-                                    <p className="text-gray-600">Your cart is empty</p>
+                                <div className="flex flex-col items-center justify-center py-12 sm:py-20">
+                                    <FiShoppingCart size={54} className="text-gray-400 mb-3 sm:mb-4" />
+                                    <p className="text-gray-600 text-sm sm:text-base">Your cart is empty</p>
                                 </div>
                             ) : (
                                 /* Cart Item Row List */
@@ -234,99 +234,124 @@ const CartSummary = () => {
                                         item?.quantity >= Number(item?.available_quantity);
 
                                     return (
-                                        <div key={item.id} className="flex gap-4 bg-white rounded-lg p-4 mb-4">
-                                            <div className="relative w-40 h-28 rounded-md overflow-hidden shrink-0">
-                                                <Image
-                                                    src={item?.product_image}
-                                                    alt={item?.product_name}
-                                                    fill
-                                                    className="object-cover"
-                                                    unoptimized
-                                                />
-                                            </div>
-
-                                            <div className="flex-1 flex flex-col justify-center py-1">
-                                                <h4 className="text-[17px] font-semibold text-gray-800 capitalize mb-1">
-                                                    {item?.product_name}
-                                                </h4>
-                                                <div className="mb-2">
-                                                    <p
-                                                        className={`text-sm text-gray-500 break-words ${
-                                                            expandedDescriptions[item.id]
-                                                                ? "line-clamp-none max-h-36 overflow-y-auto pr-1 leading-relaxed text-gray-600"
-                                                                : "line-clamp-2"
-                                                        }`}
-                                                        title={item?.product_description || ""}
-                                                    >
-                                                        <span className="font-medium text-gray-700">Description:</span>{" "}
-                                                        {item?.product_description || "-"}
-                                                    </p>
-                                                    {item?.product_description && item.product_description.length > 80 && (
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => toggleDescription(item.id)}
-                                                            className="text-xs font-semibold text-[#8B4513] hover:text-[#72380f] hover:underline mt-0.5 inline-block cursor-pointer focus:outline-none"
-                                                        >
-                                                            {expandedDescriptions[item.id] ? "Show less" : "Read more"}
-                                                        </button>
-                                                    )}
-                                                </div>
-
-                                                <div className="space-y-1 mt-1">
-                                                    <div className="flex items-center gap-2 flex-wrap">
-                                                        <p className="text-sm text-gray-600">
-                                                            Quantity: {item?.quantity}
-                                                        </p>
-                                                        {item?.available_quantity !== null && item?.available_quantity !== undefined && (
-                                                            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
-                                                                Available: {item.available_quantity}
-                                                            </span>
-                                                        )}
+                                        <div
+                                            key={item.id}
+                                            className="bg-white rounded-lg p-3 sm:p-4 mb-4 shadow-xs border border-gray-100"
+                                        >
+                                            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                                                {/* Top section on mobile: Image + Item Details */}
+                                                <div className="flex gap-3 sm:gap-4 flex-1 min-w-0">
+                                                    {/* Product Image */}
+                                                    <div className="relative w-24 h-24 sm:w-36 sm:h-28 md:w-40 md:h-28 rounded-md overflow-hidden shrink-0 bg-gray-50 self-start sm:self-center">
+                                                        <Image
+                                                            src={item?.product_image}
+                                                            alt={item?.product_name || "Product image"}
+                                                            fill
+                                                            className="object-cover"
+                                                            unoptimized
+                                                        />
                                                     </div>
-                                                    <p className="text-sm font-medium">
-                                                        <span className="text-green-600">
-                                                            Price:{" "}${item?.price} × {item?.quantity} = ${item?.total_price}
-                                                        </span>
-                                                    </p>
-                                                    {isMaxReached && (
-                                                        <p className="text-xs text-amber-600 font-medium">
-                                                            Max available stock reached ({item.available_quantity})
-                                                        </p>
-                                                    )}
+
+                                                    {/* Product Details */}
+                                                    <div className="flex-1 min-w-0 flex flex-col justify-center py-0.5">
+                                                        <h4
+                                                            className="text-base sm:text-[17px] font-semibold text-gray-800 capitalize mb-1 break-words"
+                                                            title={item?.product_name}
+                                                        >
+                                                            {item?.product_name}
+                                                        </h4>
+
+                                                        <div className="mb-2">
+                                                            <p
+                                                                className={`text-xs sm:text-sm text-gray-500 break-words ${
+                                                                    expandedDescriptions[item.id]
+                                                                        ? "line-clamp-none max-h-36 overflow-y-auto pr-1 leading-relaxed text-gray-600"
+                                                                        : "line-clamp-2"
+                                                                }`}
+                                                                title={item?.product_description || ""}
+                                                            >
+                                                                <span className="font-medium text-gray-700">Description:</span>{" "}
+                                                                {item?.product_description || "-"}
+                                                            </p>
+                                                            {item?.product_description && item.product_description.length > 80 && (
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => toggleDescription(item.id)}
+                                                                    className="text-xs font-semibold text-[#8B4513] hover:text-[#72380f] hover:underline mt-0.5 inline-block cursor-pointer focus:outline-none"
+                                                                >
+                                                                    {expandedDescriptions[item.id] ? "Show less" : "Read more"}
+                                                                </button>
+                                                            )}
+                                                        </div>
+
+                                                        <div className="space-y-1 mt-0.5">
+                                                            <div className="flex items-center gap-2 flex-wrap">
+                                                                <p className="text-xs sm:text-sm text-gray-600">
+                                                                    Quantity: {item?.quantity}
+                                                                </p>
+                                                                {item?.available_quantity !== null && item?.available_quantity !== undefined && (
+                                                                    <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+                                                                        Available: {item.available_quantity}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                            <div>
+                                                                <span className="text-xs text-blue-700 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-md font-medium inline-block">
+                                                                    Rental Days: 1
+                                                                </span>
+                                                            </div>
+                                                            <p className="text-xs sm:text-sm font-medium">
+                                                                <span className="text-green-600">
+                                                                    Price: ${item?.price} × {item?.quantity} = ${item?.total_price}
+                                                                </span>
+                                                            </p>
+                                                            {isMaxReached && (
+                                                                <p className="text-xs text-amber-600 font-medium">
+                                                                    Max available stock reached ({item.available_quantity})
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
 
-                                            <div className="flex items-center">
-                                                <div className="flex items-center justify-between border rounded-full px-3 py-1 w-24">
-                                                    {item.quantity > 1 ? (
-                                                        <FaMinus
-                                                            size={16}
-                                                            className={`cursor-pointer ${updatingItemId || summaryLoading ? 'opacity-30 pointer-events-none cursor-not-allowed' : ''}`}
-                                                            onClick={() => decreaseQty(i)}
-                                                        />
-                                                    ) : (
-                                                        <FiTrash2
-                                                            size={16}
-                                                            className={`cursor-pointer text-[#B05B3B] ${updatingItemId || summaryLoading ? 'opacity-30 pointer-events-none cursor-not-allowed' : ''}`}
-                                                            onClick={() => decreaseQty(i)}
-                                                        />
-                                                    )}
+                                                {/* Stepper Controls: Bottom bar on mobile, right-aligned on desktop */}
+                                                <div className="flex items-center justify-between sm:justify-end pt-2.5 sm:pt-0 border-t border-gray-100 sm:border-t-0 shrink-0 mt-1 sm:mt-0">
+                                                    <div className="sm:hidden flex items-center gap-1.5 text-xs text-gray-500 font-medium">
+                                                        <span>Item Total:</span>
+                                                        <span className="text-sm font-bold text-gray-900">${item?.total_price}</span>
+                                                    </div>
 
-                                                    {updatingItemId && String(updatingItemId) === String(item.id) ? (
-                                                        <span
-                                                            className="inline-block rounded-full border-2 border-gray-300 border-t-[#8B4513] animate-spin"
-                                                            style={{ width: 20, height: 20, margin: "2px" }}
-                                                        />
-                                                    ) : (
-                                                        <span>{item.quantity}</span>
-                                                    )}
+                                                    <div className="flex items-center justify-between border border-gray-200 rounded-full px-3 py-1 w-24 bg-white shadow-xs">
+                                                        {item.quantity > 1 ? (
+                                                            <FaMinus
+                                                                size={14}
+                                                                className={`cursor-pointer hover:text-[#8B4513] transition ${updatingItemId || summaryLoading ? 'opacity-30 pointer-events-none cursor-not-allowed' : ''}`}
+                                                                onClick={() => decreaseQty(i)}
+                                                            />
+                                                        ) : (
+                                                            <FiTrash2
+                                                                size={15}
+                                                                className={`cursor-pointer text-[#B05B3B] hover:text-red-700 transition ${updatingItemId || summaryLoading ? 'opacity-30 pointer-events-none cursor-not-allowed' : ''}`}
+                                                                onClick={() => decreaseQty(i)}
+                                                            />
+                                                        )}
 
-                                                    <FaPlus
-                                                        size={16}
-                                                        className={`${updatingItemId || summaryLoading ? 'opacity-30 pointer-events-none cursor-not-allowed' : isMaxReached ? 'opacity-40 cursor-not-allowed text-gray-400' : 'cursor-pointer hover:text-[#8B4513]'}`}
-                                                        onClick={() => increaseQty(i)}
-                                                        title={isMaxReached ? `Maximum available quantity reached (${item.available_quantity})` : 'Increase quantity'}
-                                                    />
+                                                        {updatingItemId && String(updatingItemId) === String(item.id) ? (
+                                                            <span
+                                                                className="inline-block rounded-full border-2 border-gray-300 border-t-[#8B4513] animate-spin"
+                                                                style={{ width: 18, height: 18, margin: "2px" }}
+                                                            />
+                                                        ) : (
+                                                            <span className="text-sm font-medium text-gray-800">{item.quantity}</span>
+                                                        )}
+
+                                                        <FaPlus
+                                                            size={14}
+                                                            className={`${updatingItemId || summaryLoading ? 'opacity-30 pointer-events-none cursor-not-allowed' : isMaxReached ? 'opacity-40 cursor-not-allowed text-gray-400' : 'cursor-pointer hover:text-[#8B4513] transition'}`}
+                                                            onClick={() => increaseQty(i)}
+                                                            title={isMaxReached ? `Maximum available quantity reached (${item.available_quantity})` : 'Increase quantity'}
+                                                        />
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -336,10 +361,10 @@ const CartSummary = () => {
                         </div>
 
                         {/* Cart Action Buttons */}
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+                        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mt-6 sm:mt-8">
                             <button
                                 type="button"
-                                className="px-8 py-3 rounded-md bg-[#8B4513] text-white hover:bg-[#72380f] transition font-medium"
+                                className="w-full sm:w-auto px-6 sm:px-8 py-2.5 sm:py-3 rounded-md bg-[#8B4513] text-white hover:bg-[#72380f] transition font-medium text-center text-sm sm:text-base cursor-pointer"
                                 onClick={() => router.push("/table-form")}
                             >
                                 Continue Shopping
@@ -348,7 +373,7 @@ const CartSummary = () => {
                             {cartItems.length > 0 && (
                                 <button
                                     type="button"
-                                    className="px-12 py-3 rounded-md bg-[#8B4513] text-white hover:bg-[#72380f] transition font-medium"
+                                    className="w-full sm:w-auto px-8 sm:px-12 py-2.5 sm:py-3 rounded-md bg-[#8B4513] text-white hover:bg-[#72380f] transition font-medium text-center text-sm sm:text-base cursor-pointer"
                                     onClick={handleProceed}
                                 >
                                     Proceed
@@ -358,13 +383,13 @@ const CartSummary = () => {
                     </div>
 
                     {/* Right Panel: Order Summary Breakdown */}
-                    <div className="bg-white rounded-xl p-6 h-fit shadow-sm border border-gray-100">
-                        <h3 className="text-[22px] font-medium border-b border-[#E9E9E9] pb-4 mb-4">
+                    <div className="bg-white rounded-xl p-4 sm:p-6 h-fit shadow-sm border border-gray-100">
+                        <h3 className="text-lg sm:text-[22px] font-medium border-b border-[#E9E9E9] pb-3 sm:pb-4 mb-4">
                             Order Summary
                         </h3>
 
                         {summaryLoading && !cartSummary ? (
-                            <div className="flex justify-center items-center py-16">
+                            <div className="flex justify-center items-center py-12 sm:py-16">
                                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#8B4513]"></div>
                             </div>
                         ) : !cartSummary ? (
@@ -372,26 +397,26 @@ const CartSummary = () => {
                                 Order summary is empty
                             </div>
                         ) : (
-                            <div className="space-y-4 text-[15px]">
+                            <div className="space-y-4 text-sm sm:text-[15px]">
                                 <p className="text-[#B05B3B] font-medium">
                                     Items ({cartSummary?.items_count}):
                                 </p>
 
                                 <div className="space-y-4 max-h-[250px] overflow-y-auto pr-1">
                                     {cartSummary.items.map((item, i) => (
-                                        <div key={i} className="flex justify-between items-start">
-                                            <div>
-                                                <p className="text-gray-800">{item.product_name}</p>
-                                                <p className="text-gray-400 text-sm mt-0.5">
+                                        <div key={i} className="flex justify-between items-start gap-3">
+                                            <div className="min-w-0 flex-1">
+                                                <p className="text-gray-800 break-words">{item.product_name}</p>
+                                                <p className="text-gray-400 text-xs sm:text-sm mt-0.5">
                                                     Qty: {item.quantity}
                                                 </p>
                                             </div>
-                                            <span className="text-gray-800">${Number(item.total_price || 0).toLocaleString()} /day</span>
+                                            <span className="text-gray-800 shrink-0 whitespace-nowrap text-sm sm:text-base">${Number(item.total_price || 0).toLocaleString()} /day</span>
                                         </div>
                                     ))}
                                 </div>
 
-                                <hr className="border-[#E9E9E9]-100 my-4" />
+                                <hr className="border-[#E9E9E9] my-4" />
 
                                 <div className="space-y-3">
                                     <div className="flex justify-between text-gray-700">
@@ -420,7 +445,7 @@ const CartSummary = () => {
                                 </div>
 
                                 <div className="border-t border-[#E9E9E9] mt-4 pt-4">
-                                    <div className="flex justify-between items-center text-[17px]">
+                                    <div className="flex justify-between items-center text-base sm:text-[17px]">
                                         <span className="text-[#B05B3B]">Order Total:</span>
                                         <span className="font-semibold text-gray-900">${Number(cartSummary?.summary?.grand_total || 0).toLocaleString()}</span>
                                     </div>

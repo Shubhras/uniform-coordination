@@ -176,7 +176,7 @@ const SimulationHistory = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-                <div className="flex gap-2 w-full sm:w-auto relative z-10">
+                <div className="flex gap-2 w-full sm:w-auto relative z-30">
                     <Select
                         instanceId="simulation-category-select"
                         options={[
@@ -225,6 +225,7 @@ const SimulationHistory = () => {
                                 borderRadius: '14px',
                                 padding: '6px',
                                 overflow: 'hidden',
+                                zIndex: 50,
                             }),
                             menuList: (base) => ({
                                 ...base,
@@ -239,93 +240,99 @@ const SimulationHistory = () => {
                     />
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto justify-end relative z-10 ">
-                    <Select
-                        instanceId="simulation-sort-select"
-                        options={sortOptions}
-                        value={sortOptions.find((o) => o.value === filters.sort) || sortOptions[0]}
-                        onChange={(selected) =>
-                            setFilters({ ...filters, sort: selected?.value || '' })
-                        }
-                        className="w-full min-w-[180px]"
-                        components={{ Option: CustomOption }}
-                        styles={{
-                            control: (base) => ({
-                                ...base,
-                                borderRadius: '10px',
-                                borderColor: '#E7D8D0',
-                                borderStyle: 'solid',
-                                borderWidth: '1px',
-                                backgroundColor: 'white',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                padding: '2px 4px',
-                                cursor: 'pointer',
-                                boxShadow: 'none',
-                                '&:hover': { borderColor: '#D7B7A3' },
-                            }),
-                            menu: (base) => ({
-                                ...base,
-                                marginTop: '4px',
-                                borderRadius: '14px',
-                                padding: '6px',
-                                overflow: 'hidden',
-                            }),
-                            menuList: (base) => ({
-                                ...base,
-                                paddingTop: 0,
-                                paddingBottom: 0,
-                                maxHeight: '220px',
-                                overflowY: 'auto',
-                            }),
-                            singleValue: () => ({ color: '#A0522D', fontWeight: 500, fontSize: '14px' })
-                        }}
-                        maxMenuHeight={220}
-                    />
-                    <Select
-                        instanceId="simulation-range-select"
-                        options={rangeOptions}
-                        value={rangeOptions.find((o) => o.value === filters.range) || rangeOptions[0]}
-                        onChange={(selected) =>
-                            setFilters({ ...filters, range: selected?.value || '' })
-                        }
-                        className="w-full min-w-[180px]"
-                        components={{ Option: CustomOption }}
-                        styles={{
-                            control: (base) => ({
-                                ...base,
-                                borderRadius: '10px',
-                                borderColor: '#E7D8D0',
-                                borderStyle: 'solid',
-                                borderWidth: '1px',
-                                backgroundColor: 'white',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                padding: '2px 4px',
-                                cursor: 'pointer',
-                                boxShadow: 'none',
-                                '&:hover': { borderColor: '#D7B7A3' },
-                            }),
-                            menu: (base) => ({
-                                ...base,
-                                marginTop: '4px',
-                                borderRadius: '14px',
-                                padding: '6px',
-                                overflow: 'hidden',
-                            }),
-                            menuList: (base) => ({
-                                ...base,
-                                paddingTop: 0,
-                                paddingBottom: 0,
-                                maxHeight: '220px',
-                                overflowY: 'auto',
-                            }),
-                            singleValue: () => ({ color: '#A0522D', fontWeight: 500, fontSize: '14px' })
-                        }}
-                        maxMenuHeight={220}
-                    />
+                <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto justify-end relative z-20">
+                    <div className="w-full sm:w-auto relative z-20">
+                        <Select
+                            instanceId="simulation-sort-select"
+                            options={sortOptions}
+                            value={sortOptions.find((o) => o.value === filters.sort) || sortOptions[0]}
+                            onChange={(selected) =>
+                                setFilters({ ...filters, sort: selected?.value || '' })
+                            }
+                            className="w-full min-w-[180px]"
+                            components={{ Option: CustomOption }}
+                            styles={{
+                                control: (base) => ({
+                                    ...base,
+                                    borderRadius: '10px',
+                                    borderColor: '#E7D8D0',
+                                    borderStyle: 'solid',
+                                    borderWidth: '1px',
+                                    backgroundColor: 'white',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    padding: '2px 4px',
+                                    cursor: 'pointer',
+                                    boxShadow: 'none',
+                                    '&:hover': { borderColor: '#D7B7A3' },
+                                }),
+                                menu: (base) => ({
+                                    ...base,
+                                    marginTop: '4px',
+                                    borderRadius: '14px',
+                                    padding: '6px',
+                                    overflow: 'hidden',
+                                    zIndex: 50,
+                                }),
+                                menuList: (base) => ({
+                                    ...base,
+                                    paddingTop: 0,
+                                    paddingBottom: 0,
+                                    maxHeight: '220px',
+                                    overflowY: 'auto',
+                                }),
+                                singleValue: () => ({ color: '#A0522D', fontWeight: 500, fontSize: '14px' })
+                            }}
+                            maxMenuHeight={220}
+                        />
+                    </div>
+                    <div className="w-full sm:w-auto relative z-10">
+                        <Select
+                            instanceId="simulation-range-select"
+                            options={rangeOptions}
+                            value={rangeOptions.find((o) => o.value === filters.range) || rangeOptions[0]}
+                            onChange={(selected) =>
+                                setFilters({ ...filters, range: selected?.value || '' })
+                            }
+                            className="w-full min-w-[180px]"
+                            components={{ Option: CustomOption }}
+                            styles={{
+                                control: (base) => ({
+                                    ...base,
+                                    borderRadius: '10px',
+                                    borderColor: '#E7D8D0',
+                                    borderStyle: 'solid',
+                                    borderWidth: '1px',
+                                    backgroundColor: 'white',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    padding: '2px 4px',
+                                    cursor: 'pointer',
+                                    boxShadow: 'none',
+                                    '&:hover': { borderColor: '#D7B7A3' },
+                                }),
+                                menu: (base) => ({
+                                    ...base,
+                                    marginTop: '4px',
+                                    borderRadius: '14px',
+                                    padding: '6px',
+                                    overflow: 'hidden',
+                                    zIndex: 50,
+                                }),
+                                menuList: (base) => ({
+                                    ...base,
+                                    paddingTop: 0,
+                                    paddingBottom: 0,
+                                    maxHeight: '220px',
+                                    overflowY: 'auto',
+                                }),
+                                singleValue: () => ({ color: '#A0522D', fontWeight: 500, fontSize: '14px' })
+                            }}
+                            maxMenuHeight={220}
+                        />
+                    </div>
                 </div>
             </div>
 
@@ -353,8 +360,8 @@ const SimulationHistory = () => {
                                             unoptimized
                                         />
                                         <span className={`absolute top-5 right-5 px-3 py-1 text-[11px] font-semibold tracking-wider uppercase rounded-full shadow-sm z-10 ${item?.isTheme
-                                                ? 'bg-[#A0522D] text-white'
-                                                : 'bg-white/80 backdrop-blur-sm text-[#3E3E3E] border border-[#D0BEB6]'
+                                            ? 'bg-[#A0522D] text-white'
+                                            : 'bg-white/80 backdrop-blur-sm text-[#3E3E3E] border border-[#D0BEB6]'
                                             }`}>
                                             {item?.isTheme ? 'Theme' : 'Product'}
                                         </span>

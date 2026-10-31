@@ -10,6 +10,7 @@ import Notification from "@/components/ui/Notification";
 import { apiGetBrowseByThemeData } from "@/services/HomeService";
 import { apiGetCategories } from "@/services/CategoryService";
 import { apiToggleThemeFavourite } from "@/services/AuthProfileService";
+import Pagination from "@/components/ui/Pagination";
 
 /**
  * ThemeCards Component
@@ -23,6 +24,9 @@ const ThemeCards = () => {
   const [categoryData, setCategoryData] = useState([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState("all");
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const pageSize = 8;
   const router = useRouter();
 
   const handleToggleFavourite = async (themeId) => {
@@ -62,8 +66,12 @@ const ThemeCards = () => {
     }
   };
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategoryId]);
+
   /**
-   * Effect hook to fetch themes filtered by the selected category ID.
+   * Effect hook to fetch themes filtered by the selected category ID and current page.
    */
   useEffect(() => {
     const fetchThemes = async () => {
@@ -73,29 +81,40 @@ const ThemeCards = () => {
           search: "",
           category_id: selectedCategoryId === "all" ? "" : selectedCategoryId,
           ordering: "",
-          page: 1,
-          page_size: 10,
+          page: currentPage,
+          page_size: pageSize,
         }, session?.accessToken);
-        if (
-          response &&
-          response.results &&
-          response.results.status === true &&
-          Array.isArray(response.results.data)
-        ) {
-          setThemeCards(response.results.data);
+
+        const resData = (Array.isArray(response?.data) && response.data) ||
+          (Array.isArray(response?.results?.data) && response.results.data) ||
+          [];
+
+        const total = response?.total_items ??
+          response?.pagination?.total_items ??
+          response?.count ??
+          response?.results?.total_items ??
+          response?.results?.pagination?.total_items ??
+          response?.results?.count ??
+          resData.length;
+
+        if (resData.length > 0 || response?.status === true || response?.results?.status === true) {
+          setThemeCards(resData);
+          setTotalItems(total);
         } else {
           setThemeCards([]);
+          setTotalItems(0);
         }
       } catch (error) {
         console.error("Error fetching themes:", error);
         setThemeCards([]);
+        setTotalItems(0);
       } finally {
         setLoading(false);
       }
     };
 
     fetchThemes();
-  }, [selectedCategoryId, session?.accessToken]);
+  }, [selectedCategoryId, currentPage, session?.accessToken]);
 
   /**
    * Effect hook to fetch categories list for filter pill buttons.
@@ -198,88 +217,102 @@ const ThemeCards = () => {
           </section>
         ) : (
           /* Cards Grid */
-          <div className="grid gap-6 transition-transform duration-500 ease-in-out grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {filteredCards.map((item) => (
-              <div
-                key={item.id}
-                className="
-                  group
-                  relative
-                  overflow-hidden
-                  shadow-md
-                  cursor-pointer
-                  w-full
-                  p-3
-                  rounded-tl-4xl rounded-br-4xl
-                  bg-[#F5F0EE]
-                  border
-                  border-transparent
-                  hover:border-[#A0522D]
-                  transition
-                "
-              >
-                {/* Theme Image */}
-                <div className="relative w-full h-[300px] overflow-hidden rounded-tl-4xl rounded-br-4xl">
-                  <Image
-                    src={item.image || item.cardImage}
-                    alt={item.title || "Theme Image"}
-                    fill
-                    className="object-cover"
-                    unoptimized
-                  />
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-[90%]">
-                    <button
-                      className="
-                        w-full
-                        py-2
-                        border border-white
-                        text-[14px]
-                        font-medium
-                        text-white
-                        bg-[#A0614D]
-                        rounded-lg
-                        hover:bg-[#8B4513] transition
-                      "
-                      onClick={() => handleCustomizeClick(item.id)}
-                    >
-                      View & Customize This Theme
-                    </button>
+          <>
+            <div className="grid gap-6 transition-transform duration-500 ease-in-out grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {filteredCards.map((item) => (
+                <div
+                  key={item.id}
+                  className="
+                    group
+                    relative
+                    overflow-hidden
+                    shadow-md
+                    cursor-pointer
+                    w-full
+                    p-3
+                    rounded-tl-4xl rounded-br-4xl
+                    bg-[#F5F0EE]
+                    border
+                    border-transparent
+                    hover:border-[#A0522D]
+                    transition
+                  "
+                >
+                  {/* Theme Image */}
+                  <div className="relative w-full h-[300px] overflow-hidden rounded-tl-4xl rounded-br-4xl">
+                    <Image
+                      src={item.image || item.cardImage}
+                      alt={item.title || "Theme Image"}
+                      fill
+                      className="object-cover"
+                      unoptimized
+                    />
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-[90%]">
+                      <button
+                        className="
+                          w-full
+                          py-2
+                          border border-white
+                          text-[14px]
+                          font-medium
+                          text-white
+                          bg-[#A0614D]
+                          rounded-lg
+                          hover:bg-[#8B4513] transition
+                        "
+                        onClick={() => handleCustomizeClick(item.id)}
+                      >
+                        View & Customize This Theme
+                      </button>
+                    </div>
+                    <div className="absolute right-3 top-3">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleToggleFavourite(item.id);
+                        }}
+                        className="p-1.5 rounded-full bg-white/80 hover:bg-white transition shadow-sm flex items-center justify-center"
+                        title={item.is_favourite ? "Remove from favorites" : "Add to favorites"}
+                      >
+                        {item.is_favourite ? (
+                          <FaHeart
+                            size={18}
+                            className="text-red-500 cursor-pointer"
+                          />
+                        ) : (
+                          <FaRegHeart
+                            size={18}
+                            className="text-black cursor-pointer hover:text-red-500 transition"
+                          />
+                        )}
+                      </button>
+                    </div>
                   </div>
-                  <div className="absolute right-3 top-3">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleToggleFavourite(item.id);
-                      }}
-                      className="p-1.5 rounded-full bg-white/80 hover:bg-white transition shadow-sm flex items-center justify-center"
-                      title={item.is_favourite ? "Remove from favorites" : "Add to favorites"}
-                    >
-                      {item.is_favourite ? (
-                        <FaHeart
-                          size={18}
-                          className="text-red-500 cursor-pointer"
-                        />
-                      ) : (
-                        <FaRegHeart
-                          size={18}
-                          className="text-black cursor-pointer hover:text-red-500 transition"
-                        />
-                      )}
-                    </button>
+                  {/* Theme Details */}
+                  <div className="p-4">
+                    <h3 className="text-[#1C2C56] text-[18px] font-semibold">
+                      {item.title}
+                    </h3>
+                    <p className="text-[#6B7280] text-[14px] mt-2 leading-tight line-clamp-2">
+                      {item.description || item.desc}
+                    </p>
                   </div>
                 </div>
-                {/* Theme Details */}
-                <div className="p-4">
-                  <h3 className="text-[#1C2C56] text-[18px] font-semibold">
-                    {item.title}
-                  </h3>
-                  <p className="text-[#6B7280] text-[14px] mt-2 leading-tight line-clamp-2">
-                    {item.description || item.desc}
-                  </p>
-                </div>
+              ))}
+            </div>
+
+            {/* Pagination at right side */}
+            {totalItems > pageSize && (
+              <div className="flex justify-end mt-8 mb-4">
+                <Pagination
+                  currentPage={currentPage}
+                  pageSize={pageSize}
+                  total={totalItems}
+                  onChange={(page) => setCurrentPage(page)}
+                />
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
       </div>
     </section>

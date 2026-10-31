@@ -126,30 +126,29 @@ export default function ViewInventory() {
 
   return (
     <>
-      <div className="min-h-screen bg-[#FAF8F6] px-6 py-8">
+      <div className="min-h-screen bg-[#FAF8F6] px-4 xs:px-6 lg:px-8 py-6 sm:py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
+          <div className="flex items-center gap-3 sm:gap-4 min-w-0">
             <button
               onClick={() => router.back()}
-              className="w-10 h-10 rounded-full border border-[#E8DDD4] bg-white flex items-center justify-center hover:bg-[#F7F2EE]"
+              className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-[#E8DDD4] bg-white flex items-center justify-center hover:bg-[#F7F2EE] shrink-0"
             >
               <FiArrowLeft size={18} className="text-[#4D3A2E]" />
             </button>
 
-            <h1 className="text-[28px] font-semibold text-[#1A1410]">
+            <h1 className="text-xl xs:text-2xl md:text-[28px] font-semibold text-[#1A1410] truncate">
               {t("title")}
             </h1>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
             <button
               onClick={() => setDeleteDialogOpen(true)}
-              size={15}
-              className="flex items-center gap-2 px-5 h-10 rounded-lg bg-[#FFF1F0] text-[#F04438] text-sm font-medium hover:bg-[#FFE4E2] transition"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 sm:px-5 h-10 rounded-lg bg-[#FFF1F0] text-[#F04438] text-sm font-medium hover:bg-[#FFE4E2] transition whitespace-nowrap shadow-sm"
             >
-              <FiTrash2 />
-              {t("deleteProduct")}
+              <FiTrash2 size={15} />
+              <span>{t("deleteProduct")}</span>
             </button>
 
             <button
@@ -158,10 +157,10 @@ export default function ViewInventory() {
                   `/inventory-management/add?mode=edit&id=${product.id}`,
                 )
               }
-              className="flex items-center gap-2 px-5 h-10 rounded-lg bg-[#A0522D] text-white text-sm font-medium hover:bg-[#914A27] transition"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 sm:px-5 h-10 rounded-lg bg-[#A0522D] text-white text-sm font-medium hover:bg-[#914A27] transition whitespace-nowrap shadow-sm"
             >
               <FiEdit2 size={15} />
-              {t("editProduct")}
+              <span>{t("editProduct")}</span>
             </button>
           </div>
         </div>
@@ -354,13 +353,12 @@ export default function ViewInventory() {
 
                     {/* Status */}
                     <span
-                      className={`px-4 py-1 rounded-lg text-[12px] font-semibold uppercase ${
-                        item.order_status === "processing"
+                      className={`px-4 py-1 rounded-lg text-[12px] font-semibold uppercase ${item.order_status === "processing"
                           ? "bg-[#ECFDF5] text-[#0E9F6E] border border-[#B6F0D3]"
                           : item.order_status === "completed"
                             ? "bg-[#ECFDF5] text-[#0E9F6E] border border-[#B6F0D3]"
                             : "bg-[#F3F4F6] text-[#6B7280] border border-[#D1D5DB]"
-                      }`}
+                        }`}
                     >
                       {item.order_status === "processing"
                         ? t("active")

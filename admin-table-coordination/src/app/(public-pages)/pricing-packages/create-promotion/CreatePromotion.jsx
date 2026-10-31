@@ -306,16 +306,16 @@ const CreatePromotion = () => {
   return (
     <div className="min-h-screen bg-white px-4 py-6 sm:px-6 sm:py-8">
       {/* Header */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 sm:gap-4">
         <button
           type="button"
           onClick={() => router.push("/pricing-packages?tab=promotions")}
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-[#EDE0D7] bg-white text-[#6F6058]"
+          className="flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-full border border-[#EDE0D7] bg-white text-[#6F6058] hover:bg-[#FAF6F3] transition"
         >
           <FiArrowLeft size={18} />
         </button>
 
-        <h1 className="text-[30px] font-semibold text-[#2A211D]">
+        <h1 className="text-xl xs:text-2xl sm:text-[30px] font-semibold text-[#2A211D] tracking-tight">
           {isEdit ? t("editPromotion") : t("createPromotion")}
         </h1>
       </div>

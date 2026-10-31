@@ -1511,7 +1511,41 @@
         "tabs": {
             "generalSettings": "General Settings",
             "paymentSettings": "Payment Settings",
-            "emailNotifications": "Email & Notifications"
+            "emailNotifications": "Email & Notifications",
+            "privacyPolicy": "Terms & Policy",
+            "termsAndPolicy": "Terms & Policy"
+        },
+        "policyTab": {
+            "privacyPolicy": "Privacy Policy",
+            "termsAndConditions": "Terms and Conditions",
+            "agreements": "Agreements",
+            "noDataAvailable": "No Data Available",
+            "noContentAvailable": "No content available.",
+            "add": "Add",
+            "edit": "Edit",
+            "active": "Active",
+            "inactive": "Inactive",
+            "form": {
+                "editTitle": "Edit {section}",
+                "createTitle": "Create {section}",
+                "back": "Back",
+                "titleLabel": "Title",
+                "titlePlaceholder": "e.g. {section} for Space App",
+                "titleRequired": "Title is required",
+                "contentLabel": "Content",
+                "contentRequired": "Content is required",
+                "cancel": "Cancel",
+                "updating": "Updating...",
+                "creating": "Creating...",
+                "updateBtn": "Update {section}",
+                "createBtn": "Create {section}",
+                "updateSuccess": "{section} updated successfully!",
+                "createSuccess": "{section} created successfully!",
+                "updateFailed": "Failed to update {section}",
+                "createFailed": "Failed to create {section}",
+                "successTitle": "Success",
+                "errorTitle": "Error"
+            }
         },
         "generalSettings": {
             "companyNameLabel": "Company Name",

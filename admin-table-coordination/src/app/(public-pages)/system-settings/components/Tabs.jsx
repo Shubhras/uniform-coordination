@@ -9,6 +9,7 @@ const Tabs = ({ activeTab, setActiveTab }) => {
     { id: "General Settings", label: t("generalSettings") },
     { id: "Payment Settings", label: t("paymentSettings") },
     { id: "Email & Notifications", label: t("emailNotifications") },
+    { id: "Terms & Policy", label: t("termsAndPolicy") || t("privacyPolicy") },
   ];
 
   return (
@@ -18,11 +19,10 @@ const Tabs = ({ activeTab, setActiveTab }) => {
           key={id}
           type="button"
           onClick={() => setActiveTab(id)}
-          className={`pb-1 text-base font-medium whitespace-nowrap ${
-            activeTab === id
-              ? "text-[#000000] text-[16px] border-b-3 border-[#A85A32]"
-              : "text-[#525252] text-[16px]"
-          }`}
+          className={`pb-1 text-base font-medium whitespace-nowrap ${activeTab === id
+            ? "text-[#000000] text-[16px] border-b-3 border-[#A85A32]"
+            : "text-[#525252] text-[16px]"
+            }`}
         >
           {label}
         </button>

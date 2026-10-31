@@ -101,24 +101,24 @@ export default function RentalTimeline({ orderId }) {
   const progressPercentage = (completedSteps / totalSteps) * 100;
 
   return (
-    <div className="min-h-screen bg-[#FAF8F6] p-6">
+    <div className="min-h-screen bg-[#FAF8F6] p-4 sm:p-6">
       {/* Header */}
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center gap-3 sm:gap-4 mb-6">
         <button
           onClick={() => router.back()}
-          className="w-9 h-9 rounded-full border border-[#E9DED4] bg-white flex items-center justify-center hover:bg-[#F8F3EE]"
+          className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-[#E9DED4] bg-white flex items-center justify-center hover:bg-[#F8F3EE] shrink-0"
         >
           <FiArrowLeft className="text-lg text-[#5A4332]" />
         </button>
 
-        <h1 className="text-[28px] font-bold text-[#2F241D]">
+        <h1 className="text-xl sm:text-2xl md:text-[28px] font-bold text-[#2F241D]">
           {t("rentalTimeline")}
         </h1>
       </div>
 
-      <div className="grid grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* LEFT */}
-        <div className="col-span-8 bg-white border border-[#EEE5DE] rounded-2xl p-8">
+        <div className="col-span-1 lg:col-span-7 xl:col-span-8 bg-white border border-[#EEE5DE] rounded-2xl p-4 sm:p-6 md:p-8">
           <div className="relative">
             {timeline.map((item, index) => {
               const completed = index <= currentStep;
@@ -126,39 +126,43 @@ export default function RentalTimeline({ orderId }) {
               return (
                 <div
                   key={item.key}
-                  className="relative flex justify-between pb-10 last:pb-0"
+                  className="relative flex justify-between items-start gap-4 pb-10 last:pb-0"
                 >
                   {/* Line */}
                   {index !== timeline.length - 1 && (
                     <div
-                      className={`absolute left-[17px] top-9 w-[2px] h-full ${index < currentStep ? "bg-[#C96B34]" : "bg-[#E5E5E5]"
-                        }`}
+                      className={`absolute left-[17px] top-9 w-[2px] h-full ${
+                        index < currentStep ? "bg-[#C96B34]" : "bg-[#E5E5E5]"
+                      }`}
                     />
                   )}
 
-                  <div className="flex gap-4">
+                  <div className="flex gap-3 sm:gap-4 min-w-0">
                     {/* Icon */}
                     <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-sm z-10 ${completed
+                      className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-sm z-10 shrink-0 ${
+                        completed
                           ? "bg-[#B8663A]"
                           : "bg-white border border-[#D9D9D9] text-[#999]"
-                        }`}
+                      }`}
                     >
                       {item.icon}
                     </div>
 
                     {/* Text */}
-                    <div>
+                    <div className="min-w-0">
                       <h3
-                        className={`font-semibold text-[14px] ${completed ? "text-[#2D241C]" : "text-[#B8B8B8]"
-                          }`}
+                        className={`font-semibold text-[14px] ${
+                          completed ? "text-[#2D241C]" : "text-[#B8B8B8]"
+                        }`}
                       >
                         {item.title}
                       </h3>
 
                       <p
-                        className={`text-xs mt-1 ${completed ? "text-[#8D857D]" : "text-[#C6C6C6]"
-                          }`}
+                        className={`text-xs mt-1 ${
+                          completed ? "text-[#8D857D]" : "text-[#C6C6C6]"
+                        }`}
                       >
                         {item.desc}
                       </p>
@@ -166,8 +170,9 @@ export default function RentalTimeline({ orderId }) {
                   </div>
 
                   <span
-                    className={`text-xs ${completed ? "text-[#8B8B8B]" : "text-[#BEBEBE]"
-                      }`}
+                    className={`text-xs shrink-0 whitespace-nowrap ${
+                      completed ? "text-[#8B8B8B]" : "text-[#BEBEBE]"
+                    }`}
                   >
                     {completed ? t("completed") : t("pending")}
                   </span>
@@ -178,58 +183,59 @@ export default function RentalTimeline({ orderId }) {
         </div>
 
         {/* RIGHT */}
-        <div className="col-span-4 space-y-5">
+        <div className="col-span-1 lg:col-span-5 xl:col-span-4 space-y-5">
           {/* Summary */}
-          <div className="bg-white border border-[#EEE5DE] rounded-2xl p-4">
+          <div className="bg-white border border-[#EEE5DE] rounded-2xl p-4 sm:p-5">
             <h3 className="text-[13px] font-medium text-[#7A6E66] uppercase mb-5">
               {t("orderSummary")}
             </h3>
 
             <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-[#8C8177]">{t("orderId")}</span>
-                <span className="font-medium text-[12px] text-[#A85A32]">
+              <div className="flex justify-between items-center gap-3">
+                <span className="text-[#8C8177] shrink-0">{t("orderId")}</span>
+                <span className="font-medium text-[12px] text-[#A85A32] text-right truncate">
                   {order?.order_id}
                 </span>
               </div>
 
-              <div className="flex justify-between">
-                <span className="text-[#8C8177]">{t("company")}</span>
-                <span className="font-semibold text-[#1A1714]">
+              <div className="flex justify-between items-center gap-3">
+                <span className="text-[#8C8177] shrink-0">{t("company")}</span>
+                <span className="font-semibold text-[#1A1714] text-right break-words">
                   {order?.delivery_address?.name}
                 </span>
               </div>
 
-              <div className="flex justify-between">
-                <span className="text-[#8C8177]">{t("type")}</span>
+              <div className="flex justify-between items-center gap-3">
+                <span className="text-[#8C8177] shrink-0">{t("type")}</span>
 
-                <span className="px-2 py-1 rounded bg-[#F0F9FF] border border-[#B8E6FE] text-[#0069A8] text-xs font-semibold">
+                <span className="px-2 py-1 rounded bg-[#F0F9FF] border border-[#B8E6FE] text-[#0069A8] text-xs font-semibold shrink-0">
                   B2C
                 </span>
               </div>
 
-              <div className="flex justify-between">
-                <span className="text-[#8C8177]">{t("amount")}</span>
-                <span className="font-semibold text-[#A85A32]">
+              <div className="flex justify-between items-center gap-3">
+                <span className="text-[#8C8177] shrink-0">{t("amount")}</span>
+                <span className="font-semibold text-[#A85A32] text-right">
                   ${order?.total_amount}
                 </span>{" "}
               </div>
 
-              <div className="flex justify-between">
-                <span className="text-[#8C8177]">{t("status")}</span>
+              <div className="flex justify-between items-center gap-3">
+                <span className="text-[#8C8177] shrink-0">{t("status")}</span>
 
                 <span
-                  className={`px-2 py-1 rounded border text-xs font-semibold capitalize
-      ${order?.status === "returned"
-                      ? "bg-[#FAF5FF] text-[#8200DB] border-[#E9D4FF]"
-                      : order?.status === "delivered"
-                        ? "bg-[#EAF8F0] text-[#3E9C68] border-[#86EFAC]"
-                        : order?.status === "processing"
-                          ? "bg-[#FFF4E5] text-[#D97706] border-[#FCD34D]"
-                          : order?.status === "pending"
-                            ? "bg-[#FFF4E5] text-[#BB4D00] border-[#BB4D00]"
-                            : "bg-[#EFF6FF] text-[#1447E6] border-[#BEDBFF]"
-                    }`}
+                  className={`px-2 py-1 rounded border text-xs font-semibold capitalize whitespace-nowrap shrink-0
+      ${
+        order?.status === "returned"
+          ? "bg-[#FAF5FF] text-[#8200DB] border-[#E9D4FF]"
+          : order?.status === "delivered"
+            ? "bg-[#EAF8F0] text-[#3E9C68] border-[#86EFAC]"
+            : order?.status === "processing"
+              ? "bg-[#FFF4E5] text-[#D97706] border-[#FCD34D]"
+              : order?.status === "pending"
+                ? "bg-[#FFF4E5] text-[#BB4D00] border-[#BB4D00]"
+                : "bg-[#EFF6FF] text-[#1447E6] border-[#BEDBFF]"
+      }`}
                 >
                   {order?.status}
                 </span>
@@ -238,7 +244,7 @@ export default function RentalTimeline({ orderId }) {
           </div>
 
           {/* Progress */}
-          <div className="bg-[#FFF8F3] border border-[#ECD8CB] rounded-2xl p-4">
+          <div className="bg-[#FFF8F3] border border-[#ECD8CB] rounded-2xl p-4 sm:p-5">
             <h3 className="flex items-center gap-2 text-[13px] uppercase text-[#C26C35] font-semibold mb-4">
               <FiInfo size={17} />
               {t("progress")}

@@ -21,15 +21,15 @@ const EditPromotion = ({ promotionId }) => {
 
   return (
     <div className="min-h-screen bg-white px-4 py-6 sm:px-6 sm:py-8">
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 sm:gap-4">
         <button
           type="button"
           onClick={() => router.push("/pricing-packages?tab=promotions")}
-          className="flex h-7 w-7 items-center justify-center rounded-full border border-[#EDE0D7] bg-white text-[#6F6058]"
+          className="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full border border-[#EDE0D7] bg-white text-[#6F6058] hover:bg-[#FAF6F3] transition"
         >
-          <TbArrowLeft size={14} />
+          <TbArrowLeft size={16} />
         </button>
-        <h1 className="text-[30px] font-semibold leading-tight text-[#2A211D]">
+        <h1 className="text-xl xs:text-2xl sm:text-[30px] font-semibold leading-tight text-[#2A211D] tracking-tight">
           Edit Promotion
         </h1>
       </div>

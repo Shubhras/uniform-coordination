@@ -659,6 +659,8 @@
       "totalCount": "生地 合計{count}件",
       "addNew": "新しい生地を追加",
       "searchPlaceholder": "生地を検索...",
+      "allCategories": "すべてのカテゴリー",
+      "reset": "リセット",
       "successTitle": "成功",
       "tableHeaders": {
         "fabricName": "生地名",

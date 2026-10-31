@@ -19,27 +19,38 @@ import DatePicker from "@/components/ui/DatePicker";
 /**
  * Zod validation schema for customer delivery details & rental dates.
  */
-const deliveryValidationSchema = z.object({
-  first_name: z.string().min(1, { message: "First name is required" }),
-  last_name: z.string().min(1, { message: "Last name is required" }),
-  email: z
-    .string()
-    .min(1, { message: "Email is required" })
-    .email({ message: "Invalid email address" }),
-  phone: z
-    .string()
-    .min(10, { message: "Phone number must be 10 digits" })
-    .max(10, { message: "Phone number must be 10 digits" })
-    .regex(/^\d+$/, { message: "Only digits are allowed" }),
-  address_line_1: z.string().min(1, { message: "Address is required" }),
-  address_line_2: z.string().optional(),
-  city: z.string().min(1, { message: "City is required" }),
-  postal_code: z.string().min(1, { message: "Postal code is required" }),
-  country: z.string().min(1, { message: "Country is required" }),
-  start_date: z.string().min(1, { message: "Start date is required" }),
-  return_date: z.string().min(1, { message: "Return date is required" }),
-  coupon_code: z.string().optional(),
-});
+const deliveryValidationSchema = z
+  .object({
+    first_name: z.string().min(1, { message: "First name is required" }),
+    last_name: z.string().min(1, { message: "Last name is required" }),
+    email: z
+      .string()
+      .min(1, { message: "Email is required" })
+      .email({ message: "Invalid email address" }),
+    phone: z
+      .string()
+      .min(10, { message: "Phone number must be 10 digits" })
+      .max(10, { message: "Phone number must be 10 digits" })
+      .regex(/^\d+$/, { message: "Only digits are allowed" }),
+    address_line_1: z.string().min(1, { message: "Address is required" }),
+    address_line_2: z.string().optional(),
+    city: z.string().min(1, { message: "City is required" }),
+    postal_code: z.string().min(1, { message: "Postal code is required" }),
+    country: z.string().min(1, { message: "Country is required" }),
+    start_date: z.string().min(1, { message: "Start date is required" }),
+    return_date: z.string().min(1, { message: "Return date is required" }),
+    coupon_code: z.string().optional(),
+  })
+  .refine(
+    (data) => {
+      if (!data.start_date || !data.return_date) return true;
+      return dayjs(data.return_date).isAfter(dayjs(data.start_date), "day");
+    },
+    {
+      message: "Return date must be greater than start date",
+      path: ["return_date"],
+    },
+  );
 
 /**
  * DeliveryInformation Component
@@ -135,11 +146,7 @@ const DeliveryInformation = () => {
 
   const rentalDays =
     start_date && return_date
-      ? Math.max(
-        0,
-        (new Date(return_date) - new Date(start_date)) /
-        (1000 * 60 * 60 * 24),
-      )
+      ? Math.max(0, dayjs(return_date).diff(dayjs(start_date), "day"))
       : 0;
 
   /**
@@ -150,7 +157,7 @@ const DeliveryInformation = () => {
   const onSubmit = async (data) => {
     if (!session?.accessToken) return;
 
-    if (new Date(data.return_date) < new Date(data.start_date)) {
+    if (!dayjs(data.return_date).isAfter(dayjs(data.start_date), "day")) {
       toast.push(
         <Notification title="Warning!" type="warning">
           Return date must be after start date.
@@ -502,15 +509,26 @@ const DeliveryInformation = () => {
                     render={({ field }) => (
                       <DatePicker
                         value={field.value ? new Date(field.value) : null}
-                        onChange={(date) =>
-                          field.onChange(
-                            date ? dayjs(date).format("YYYY-MM-DD") : "",
-                          )
-                        }
+                        onChange={(date) => {
+                          const formatted = date
+                            ? dayjs(date).format("YYYY-MM-DD")
+                            : "";
+                          field.onChange(formatted);
+                          if (
+                            return_date &&
+                            formatted &&
+                            !dayjs(return_date).isAfter(dayjs(formatted), "day")
+                          ) {
+                            setValue("return_date", "");
+                          }
+                        }}
                         placeholder="Start Date"
                         className="mb-1"
                         minDate={new Date()}
-                        inputtable={true} // agar library support karti ho
+                        disableDate={(date) =>
+                          dayjs(date).isBefore(dayjs(), "day")
+                        }
+                        inputtable={true}
                       />
                     )}
                   />
@@ -534,7 +552,20 @@ const DeliveryInformation = () => {
                         }
                         placeholder="Return Date"
                         className="mb-1"
-                        minDate={start_date ? new Date(start_date) : new Date()}
+                        minDate={
+                          start_date
+                            ? dayjs(start_date).add(1, "day").toDate()
+                            : dayjs().add(1, "day").toDate()
+                        }
+                        disableDate={(date) => {
+                          if (start_date) {
+                            return !dayjs(date).isAfter(
+                              dayjs(start_date),
+                              "day",
+                            );
+                          }
+                          return !dayjs(date).isAfter(dayjs(), "day");
+                        }}
                       />
                     )}
                   />
