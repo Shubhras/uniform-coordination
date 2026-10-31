@@ -49,15 +49,15 @@ const PromotionDetails = ({ promotionId }) => {
 
   return (
     <div className="min-h-screen bg-white px-4 py-6 sm:px-6 sm:py-8">
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 sm:gap-4">
         <button
           type="button"
           onClick={() => router.push("/pricing-packages?tab=promotions")}
-          className="flex h-7 w-7 items-center justify-center rounded-full border border-[#EDE0D7] bg-white text-[#6F6058] hover:bg-gray-50"
+          className="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full border border-[#EDE0D7] bg-white text-[#6F6058] hover:bg-[#FAF6F3] transition"
         >
-          <TbArrowLeft size={14} />
+          <TbArrowLeft size={16} />
         </button>
-        <h1 className="text-[30px] font-semibold leading-tight text-[#2A211D]">
+        <h1 className="text-xl xs:text-2xl sm:text-[30px] font-semibold leading-tight text-[#2A211D] tracking-tight">
           Promotion Details
         </h1>
       </div>
@@ -71,8 +71,8 @@ const PromotionDetails = ({ promotionId }) => {
           Promotion not found.
         </div>
       ) : (
-        <div className="mt-5 rounded-[14px] border border-[#F0E4DB] bg-white p-5">
-          <div className="grid gap-x-10 gap-y-5 md:grid-cols-3">
+        <div className="mt-5 rounded-[14px] border border-[#F0E4DB] bg-white p-4 sm:p-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-5">
             <div>
               <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#B3A096]">Promotion Name</p>
               <p className="mt-2 text-[13px] font-medium text-[#3F332C]">
@@ -118,7 +118,7 @@ const PromotionDetails = ({ promotionId }) => {
                     : "All Customers"}
               </p>
             </div>
-            <div className="md:col-span-3">
+            <div className="col-span-1 sm:col-span-2 lg:col-span-3">
               <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#B3A096]">Description</p>
               <p className="mt-2 text-[12px] text-[#3F332C]">
                 {(promo.description || "")

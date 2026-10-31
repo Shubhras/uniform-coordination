@@ -14,8 +14,10 @@ import formatDate from '@/utils/formatDate'
  * @param {Object} props - Component props.
  * @param {boolean} props.isOpen - Modal visibility flag.
  * @param {Function} props.onClose - Modal close handler callback.
+ * @param {string} [props.policyType] - Policy type identifier (defaults to 'terms_and_conditions').
+ * @param {Function} [props.onAgree] - Callback triggered when user clicks 'I Agree'.
  */
-const TermsAndConditionsPopup = ({ isOpen, onClose }) => {
+const TermsAndConditionsPopup = ({ isOpen, onClose, policyType = 'terms_and_conditions', onAgree }) => {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
     const [termsConditions, setTermsConditions] = useState(null)
@@ -23,14 +25,14 @@ const TermsAndConditionsPopup = ({ isOpen, onClose }) => {
     /**
      * Fetches terms & agreement policy data from API.
      * 
-     * @param {string} policyType - Policy type identifier.
+     * @param {string} type - Policy type identifier.
      */
-    const fetchPrivatePolicy = async (policyType = 'agreement') => {
+    const fetchPrivatePolicy = async (type = 'terms_and_conditions') => {
         try {
             setLoading(true)
             setError(null)
 
-            let res = await apiPrivatePolicy(policyType)
+            let res = await apiPrivatePolicy(type)
 
             if (res?.status && res?.data?.length > 0) {
                 setTermsConditions(res.data[0])
@@ -46,9 +48,9 @@ const TermsAndConditionsPopup = ({ isOpen, onClose }) => {
 
     useEffect(() => {
         if (isOpen) {
-            fetchPrivatePolicy("agreement")
+            fetchPrivatePolicy(policyType)
         }
-    }, [isOpen])
+    }, [isOpen, policyType])
 
     return (
         <Dialog
@@ -60,38 +62,21 @@ const TermsAndConditionsPopup = ({ isOpen, onClose }) => {
             <div className="flex flex-col h-full max-h-[90vh] min-h-[400px]">
 
                 {/* HEADER */}
-                <div className="
-                    relative
-                    px-16 sm:px-16
-                    pt-5 pb-4
-                    border-b
-                    flex
-                    flex-col
-                    sm:flex-row
-                    sm:items-center
-                    sm:justify-between
-                    gap-2
-                ">
-                    <h2 className="
-                        text-lg
-                        sm:text-xl
-                        font-semibold
-                        text-center
-                        sm:text-left
-                       text-[#8B4513]
-                    ">
-                        Terms & Conditions
-                    </h2>
+                <div className="relative pt-5 pb-4 border-b flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                    <h2 className="text-lg sm:text-xl font-semibold text-center sm:text-left text-[#8B4513]">
+                        Terms and Conditions                    </h2>
 
-                    <span className="
-                        text-xs
-                        sm:text-sm
-                        text-gray-500
-                        text-center
-                        sm:text-right
-                    ">
-                        Last Updated: {termsConditions?.updated_at && formatDate(termsConditions.updated_at)}
-                    </span>
+                    {termsConditions?.updated_at && (
+                        <span className="
+                            text-xs
+                            sm:text-sm
+                            text-gray-500
+                            text-center
+                            sm:text-right
+                        ">
+                            Last Updated: {formatDate(termsConditions.updated_at)}
+                        </span>
+                    )}
                 </div>
 
                 {/* CONTENT */}
@@ -150,7 +135,10 @@ const TermsAndConditionsPopup = ({ isOpen, onClose }) => {
                             py-2
                             rounded-md
                         "
-                        onClick={onClose}
+                        onClick={() => {
+                            if (onAgree) onAgree()
+                            onClose()
+                        }}
                     >
                         I Agree
                     </Button>

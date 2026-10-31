@@ -208,7 +208,14 @@ const ThemeBuilder = ({ themeData, setThemeData, onBack, onPreview }) => {
                           >
                             <div className="flex items-center gap-3">
                               <img
-                                src={item.thumbnail || item.image}
+                                src={
+                                  item.ProductImage ||
+                                  item.productImage ||
+                                  item.thumbnail ||
+                                  item.image ||
+                                  item.product_details?.ProductImage ||
+                                  ""
+                                }
                                 className="w-12 h-12 rounded-lg object-cover"
                                 alt=""
                               />

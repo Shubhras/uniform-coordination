@@ -6,6 +6,7 @@ import Tabs from "./Tabs";
 import GeneralSettings from "./generalSettings/GeneralSettings";
 import PaymentSettings from "./paymentSettings/PaymentSettings";
 import EmailNotifications from "./emailNotifications/EmailNotifications";
+import PrivacyPolicy from "./privacyPolicy/PrivacyPolicy";
 
 const SystemSettings = () => {
   const t = useTranslations("systemSettings");
@@ -19,6 +20,9 @@ const SystemSettings = () => {
         return <PaymentSettings />;
       case "Email & Notifications":
         return <EmailNotifications />;
+      case "Terms & Policy":
+      case "Privacy Policy":
+        return <PrivacyPolicy />;
       default:
         return null;
     }

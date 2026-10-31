@@ -13,6 +13,7 @@ import {
   FiEye,
 } from "react-icons/fi";
 import { useTranslations, useLocale } from "next-intl";
+import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { apiGetBlogList, apiDeleteBlog } from "@/services/BlogService";
@@ -55,6 +56,7 @@ const BlogTab = () => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const t = useTranslations("contentMedia.blog");
   const ts = useTranslations("successTitle");
+  const te = useTranslations("errorTitle");
 
   // Modal
   const [openModal, setOpenModal] = useState(false);
@@ -147,6 +149,11 @@ const BlogTab = () => {
       fetchBlogs(currentPage);
     } catch (error) {
       console.error("Failed to delete blog:", error);
+      toast.push(
+        <Notification title={te("error")} type="danger">
+          {error?.response?.data?.message || "Failed to delete blog"}
+        </Notification>,
+      );
     } finally {
       setDeleteLoading(false);
     }
@@ -158,8 +165,10 @@ const BlogTab = () => {
     setEditPost(null);
   };
 
-  const handleSaveSuccess = () => {
-    handleCloseModal();
+  const handleSaveSuccess = (keepOpen = false) => {
+    if (!keepOpen) {
+      handleCloseModal();
+    }
     fetchBlogs(currentPage);
   };
 

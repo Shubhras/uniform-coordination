@@ -52,20 +52,20 @@ const PromotionDetails = ({ promotionId }) => {
 
   return (
     <div className="min-h-screen bg-white px-4 py-6 sm:px-6 sm:py-8">
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 sm:gap-4">
         <button
           onClick={() => router.push("/pricing-packages?tab=promotions")}
-          className="w-9 h-9 rounded-full border border-[#E7D9CF] bg-white flex items-center justify-center hover:bg-[#F8F4F1]"
+          className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-full border border-[#E7D9CF] bg-white flex items-center justify-center hover:bg-[#F8F4F1] transition"
         >
           <FiArrowLeft className="text-lg text-[#5B4434]" />
         </button>
-        <h1 className="text-[30px] font-semibold leading-tight text-[#2A211D]">
+        <h1 className="text-xl xs:text-2xl sm:text-[30px] font-semibold leading-tight text-[#2A211D] tracking-tight">
           {t("promotionDetails")}
         </h1>
       </div>
 
-      <div className="mt-5 rounded-[14px] border border-[#F0E4DB] bg-white p-5">
-        <div className="grid gap-x-10 gap-y-5 md:grid-cols-3">
+      <div className="mt-5 rounded-[14px] border border-[#F0E4DB] bg-white p-4 sm:p-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-5">
           <div>
             <p className="text-[13px] uppercase tracking-[0.12em] font-semibold text-[#B3A096]">
               {t("promotionName")}
@@ -128,7 +128,7 @@ const PromotionDetails = ({ promotionId }) => {
               {promotion?.eligibleCustomers || "-"}
             </p>
           </div>
-          <div className="md:col-span-3">
+          <div className="col-span-1 sm:col-span-2 lg:col-span-3">
             <p className="text-[13px] uppercase tracking-[0.12em] font-semibold text-[#B3A096]">
               {t("descriptionLabel")}
             </p>

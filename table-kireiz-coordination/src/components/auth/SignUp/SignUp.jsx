@@ -7,10 +7,12 @@ import useTimeOutMessage from "@/utils/hooks/useTimeOutMessage";
 import useTheme from "@/utils/hooks/useTheme";
 import OauthSignIn from "../SignIn/OauthSignIn";
 import SplitSignup from "@/components/layouts/AuthLayout/SplitSignup";
+import PrivacyPolicyPopup from "./PrivacyPolicyPopup";
 
 export const SignUp = ({ onSignUp, signInUrl = "/sign-in", onOauthSignIn }) => {
   const [message, setMessage] = useTimeOutMessage();
   const [isTermsAccepted, setIsTermsAccepted] = useState(false);
+  const [isPolicyModalOpen, setIsPolicyModalOpen] = useState(false);
 
   const mode = useTheme((state) => state.mode);
 
@@ -38,7 +40,7 @@ export const SignUp = ({ onSignUp, signInUrl = "/sign-in", onOauthSignIn }) => {
             termConditionHint={
               <>
                 <div className="mb-6 mt-0 flex justify-between items-center">
-                  <label className="flex items-center gap-2 cursor-pointer">
+                  <label className="flex items-center gap-2 cursor-pointer select-none">
                     <div className="relative w-5 h-5 shrink-0 flex items-center justify-center">
                       <input
                         type="checkbox"
@@ -59,8 +61,17 @@ export const SignUp = ({ onSignUp, signInUrl = "/sign-in", onOauthSignIn }) => {
                       </svg>
                     </div>
                     <p>
-                      I Agree to privacy
-                      <span className="text-[#8B4513]"> policy & terms</span>
+                      I Agree to privacy{' '}
+                      <span
+                        className="text-[#8B4513] underline font-medium cursor-pointer"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setIsPolicyModalOpen(true);
+                        }}
+                      >
+                        policy & terms
+                      </span>
                     </p>
                   </label>
                 </div>
@@ -91,6 +102,11 @@ export const SignUp = ({ onSignUp, signInUrl = "/sign-in", onOauthSignIn }) => {
           </div> */}
         </div>
       </SplitSignup>
+      <PrivacyPolicyPopup
+        isOpen={isPolicyModalOpen}
+        onClose={() => setIsPolicyModalOpen(false)}
+        onAgree={() => setIsTermsAccepted(true)}
+      />
     </>
   );
 };

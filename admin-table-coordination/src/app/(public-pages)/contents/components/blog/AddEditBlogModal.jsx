@@ -77,27 +77,27 @@ const AddEditBlogModal = ({
     image:
       mode === "add"
         ? z
-            .any()
-            .refine((file) => Boolean(file), {
-              message: t("validation.imageRequired"),
-            })
-            .refine(
-              (file) =>
-                !file || !(file instanceof File) || file.size <= MAX_IMAGE_SIZE,
-              {
-                message: t("validation.imageSizeLimit"),
-              },
-            )
+          .any()
+          .refine((file) => Boolean(file), {
+            message: t("validation.imageRequired"),
+          })
+          .refine(
+            (file) =>
+              !file || !(file instanceof File) || file.size <= MAX_IMAGE_SIZE,
+            {
+              message: t("validation.imageSizeLimit"),
+            },
+          )
         : z
-            .any()
-            .refine(
-              (file) =>
-                !file || !(file instanceof File) || file.size <= MAX_IMAGE_SIZE,
-              {
-                message: t("validation.imageSizeLimit"),
-              },
-            )
-            .optional(),
+          .any()
+          .refine(
+            (file) =>
+              !file || !(file instanceof File) || file.size <= MAX_IMAGE_SIZE,
+            {
+              message: t("validation.imageSizeLimit"),
+            },
+          )
+          .optional(),
   });
 
   // Category options from API
@@ -125,6 +125,7 @@ const AddEditBlogModal = ({
 
   // Save state
   const [saving, setSaving] = useState(false);
+  const [savingAction, setSavingAction] = useState(null);
   const [error, setError] = useState("");
 
   /* ---------- FETCH CATEGORIES ---------- */
@@ -266,19 +267,27 @@ const AddEditBlogModal = ({
 
   /* ---------- RESET FORM ---------- */
   const resetForm = () => {
-    setTitle("");
-    setCategory(null);
-    setDescription("");
+    reset({
+      title: "",
+      category: null,
+      description: "",
+      image: null,
+    });
     setImageFile(null);
     setPreview(null);
     setValidated(false);
     setError("");
+    clearErrors();
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   /* ---------- SAVE ---------- */
   const handleSave = async (values, { keepOpen = false } = {}) => {
     setError("");
     setSaving(true);
+    setSavingAction(keepOpen ? "saveAddAnother" : "save");
 
     try {
       const formData = new FormData();
@@ -318,19 +327,19 @@ const AddEditBlogModal = ({
 
       if (keepOpen && mode !== "edit") {
         resetForm();
-        // Re-fetch list in background
-        if (onSaveSuccess) onSaveSuccess();
+        if (onSaveSuccess) onSaveSuccess(true);
         return;
       }
 
       if (onSaveSuccess) {
-        onSaveSuccess();
+        onSaveSuccess(false);
       }
     } catch (err) {
       console.error("Blog save error:", err);
       setError(err?.response?.data?.message || t("saveError"));
     } finally {
       setSaving(false);
+      setSavingAction(null);
     }
   };
 
@@ -510,33 +519,39 @@ const AddEditBlogModal = ({
         </div>
 
         <div className="border-t px-6 py-4 flex justify-end sm:flex-row flex-col gap-3">
-          <Button
-            variant="plain"
+          <button
+            variant=""
             onClick={onClose}
             size="sm"
             disabled={saving}
-            className="bg-blue-100 rounded-lg"
+            className="h-10 px-5 rounded-md border border-[#E9DDD3] bg-white text-[#6E6258] font-medium hover:bg-[#F8F3EF] transition"
           >
             {t("cancel")}
-          </Button>
+          </button>
 
-          <Button
-            variant="plain"
-            size="sm"
-            onClick={() => handleSave({ keepOpen: true })}
-            disabled={saving}
-            className="bg-blue-100 rounded-lg"
-          >
-            {t("saveAddAnother")}
-          </Button>
+          {mode !== "edit" && (
+            <button
+
+              size="sm"
+              onClick={handleSubmit((values) =>
+                handleSave(values, { keepOpen: true }),
+              )}
+              disabled={saving}
+              loading={saving && savingAction === "saveAddAnother"}
+              className="h-10 px-5 rounded-md border border-[#E9DDD3] bg-white text-[#6E6258] font-medium hover:bg-[#F8F3EF] transition"
+            >
+              {t("saveAddAnother")}
+            </button>
+          )}
 
           <Button
             variant="solid"
             size="sm"
             className="bg-[#A0522D] px-6 hover:bg-[#A0522D] text-white py-2 rounded-md"
-            // onClick={() => handleSave({ keepOpen: false })}
-            onClick={handleSubmit(handleSave)}
-            loading={saving}
+            onClick={handleSubmit((values) =>
+              handleSave(values, { keepOpen: false }),
+            )}
+            loading={saving && savingAction === "save"}
           >
             {mode === "edit" ? t("update") : t("save")}
           </Button>

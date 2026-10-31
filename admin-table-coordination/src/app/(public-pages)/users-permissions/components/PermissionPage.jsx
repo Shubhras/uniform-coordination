@@ -166,7 +166,7 @@ const PermissionPage = () => {
         </div> */}
 
         {/* Table */}
-        <div className="border border-[#E2E8F0] rounded-xl overflow-hidden">
+        <div className="border border-[#E2E8F0] rounded-xl overflow-x-auto">
           {loading ? (
             <div className="flex justify-center items-center h-[400px]">
               <Spinner size={40} customColorClass="text-[#A0522D]" />

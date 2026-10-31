@@ -314,11 +314,16 @@ const Overview = () => {
                                                 className="w-4 h-4 accent-[#8B4513] cursor-pointer rounded"
                                             />
                                             <span>
-                                                I Agree to privacy{' '}
-                                                <span className="text-[#8B4513] underline font-medium"
-                                                    onClick={openDialogTerms}
+                                                I Agree to {' '}
+                                                <span
+                                                    className="text-[#8B4513] underline font-medium cursor-pointer"
+                                                    onClick={(e) => {
+                                                        e.preventDefault()
+                                                        e.stopPropagation()
+                                                        openDialogTerms()
+                                                    }}
                                                 >
-                                                    policy & terms
+                                                    Terms & Conditions
                                                 </span>
                                             </span>
                                         </label>
@@ -347,6 +352,7 @@ const Overview = () => {
             <TermsAndConditionsPopup
                 isOpen={dialogTermsOpen}
                 onClose={() => setDialogTermsOpen(false)}
+                onAgree={() => setAgreedToTerms(true)}
             />
         </>
     )

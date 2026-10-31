@@ -72,24 +72,24 @@ export default function B2BOrderDetails({ orderId }) {
 
   return (
     <>
-      <div className="min-h-screen bg-[#FAF8F6] p-6">
+      <div className="min-h-screen bg-[#FAF8F6] p-4 sm:p-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
+          <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-wrap">
             <button
               onClick={() => router.back()}
-              className="w-9 h-9 rounded-full border border-[#E9DED4] bg-white flex items-center justify-center hover:bg-[#F8F3EE]"
+              className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-[#E9DED4] bg-white flex items-center justify-center hover:bg-[#F8F3EE] shrink-0"
             >
               <FiArrowLeft className="text-lg text-[#5B4434]" />
             </button>
 
-            <div className="flex items-center gap-4">
-              <h1 className="text-[30px] font-bold text-[#2E241D]">
+            <div className="flex items-center gap-2.5 sm:gap-4 flex-wrap">
+              <h1 className="text-xl xs:text-2xl sm:text-[30px] font-bold text-[#2E241D]">
                 {t("orderDetails")}
               </h1>
 
               <span
-                className={`px-4 py-1 rounded-md text-sm font-semibold capitalize ${
+                className={`px-3 sm:px-4 py-1 rounded-md text-xs sm:text-sm font-semibold capitalize whitespace-nowrap ${
                   order?.status === "pending"
                     ? "bg-[#FFF4E5] text-[#D97706]"
                     : order?.status === "delivered"
@@ -106,20 +106,20 @@ export default function B2BOrderDetails({ orderId }) {
 
           <button
             onClick={() => setOpenReturnModal(true)}
-            className="bg-[#A85A32] hover:bg-[#95502D] text-white px-5 py-2 rounded-lg text-sm font-semibold"
+            className="bg-[#A85A32] hover:bg-[#95502D] text-white px-4 sm:px-5 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap shrink-0 self-start sm:self-auto"
           >
             {t("markAsReturnedAction")}
           </button>
         </div>
 
         {/* Company Card */}
-        <div className="bg-white border border-[#EEE3DA] rounded-2xl p-4 mb-7">
+        <div className="bg-white border border-[#EEE3DA] rounded-2xl p-4 sm:p-6 mb-7">
           <div className="flex items-center gap-2 text-[#7A6E66] font-semibold text-[12px] mb-7">
             <FiBriefcase size={18} className="text-[#A0522D]" />
             {tb("companyInformation")}
           </div>
 
-          <div className="grid grid-cols-3 gap-y-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-y-8">
             {/* <div>
               <p className="text-[13px] font-semibold text-[#7A6E66] mb-1">
                 Company

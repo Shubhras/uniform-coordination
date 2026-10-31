@@ -158,17 +158,17 @@ export default function EditPricingRules() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FCFAF8] p-6">
+    <div className="min-h-screen bg-[#FCFAF8] p-4 sm:p-6">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-5">
+      <div className="flex items-center gap-3 sm:gap-4 mb-5">
         <button
           onClick={() => router.back()}
-          className="h-9 w-9 rounded-full border border-[#E9DDD3] bg-white flex items-center justify-center hover:bg-[#F8F5F2] transition"
+          className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-full border border-[#E9DDD3] bg-white flex items-center justify-center hover:bg-[#F8F5F2] transition"
         >
           <FiArrowLeft size={18} className="text-[#3C2F2F]" />
         </button>
 
-        <h1 className="text-[28px] font-semibold text-[#2C1A0E]">
+        <h1 className="text-xl xs:text-2xl sm:text-[28px] font-semibold text-[#2C1A0E] tracking-tight">
           {t("editPrice")}
         </h1>
       </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useState, useEffect, useMemo } from "react";
 import { FiArrowLeft, FiArrowRight } from "react-icons/fi";
 import { useRouter } from "next/navigation";
@@ -146,16 +147,24 @@ const UniformBusinessEnquiry = ({ tableThemes = [] }) => {
         })}
       </div>
       <div className="w-full h-px bg-gray-300 my-14" />
-      <h2 className="text-center text-3xl font-semibold text-[#402936]">
-        Explore Our Table Themes
-      </h2>
+      <div className="relative flex items-center justify-center">
+        <h2 className="text-center text-3xl font-semibold text-[#402936]">
+          Explore Our Table Themes
+        </h2>
+        <Link
+          href="/browse-by-theme"
+          className="absolute right-0 sm:right-6 text-[#A0522D] hover:text-[#8B4513] underline font-medium text-sm sm:text-base cursor-pointer whitespace-nowrap"
+        >
+          See all
+        </Link>
+      </div>
       <div className="flex justify-end gap-3 mt-6 mr-6">
         <button
           onClick={handlePrev}
           disabled={index === 0}
           className={`${index === 0
-              ? "text-gray-300 cursor-not-allowed"
-              : "text-[#5D4A4A] cursor-pointer"
+            ? "text-gray-300 cursor-not-allowed"
+            : "text-[#5D4A4A] cursor-pointer"
             }`}
         >
           <FiArrowLeft size={25} />
@@ -165,8 +174,8 @@ const UniformBusinessEnquiry = ({ tableThemes = [] }) => {
           onClick={handleNext}
           disabled={index + cardsPerView >= cards.length}
           className={`ml-8 ${index + cardsPerView >= cards.length
-              ? "text-gray-300 cursor-not-allowed"
-              : "text-[#5D4A4A] cursor-pointer"
+            ? "text-gray-300 cursor-not-allowed"
+            : "text-[#5D4A4A] cursor-pointer"
             }`}
         >
           <FiArrowRight size={25} />
