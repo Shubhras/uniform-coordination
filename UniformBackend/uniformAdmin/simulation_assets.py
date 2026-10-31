@@ -82,6 +82,9 @@ DEFAULT_STRUCTURES = {
     ],
 }
 
+# Alias for backwards compatibility with industry default lookups
+DEFAULT_STRUCTURE_BY_INDUSTRY = DEFAULT_STRUCTURES
+
 # Fallback for any category with no entry above.
 GENERIC_STRUCTURE = [
     {"attribute": "Fabric", "enabled": True, "order": "1"},
@@ -110,7 +113,15 @@ def category_attributes(category):
     # stored [], and that is a decision to keep. Treating [] as "nothing saved" brought
     # the seeded defaults straight back, so deletions looked like they never happened.
     if attributes is None:
-        attributes = []
+        attributes = DEFAULT_STRUCTURES.get(
+            category.categoryName,
+            [
+                {"attribute": "Parts", "enabled": True, "order": "1"},
+                {"attribute": "Color", "enabled": True, "order": "2"},
+                {"attribute": "Size", "enabled": True, "order": "3"},
+                {"attribute": "Fabric", "enabled": True, "order": "4"},
+            ],
+        )
     return attributes
 
 

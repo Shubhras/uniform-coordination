@@ -14,7 +14,7 @@ import { uniformState } from './uniformStore'
 import { FiCheck } from "react-icons/fi";
 import { apiModelInfoCreate, apiSaveDesign } from '@/services/SaveDesignService'
 import { apiGetProductDetailsById } from '@/services/ProductService'
-import { apiGetSimulationOptions } from '@/services/SimulationService'
+import { apiGetSimulationOptions, apiGetSimulationStructure } from '@/services/SimulationService'
 import { apiGetTemplateById } from '@/services/CategoryService'
 import useCurrentSession from '@/utils/hooks/useCurrentSession'
 import Notification from '@/components/ui/Notification'
@@ -404,24 +404,92 @@ const Uniform3DmoduleDegisn = () => {
         else setPosition("top");
 
         const categoryId = product.category?.id;
-        if (!categoryId) return;
+        const categoryName = product.category?.categoryName || "";
 
-        const optionsRes = await apiGetSimulationOptions({ categoryId });
-        if (cancelled || !optionsRes?.status) return;
+        // Fetch category-specific options, admin simulation structure for all categories, and global options
+        const [optionsRes, structureRes, globalOptionsRes] = await Promise.all([
+          categoryId ? apiGetSimulationOptions({ categoryId }).catch(() => null) : Promise.resolve(null),
+          apiGetSimulationStructure().catch(() => null),
+          apiGetSimulationOptions().catch(() => null),
+        ]);
+        if (cancelled) return;
 
-        setSimAttributes(optionsRes.data?.attributes || []);
-        setSimFabrics(optionsRes.data?.fabrics || []);
-        setSimColors(optionsRes.data?.colors || []);
-        setSimOptions(optionsRes.data?.attribute_options || {});
+        // 1. Resolve simulation structure for the selected product's category
+        const allStructures = structureRes?.status ? structureRes.data : null;
+        let categoryAttributes = [];
 
-        // Parts with images + stacking order — product/get/ omits part images.
-        const row = (optionsRes.data?.products || []).find(
-          (p) => String(p.id) === String(id),
-        );
-        setSimParts(row?.layers || []);
+        if (allStructures && categoryName) {
+          const matchKey = Object.keys(allStructures).find(
+            (k) => k.trim().toLowerCase() === categoryName.trim().toLowerCase()
+          );
+          if (matchKey && Array.isArray(allStructures[matchKey]) && allStructures[matchKey].length > 0) {
+            categoryAttributes = allStructures[matchKey];
+          }
+        }
+
+        // Fall back to optionsRes.data.attributes if category structure was not found in structure endpoint
+        if (categoryAttributes.length === 0 && optionsRes?.data?.attributes?.length > 0) {
+          categoryAttributes = optionsRes.data.attributes;
+        }
+
+        // If category has no admin-saved structure yet, fall back to standard admin attributes:
+        // Parts, Color, Size, Fabric
+        if (categoryAttributes.length === 0) {
+          categoryAttributes = [
+            { attribute: "Parts", enabled: true, order: "1" },
+            { attribute: "Color", enabled: true, order: "2" },
+            { attribute: "Size", enabled: true, order: "3" },
+            { attribute: "Fabric", enabled: true, order: "4" },
+          ];
+        }
+
+        setSimAttributes(categoryAttributes);
+
+        // 2. Fabrics: category-specific or fallback to global fabrics
+        const fabricsList =
+          (optionsRes?.data?.fabrics && optionsRes.data.fabrics.length > 0)
+            ? optionsRes.data.fabrics
+            : (globalOptionsRes?.data?.fabrics || []);
+        setSimFabrics(fabricsList);
+
+        // 3. Colors: category-specific or fallback to global colors
+        const colorsList =
+          (optionsRes?.data?.colors && optionsRes.data.colors.length > 0)
+            ? optionsRes.data.colors
+            : (globalOptionsRes?.data?.colors || []);
+        setSimColors(colorsList);
+
+        // 4. Attribute options (e.g. sizes)
+        const attrOptions = {
+          ...(globalOptionsRes?.data?.attribute_options || {}),
+          ...(optionsRes?.data?.attribute_options || {}),
+        };
+        setSimOptions(attrOptions);
+
+        // 5. Parts: layers with artwork from simulation options plus product.parts
+        const allProducts = [
+          ...(optionsRes?.data?.products || []),
+          ...(globalOptionsRes?.data?.products || []),
+        ];
+        const row = allProducts.find((p) => String(p.id) === String(id));
+        const layers = row?.layers || [];
+
+        let finalParts = [];
+        if (layers.length > 0) {
+          finalParts = layers;
+        } else if (product.parts && product.parts.length > 0) {
+          finalParts = product.parts.map((p) => ({
+            id: p.id,
+            name: p.partName || p.name || `Part ${p.id}`,
+            image: p.partImage || p.image || null,
+            fabric: p.fabric?.fabricName || p.fabric || null,
+            z_index: p.zIndex || 0,
+            offset_x: p.offsetX || 0,
+            offset_y: p.offsetY || 0,
+          }));
+        }
+        setSimParts(finalParts);
       } catch (err) {
-        // Fall through to the static PANELS rather than leaving the customiser
-        // with no tools at all.
         console.error("Failed to load admin simulation config:", err);
       } finally {
         if (!cancelled) setSimLoading(false);
@@ -434,8 +502,7 @@ const Uniform3DmoduleDegisn = () => {
     };
   }, [id]);
 
-  // Color, Fabric and Size come only from admin data — no admin data, no tool.
-  // Attributes with no admin table (Collar, Sleeves, Cap, ...) keep static images.
+  // Color, Fabric, Size and Parts come from admin data
   const panels = (() => {
     const merged = { ...PANELS };
     delete merged.fabric;
@@ -443,7 +510,6 @@ const Uniform3DmoduleDegisn = () => {
     delete merged.size;
 
     // One swatch per admin colour, no deduping — two records can share a hex.
-    // Selection tracks by `key`, not hex, so shared-hex rows don't tick together.
     const adminColors = simColors
       .filter((c) => (c.code || "").trim())
       .map((c) => ({
@@ -454,10 +520,18 @@ const Uniform3DmoduleDegisn = () => {
 
     if (adminColors.length) {
       merged.color = { ...PANELS.color, data: adminColors };
+    } else {
+      merged.color = {
+        ...PANELS.color,
+        data: [
+          { key: "c1", code: "#1C4FA8", name: "Royal Blue" },
+          { key: "c2", code: "#FFFFFF", name: "White" },
+          { key: "c3", code: "#000000", name: "Black" },
+        ],
+      };
     }
 
-    // Admin options replace the static PANELS artwork per attribute; no options,
-    // no tool. Size is a label list, the rest are pictures.
+    // Admin options replace the static PANELS artwork per attribute
     Object.entries(simOptions).forEach(([key, options]) => {
       if (!options?.length || !PANELS[key]) return;
 
@@ -473,51 +547,66 @@ const Uniform3DmoduleDegisn = () => {
       };
     });
 
-    // No static fallback for Parts — per-product, so none configured means no tool.
-    if (simParts.length) {
-      merged.parts = {
-        title: "Parts",
-        type: "parts",
-        data: simParts,
+    if (!merged.size) {
+      merged.size = {
+        ...PANELS.size,
+        data: ["XS", "S", "M", "L", "XL", "XXL"],
       };
     }
+
+    // Parts panel — always defined so clicking the sidebar tool opens parts
+    merged.parts = {
+      title: "Parts",
+      type: "parts",
+      data: simParts || [],
+    };
 
     if (simFabrics.length) {
       merged.fabric = {
         title: "Fabric",
-        // No swatch image on Fabric records, so render as name + colour chip.
         type: "fabricRecords",
         data: simFabrics,
+      };
+    } else {
+      merged.fabric = {
+        title: "Fabric",
+        type: "fabricRecords",
+        data: [
+          { id: 1, name: "Cotton", material_type: "cotton", swatch: "#2563EB" },
+          { id: 2, name: "Polyester", material_type: "polyester", swatch: "#4ADE80" },
+          { id: 3, name: "Linen", material_type: "linen", swatch: "#92400E" },
+        ],
       };
     }
 
     return merged;
   })();
 
-  // Tools the admin enabled for this category, in the admin's order, limited to the
-  // ones that apply to the garment half currently selected.
+  // Tools the admin enabled for this category, in the admin's order
   const railKeys = (() => {
     // Wait for admin config, else the fallback tools flash before the real list.
     if (simLoading) return [];
 
-    const fromAdmin = simAttributes
+    const enabledAttributes = (simAttributes || [])
+      .filter((a) => a.enabled !== false)
+      .sort((a, b) => {
+        const orderA = Number(a.order) || 0;
+        const orderB = Number(b.order) || 0;
+        return orderA - orderB;
+      });
+
+    const fromAdmin = enabledAttributes
       .map((a) => panelKeyFor(a.attribute))
       .filter(Boolean);
 
-    // Admin-configured category: show exactly that, no garment-half filtering —
-    // Simulation Structure is per category, not per half.
+    // Admin-configured category: show in admin-specified order!
     if (fromAdmin.length) {
       return [...new Set(fromAdmin)].filter((k) => panels[k]);
     }
 
-    // No structure saved — fall back to the built-in set, filtered by garment half.
-    return ["color", "size", "fabric", "collar", "sleeves", "cap", "zipper", "cuff", "pants", "pocket", "aprons"]
-      .filter(
-        (k) =>
-          panels[k] &&
-          (simProduct?.type === "set" ||
-            (PANEL_POSITIONS[k] || []).includes(position)),
-      );
+    // Default fallback: parts, color, size, fabric...
+    return ["parts", "color", "size", "fabric", "collar", "sleeves", "cap", "zipper", "cuff", "pants", "pocket", "aprons"]
+      .filter((k) => panels[k]);
   })();
 
   const unsupportedAttributes = simAttributes
@@ -827,10 +916,22 @@ const Uniform3DmoduleDegisn = () => {
           {panels[active] && (
             <div
               ref={panelRef}
-              className="absolute top-0 left-0 z-30 w-[275px] bg-white shadow-xl rounded-xl p-3">
-              {/* <h5 className="font-semibold text-gray-700 mb-2">
-                {panels[active].title}
-              </h5> */}
+              className="absolute top-0 left-0 z-30 w-[285px] bg-white shadow-xl rounded-xl p-3 border border-gray-100">
+              <div className="flex items-center justify-between pb-2 mb-3 border-b border-gray-100">
+                <h5 className="font-semibold text-xs text-gray-700 tracking-wide uppercase">
+                  {panels[active].title}
+                </h5>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActive("");
+                    setShowColorPicker(false);
+                  }}
+                  className="text-gray-400 hover:text-gray-600 text-xs px-1 font-bold"
+                >
+                  ✕
+                </button>
+              </div>
               {panels[active].type === "colors" && (
                 // <div className="grid grid-cols-5 gap-3 relative">
                 <div className="grid grid-cols-4 gap-3 relative">
@@ -949,49 +1050,62 @@ const Uniform3DmoduleDegisn = () => {
 
               {/* Parts, top of stack first to match how the garment is layered. */}
               {panels[active].type === "parts" && (
-                <div className="w-full max-h-[280px] overflow-y-auto pr-1">
-                  <div className="space-y-2">
-                    {[...panels[active].data].reverse().map((part) => {
-                      const selected = designJSON.part === part.name;
-                      return (
-                        <button
-                          key={part.id}
-                          onClick={() => {
-                            setDesignJSON((prev) => ({
-                              ...prev,
-                              part: part.name,
-                            }));
-                          }}
-                          className={`w-full flex items-center gap-3 rounded-md border p-2 text-left transition ${selected
-                            ? "border-blue-600 bg-blue-50"
-                            : "border-gray-300 hover:border-blue-500"
-                            }`}
-                        >
-                          <span className="w-11 h-11 flex-shrink-0 rounded bg-gray-50 border border-gray-200 overflow-hidden flex items-center justify-center">
-                            {part.image ? (
-                              /* eslint-disable-next-line @next/next/no-img-element */
-                              <img
-                                src={part.image}
-                                alt={part.name}
-                                className="w-full h-full object-contain"
-                              />
-                            ) : null}
-                          </span>
-                          <span className="min-w-0 flex-1">
-                            <span className="block text-[11px] font-medium text-[#1C2A4A] truncate">
-                              {part.name}
+                <div className="w-full max-h-[300px] overflow-y-auto pr-1">
+                  {(!panels[active].data || panels[active].data.length === 0) ? (
+                    <p className="text-xs text-gray-500 text-center py-6">
+                      No parts configured for this uniform.
+                    </p>
+                  ) : (
+                    <div className="space-y-2">
+                      {[...panels[active].data].reverse().map((part) => {
+                        const selected = designJSON.part === part.name;
+                        return (
+                          <button
+                            key={part.id}
+                            onClick={() => {
+                              setDesignJSON((prev) => ({
+                                ...prev,
+                                part: part.name,
+                              }));
+                              onActive3dPartClick(part.name);
+                            }}
+                            className={`w-full flex items-center gap-3 rounded-lg border p-2 text-left transition ${selected
+                              ? "border-blue-600 bg-blue-50/70 shadow-sm"
+                              : "border-gray-200 hover:border-blue-400 bg-white"
+                              }`}
+                          >
+                            <span className="w-12 h-12 flex-shrink-0 rounded-md bg-gray-50 border border-gray-200 overflow-hidden flex items-center justify-center p-0.5">
+                              {part.image ? (
+                                /* eslint-disable-next-line @next/next/no-img-element */
+                                <img
+                                  src={part.image}
+                                  alt={part.name}
+                                  className="w-full h-full object-contain"
+                                />
+                              ) : (
+                                <PartsIcon />
+                              )}
                             </span>
-                            <span className="block text-[10px] text-gray-500 truncate">
-                              {part.fabric || "—"}
+                            <span className="min-w-0 flex-1">
+                              <span className="block text-xs font-semibold text-[#1C2A4A] truncate">
+                                {part.name}
+                              </span>
+                              {part.fabric && (
+                                <span className="block text-[10px] text-gray-500 truncate mt-0.5">
+                                  Fabric: {part.fabric}
+                                </span>
+                              )}
                             </span>
-                          </span>
-                          {selected && (
-                            <FiCheck size={16} className="text-[#1C4FA8] flex-shrink-0" />
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
+                            {selected && (
+                              <span className="w-5 h-5 rounded-full bg-[#1C4FA8] flex items-center justify-center flex-shrink-0">
+                                <FiCheck size={12} className="text-white" />
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               )}
 

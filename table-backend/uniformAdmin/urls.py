@@ -33,6 +33,7 @@ from .attributes import *
 urlpatterns = [
     path('signup/', AdminSignupAPIView.as_view(), name='admin-signup'),
     path('login/', AdminLoginAPIView.as_view(), name='admin-login'),
+    path('token/refresh/', AdminTokenRefreshAPIView.as_view(), name='admin-token-refresh'),
     path('change-password/',ChangePasswordAPIView.as_view(), name='admin-change-password'),
     path('update-profile/', UpdateProfileAPIView.as_view(), name='admin-change-password'),
     path('profile/',ProfileAPIView.as_view(), name='admin-details'),

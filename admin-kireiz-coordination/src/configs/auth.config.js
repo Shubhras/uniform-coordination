@@ -61,7 +61,7 @@ export default {
                     authority: payload.token.authority || ['admin', 'user'],
                     role: payload.token.role || 'admin',
                     accessToken: payload.token.accessToken,
-                    refreshToken: payload.token.refreshToken, 
+                    refreshToken: payload.token.refreshToken,
                     permissions: payload.token.permissions || [],
                     entryPath: payload.token.entryPath || '/admin-form',
                 },

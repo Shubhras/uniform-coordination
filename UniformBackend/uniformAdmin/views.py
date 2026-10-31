@@ -100,16 +100,70 @@ class TableThemeListAPIView(APIView):
         500: OpenApiResponse(description="Server error"),
     },
 )
-    def get(self,request):
+    def get(self, request):
         try:
-            themes = TableTheme.objects.filter(isDeleted=False)
-            serializer = TableThemeSerializer(themes,many=True, context={"request": request})
+            search = request.query_params.get("search")
+            category_id = request.query_params.get("category_id")
+            ordering = request.query_params.get("ordering", "newest")
+
+            queryset = TableTheme.objects.filter(isDeleted=False)
+
+            # Search
+            if search:
+                queryset = queryset.filter(
+                    Q(title__icontains=search)
+                )
+
+            # Category Filter
+            if category_id:
+                queryset = queryset.filter(category_id=category_id)
+
+            # Ordering
+            if ordering == "oldest":
+                queryset = queryset.order_by("created_at")
+            else:
+                queryset = queryset.order_by("-created_at")
+
+            # Pagination
+            paginator = CustomPagination()
+            paginated_queryset = paginator.paginate_queryset(queryset, request)
+
+            serializer = TableThemeSerializer(
+                paginated_queryset,
+                many=True,
+                context={"request": request}
+            )
+
+            page_number = paginator.page.number if paginator.page else 1
+            page_size = paginator.get_page_size(request) or 10
+            total_items = paginator.page.paginator.count if paginator.page else queryset.count()
+            total_pages = paginator.page.paginator.num_pages if paginator.page else 1
+
             return Response({
-                "statusCode":200,
-                "status":True,
-                "message":"Table Themes Successfully fetch.",
-                "data":serializer.data
-            },status=status.HTTP_200_OK)
+                "statusCode": 200,
+                "status": True,
+                "message": "Table Themes fetched successfully.",
+                "count": total_items,
+                "next": paginator.get_next_link(),
+                "previous": paginator.get_previous_link(),
+                "page": page_number,
+                "page_size": page_size,
+                "total_pages": total_pages,
+                "total_items": total_items,
+                "pagination": {
+                    "page": page_number,
+                    "page_size": page_size,
+                    "total_pages": total_pages,
+                    "total_items": total_items,
+                },
+                "data": serializer.data,
+                "results": {
+                    "statusCode": 200,
+                    "status": True,
+                    "message": "Table Themes fetched successfully.",
+                    "data": serializer.data
+                }
+            }, status=status.HTTP_200_OK)
         
         except Exception as e:
             return Response({
@@ -213,6 +267,13 @@ class TableThemeUpdateAPIView(APIView):
                 "statusCode": 404,
                 "message": "Table theme not found"
             }, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": f"Server error while updating table theme: {str(e)}",
+                "error": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 
 class TableThemeDeleteAPIView(APIView):

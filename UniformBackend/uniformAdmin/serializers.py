@@ -901,9 +901,12 @@ class FAQSerializer(serializers.ModelSerializer):
     def validate_title(self, value):
         if not value or not value.strip():
             raise serializers.ValidationError("Title is required.")
-        if FAQ.objects.filter(title=value.strip(), isDeleted=False).exists():
+        qs = FAQ.objects.filter(title__iexact=value.strip(), isDeleted=False)
+        if self.instance:
+            qs = qs.exclude(id=self.instance.id)
+        if qs.exists():
             raise serializers.ValidationError("FAQ with this title already exists.")
-        return value
+        return value.strip()
 
     # Handle nested descriptions on create
     def create(self, validated_data):

@@ -8,6 +8,7 @@ from .pdf import *
 urlpatterns = [
     path('signup/', SignupAPIView.as_view(), name='user-signup'),
     path('login/', UserLoginAPIView.as_view(), name="user-login"),
+    path('token/refresh/', UserTokenRefreshAPIView.as_view(), name="user-token-refresh"),
     path("profile/", GetProfileAPIView.as_view(), name="get_profile"),
     path("profile/update/", userUpdateProfileAPIView.as_view(), name="update_profile"),
     path("profile/delete/", DeleteProfileAPIView.as_view(), name="delete_profile"),

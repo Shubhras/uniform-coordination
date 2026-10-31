@@ -496,6 +496,93 @@ class LogoutAPIView(APIView):
         }, status=status.HTTP_200_OK)
 
 
+class AdminTokenRefreshAPIView(APIView):
+    """
+    Refresh admin access token using a valid refresh token.
+    Public endpoint: no Authorization header needed because access token is expired.
+    """
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    @extend_schema(
+        tags=["Admin Authentication"],
+        summary="Refresh Admin Access Token",
+        description="Exchange a valid refresh token for a new access token.",
+        request={
+            "application/json": {
+                "type": "object",
+                "properties": {
+                    "refresh_token": {
+                        "type": "string",
+                        "example": "jwt-refresh-token",
+                    }
+                },
+                "required": ["refresh_token"],
+            }
+        },
+        responses={
+            200: OpenApiResponse(description="Token refreshed successfully"),
+            400: OpenApiResponse(description="Refresh token required"),
+            401: OpenApiResponse(description="Invalid or expired refresh token"),
+        },
+    )
+    def post(self, request):
+        raw_refresh = request.data.get("refresh_token") or request.data.get("refresh")
+        if not raw_refresh:
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "Refresh token is required",
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            refresh = RefreshToken(raw_refresh)
+            user_id = refresh.payload.get("user_id")
+            if not user_id:
+                return Response({
+                    "status": False,
+                    "statusCode": 401,
+                    "message": "Invalid token payload: user ID missing",
+                }, status=status.HTTP_401_UNAUTHORIZED)
+
+            user = AdminUser.objects.filter(id=user_id, is_active=True).first()
+            if not user:
+                return Response({
+                    "status": False,
+                    "statusCode": 401,
+                    "message": "User not found or inactive",
+                }, status=status.HTTP_401_UNAUTHORIZED)
+
+            # Generate new access token
+            access_token = refresh.access_token
+            access_token["user_id"] = user.id
+            access_token["role"] = user.role.role_name if user.role else "user"
+
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "Token refreshed successfully",
+                "data": {
+                    "access_token": str(access_token),
+                    "refresh_token": str(refresh),
+                },
+            }, status=status.HTTP_200_OK)
+        except TokenError as e:
+            return Response({
+                "status": False,
+                "statusCode": 401,
+                "message": "Refresh token is invalid or expired",
+                "error": str(e),
+            }, status=status.HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": "Failed to refresh token",
+                "error": str(e),
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 # from rest_framework.permissions import IsAuthenticated
 # from rest_framework_simplejwt.exceptions import TokenError
 

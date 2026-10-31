@@ -62,3 +62,16 @@ export async function apiGetSimulationProductLayers(productId) {
     method: "get",
   });
 }
+
+/**
+ * Attribute structure per category — which attributes the customer simulation
+ * shows, and in what order. Configured under Admin → Simulation Assets → Simulation Structure.
+ *
+ * @returns {Promise<Object>} API response mapping categoryName to its attribute array.
+ */
+export async function apiGetSimulationStructure() {
+  return ApiService.fetchDataWithAxios({
+    url: "/v1/uniformAdmin/simulation-assets/structure/",
+    method: "get",
+  });
+}

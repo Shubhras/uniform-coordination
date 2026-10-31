@@ -254,9 +254,11 @@ class SimulationOptionsAPIView(APIView):
                 isDeleted=False, isActive=True, fabricType=UNIFORM_TYPE
             )
             if category:
-                fabrics = fabrics.filter(
+                category_fabrics = fabrics.filter(
                     Q(category_id=category.id) | Q(category__isnull=True)
                 )
+                if category_fabrics.exists():
+                    fabrics = category_fabrics
             fabrics = fabrics.order_by("fabricName")
 
             colours = Colors.objects.filter(isDeleted=False, isActive=True)
