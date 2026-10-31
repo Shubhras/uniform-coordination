@@ -3516,3 +3516,81 @@ class ReorderOrderAPIView(APIView):
                 "message": f"Failed to reorder: {str(e)}"
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+class UserTokenRefreshAPIView(APIView):
+    """
+    Refresh customer/storefront access token using a valid refresh token.
+    Supports both custom PyJWT tokens and SimpleJWT tokens.
+    """
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def post(self, request):
+        raw_refresh = request.data.get("refresh_token") or request.data.get("refresh") or request.data.get("refreshToken")
+        if not raw_refresh:
+            return Response({
+                "status": False,
+                "statusCode": 400,
+                "message": "Refresh token is required",
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # 1. Try decoding custom customer JWT (userhub format: type="refresh")
+        try:
+            import jwt
+            decoded = jwt.decode(raw_refresh, settings.SECRET_KEY, algorithms=["HS256"])
+            if decoded.get("type") == "refresh":
+                user_id = decoded.get("user_id")
+                user = Users.objects.filter(id=user_id, isDeleted=False).first()
+                if not user:
+                    return Response({
+                        "status": False,
+                        "statusCode": 401,
+                        "message": "User not found or inactive",
+                    }, status=status.HTTP_401_UNAUTHORIZED)
+
+                new_tokens = generate_custom_tokens(user)
+                return Response({
+                    "status": True,
+                    "statusCode": 200,
+                    "message": "Token refreshed successfully",
+                    "data": {
+                        "accessToken": new_tokens["access"],
+                        "refreshToken": new_tokens["refresh"],
+                        "access_token": new_tokens["access"],
+                        "refresh_token": new_tokens["refresh"],
+                    },
+                }, status=status.HTTP_200_OK)
+        except Exception as jwt_ex:
+            if "Expired" in type(jwt_ex).__name__:
+                return Response({
+                    "status": False,
+                    "statusCode": 401,
+                    "message": "Refresh token has expired",
+                }, status=status.HTTP_401_UNAUTHORIZED)
+
+        # 2. Try SimpleJWT
+        try:
+            from rest_framework_simplejwt.exceptions import TokenError
+            refresh = RefreshToken(raw_refresh)
+            access_token = refresh.access_token
+
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "Token refreshed successfully",
+                "data": {
+                    "accessToken": str(access_token),
+                    "refreshToken": str(refresh),
+                    "access_token": str(access_token),
+                    "refresh_token": str(refresh),
+                },
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                "status": False,
+                "statusCode": 401,
+                "message": "Refresh token is invalid or expired",
+                "error": str(e),
+            }, status=status.HTTP_401_UNAUTHORIZED)
+
+
