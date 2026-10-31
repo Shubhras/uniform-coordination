@@ -445,11 +445,10 @@ const Uniform3DmoduleDegisn = () => {
 
         setSimAttributes(categoryAttributes);
 
-        // 2. Fabrics: category-specific or fallback to global fabrics
-        const fabricsList =
-          (optionsRes?.data?.fabrics && optionsRes.data.fabrics.length > 0)
-            ? optionsRes.data.fabrics
-            : (globalOptionsRes?.data?.fabrics || []);
+        // 2. Fabrics: category-specific; if none in category, empty (no global fallback)
+        const fabricsList = categoryId
+          ? (optionsRes?.data?.fabrics || [])
+          : (optionsRes?.data?.fabrics || globalOptionsRes?.data?.fabrics || []);
         setSimFabrics(fabricsList);
 
         // 3. Colors: category-specific or fallback to global colors
@@ -459,18 +458,22 @@ const Uniform3DmoduleDegisn = () => {
             : (globalOptionsRes?.data?.colors || []);
         setSimColors(colorsList);
 
-        // 4. Attribute options (e.g. sizes)
-        const attrOptions = {
-          ...(globalOptionsRes?.data?.attribute_options || {}),
-          ...(optionsRes?.data?.attribute_options || {}),
-        };
+        // 4. Attribute options (e.g. sizes): category-specific (no global fallback)
+        const attrOptions = categoryId
+          ? (optionsRes?.data?.attribute_options || {})
+          : {
+              ...(globalOptionsRes?.data?.attribute_options || {}),
+              ...(optionsRes?.data?.attribute_options || {}),
+            };
         setSimOptions(attrOptions);
 
         // 5. Parts: layers with artwork from simulation options plus product.parts
-        const allProducts = [
-          ...(optionsRes?.data?.products || []),
-          ...(globalOptionsRes?.data?.products || []),
-        ];
+        const allProducts = categoryId
+          ? (optionsRes?.data?.products || [])
+          : [
+              ...(optionsRes?.data?.products || []),
+              ...(globalOptionsRes?.data?.products || []),
+            ];
         const row = allProducts.find((p) => String(p.id) === String(id));
         const layers = row?.layers || [];
 
@@ -550,7 +553,7 @@ const Uniform3DmoduleDegisn = () => {
     if (!merged.size) {
       merged.size = {
         ...PANELS.size,
-        data: ["XS", "S", "M", "L", "XL", "XXL"],
+        data: [],
       };
     }
 
@@ -561,23 +564,11 @@ const Uniform3DmoduleDegisn = () => {
       data: simParts || [],
     };
 
-    if (simFabrics.length) {
-      merged.fabric = {
-        title: "Fabric",
-        type: "fabricRecords",
-        data: simFabrics,
-      };
-    } else {
-      merged.fabric = {
-        title: "Fabric",
-        type: "fabricRecords",
-        data: [
-          { id: 1, name: "Cotton", material_type: "cotton", swatch: "#2563EB" },
-          { id: 2, name: "Polyester", material_type: "polyester", swatch: "#4ADE80" },
-          { id: 3, name: "Linen", material_type: "linen", swatch: "#92400E" },
-        ],
-      };
-    }
+    merged.fabric = {
+      title: "Fabric",
+      type: "fabricRecords",
+      data: simFabrics || [],
+    };
 
     return merged;
   })();
@@ -1112,47 +1103,53 @@ const Uniform3DmoduleDegisn = () => {
               {/* Admin fabrics — no image field, so name/material/colour only. */}
               {panels[active].type === "fabricRecords" && (
                 <div className="w-full max-h-[280px] overflow-y-auto pr-1">
-                  <div className="grid grid-cols-2 gap-2">
-                    {panels[active].data.map((fabric) => {
-                      const selected = designJSON.fabric === fabric.name;
-                      return (
-                        <button
-                          key={fabric.id}
-                          onClick={() => {
-                            setDesignJSON((prev) => ({
-                              ...prev,
-                              fabric: fabric.name,
-                            }));
-                          }}
-                          className={`flex items-center gap-2 rounded-md border p-2 text-left transition ${selected
-                            ? "border-blue-600 bg-blue-50"
-                            : "border-gray-300 hover:border-blue-500"
-                            }`}
-                        >
-                          <span
-                            className="w-6 h-6 rounded border border-gray-300 flex-shrink-0"
-                            style={
-                              fabric.swatch
-                                ? { background: fabric.swatch }
-                                : { background: "repeating-linear-gradient(45deg,#f1f5f9,#f1f5f9 4px,#e2e8f0 4px,#e2e8f0 8px)" }
-                            }
-                            title={fabric.swatch ? fabric.color : `Colour recorded as "${fabric.color}"`}
-                          />
-                          <span className="min-w-0 flex-1">
-                            <span className="block text-[11px] font-medium text-[#1C2A4A] truncate">
-                              {fabric.name}
+                  {(!panels[active].data || panels[active].data.length === 0) ? (
+                    <div className="text-center py-6 text-gray-500 text-xs">
+                      No fabrics available for this category.
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-2">
+                      {panels[active].data.map((fabric) => {
+                        const selected = designJSON.fabric === fabric.name;
+                        return (
+                          <button
+                            key={fabric.id}
+                            onClick={() => {
+                              setDesignJSON((prev) => ({
+                                ...prev,
+                                fabric: fabric.name,
+                              }));
+                            }}
+                            className={`flex items-center gap-2 rounded-md border p-2 text-left transition ${selected
+                              ? "border-blue-600 bg-blue-50"
+                              : "border-gray-300 hover:border-blue-500"
+                              }`}
+                          >
+                            <span
+                              className="w-6 h-6 rounded border border-gray-300 flex-shrink-0"
+                              style={
+                                fabric.swatch
+                                  ? { background: fabric.swatch }
+                                  : { background: "repeating-linear-gradient(45deg,#f1f5f9,#f1f5f9 4px,#e2e8f0 4px,#e2e8f0 8px)" }
+                              }
+                              title={fabric.swatch ? fabric.color : `Colour recorded as "${fabric.color}"`}
+                            />
+                            <span className="min-w-0 flex-1">
+                              <span className="block text-[11px] font-medium text-[#1C2A4A] truncate">
+                                {fabric.name}
+                              </span>
+                              <span className="block text-[10px] text-gray-500 capitalize truncate">
+                                {fabric.material_type || "—"}
+                              </span>
                             </span>
-                            <span className="block text-[10px] text-gray-500 capitalize truncate">
-                              {fabric.material_type || "—"}
-                            </span>
-                          </span>
-                          {selected && (
-                            <FiCheck size={14} className="text-[#1C4FA8] flex-shrink-0" />
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
+                            {selected && (
+                              <FiCheck size={14} className="text-[#1C4FA8] flex-shrink-0" />
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -1256,27 +1253,33 @@ const Uniform3DmoduleDegisn = () => {
               )}
 
               {panels[active].type === "size" && (
-                <div className="grid grid-cols-4 gap-3">
-                  {panels[active].data.map((size, i) => {
-                    const isSelected = Boolean(designJSON.sizes[size]);
-                    return (
-                      <button
-                        key={size}
-                        onClick={() => {
-                          if (isSelected) {
-                            decrement(size);
-                          } else {
-                            increment(size);
-                          }
-                        }}
-                        className={`bg-white shadow-md rounded-xl px-3 py-3 flex items-center justify-center text-sm font-medium text-[#003560] hover:shadow-lg transition ${isSelected ? "ring-2 ring-blue-500" : ""
-                          }`}
-                      >
-                        {size}
-                      </button>
-                    );
-                  })}
-                </div>
+                (!panels[active].data || panels[active].data.length === 0) ? (
+                  <div className="text-center py-6 text-gray-500 text-xs">
+                    No size options available for this category.
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-4 gap-3">
+                    {panels[active].data.map((size, i) => {
+                      const isSelected = Boolean(designJSON.sizes[size]);
+                      return (
+                        <button
+                          key={size}
+                          onClick={() => {
+                            if (isSelected) {
+                              decrement(size);
+                            } else {
+                              increment(size);
+                            }
+                          }}
+                          className={`bg-white shadow-md rounded-xl px-3 py-3 flex items-center justify-center text-sm font-medium text-[#003560] hover:shadow-lg transition ${isSelected ? "ring-2 ring-blue-500" : ""
+                            }`}
+                        >
+                          {size}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )
               )}
 
               {panels[active].type === "optionsLegy" && (

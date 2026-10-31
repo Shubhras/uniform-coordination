@@ -89,6 +89,7 @@ def serialize_layer(part, request=None):
     return {
         "id": part.id,
         "name": part.partName,
+        "category_id": part.category_id,
         "image": _absolute(request, part.partImage),
         "z_index": part.zIndex,
         "offset_x": part.offsetX,
@@ -228,7 +229,9 @@ class SimulationOptionsAPIView(APIView):
                 layers = [
                     serialize_layer(part, request)
                     for part in sorted(p.parts.all(), key=lambda x: (x.zIndex, x.id))
-                    if not part.isDeleted and part.partImage
+                    if not part.isDeleted
+                    and part.partImage
+                    and (not category or part.category_id == category.id)
                 ]
                 fabric_ids.update(l["fabric_id"] for l in layers if l["fabric_id"])
 
@@ -246,19 +249,15 @@ class SimulationOptionsAPIView(APIView):
                     "layers": layers,
                 })
 
-            # The fabric palette a shopper may choose from — deliberately NOT limited to
-            # the fabrics already assigned to this product's parts. That set is often a
-            # single fabric, which would leave the customiser with one option. Fabrics
-            # with no category are the global palette and always apply.
+            # The fabric palette a shopper may choose from.
+            # Strictly filtered by category when a category is specified (no global fallback).
             fabrics = Fabric.objects.filter(
                 isDeleted=False, isActive=True, fabricType=UNIFORM_TYPE
             )
             if category:
-                category_fabrics = fabrics.filter(
-                    Q(category_id=category.id) | Q(category__isnull=True)
-                )
-                if category_fabrics.exists():
-                    fabrics = category_fabrics
+                fabrics = fabrics.filter(category_id=category.id)
+            elif category_id or category_name:
+                fabrics = fabrics.none()
             fabrics = fabrics.order_by("fabricName")
 
             colours = Colors.objects.filter(isDeleted=False, isActive=True)
@@ -276,13 +275,13 @@ class SimulationOptionsAPIView(APIView):
 
             # The choices per attribute (collar styles, cuffs, the size run) from
             # Product & Specification -> Options. Grouped by attribute so the customiser
-            # can look up the tool it is rendering. Options with no category are global,
-            # the same rule the fabric palette follows.
+            # can look up the tool it is rendering.
+            # Strictly filtered by category when a category is specified (no global fallback).
             option_qs = AttributeOption.objects.filter(isDeleted=False, isActive=True)
             if category:
-                option_qs = option_qs.filter(
-                    Q(category_id=category.id) | Q(category__isnull=True)
-                )
+                option_qs = option_qs.filter(category_id=category.id)
+            elif category_id or category_name:
+                option_qs = option_qs.none()
 
             attribute_options = {}
             for opt in option_qs.order_by("attribute", "order", "id"):
