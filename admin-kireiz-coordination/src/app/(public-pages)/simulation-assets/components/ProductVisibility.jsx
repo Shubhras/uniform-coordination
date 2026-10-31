@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import Select from "react-select";
 import { useRouter } from "next/navigation";
 import { FiSearch, FiRotateCcw, FiEye, FiAlertTriangle } from "react-icons/fi";
 import { useTranslations } from "next-intl";
@@ -54,6 +55,47 @@ const ProductVisibility = () => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [savingId, setSavingId] = useState(null);
+
+  /* ---------- SELECT STYLES ---------- */
+  const selectStyles = {
+    control: (base, state) => ({
+      ...base,
+      minHeight: "38px",
+      borderRadius: "6px",
+      borderColor: state.isFocused ? "#1C2C56" : "#00345F",
+      boxShadow: "none",
+      "&:hover": { borderColor: "#1C2C56" },
+    }),
+    option: (base, state) => ({
+      ...base,
+      backgroundColor: state.isSelected
+        ? "#1C2C56"
+        : state.isFocused
+          ? "#EEF2FF"
+          : "white",
+      color: state.isSelected ? "white" : "#1E293B",
+      fontSize: "14px",
+    }),
+    menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+  };
+
+  const categoryOptions = useMemo(
+    () => [
+      { value: "", label: t("allCategories") },
+      ...categories.map((c) => ({
+        value: c.id,
+        label: c.name,
+      })),
+    ],
+    [categories, t],
+  );
+
+  const selectedCategory = useMemo(
+    () =>
+      categoryOptions.find((opt) => String(opt.value) === String(categoryId)) ||
+      categoryOptions[0],
+    [categoryOptions, categoryId],
+  );
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -156,21 +198,20 @@ const ProductVisibility = () => {
           />
         </div>
 
-        <select
-          value={categoryId}
-          onChange={(e) => {
-            setCategoryId(e.target.value);
+        <Select
+          options={categoryOptions}
+          value={selectedCategory}
+          onChange={(val) => {
+            setCategoryId(val ? val.value : "");
             setPage(1);
           }}
-          className="border border-[#E2E8F0] rounded-lg px-3 py-2 text-sm bg-white min-w-[180px]"
-        >
-          <option value="">{t("allCategories")}</option>
-          {categories.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
-            </option>
-          ))}
-        </select>
+          styles={selectStyles}
+          menuPortalTarget={
+            typeof document !== "undefined" ? document.body : null
+          }
+          menuPosition="fixed"
+          className="w-48 text-sm"
+        />
 
         <button
           type="button"
@@ -220,6 +261,9 @@ const ProductVisibility = () => {
                     {t("colLayers")}
                   </th>
                   <th className="text-left font-medium px-4 py-3">
+                    Status
+                  </th>
+                  <th className="text-left font-medium px-4 py-3">
                     {t("colShowInSimulation")}
                   </th>
                   <th className="text-right font-medium px-4 py-3">
@@ -252,6 +296,16 @@ const ProductVisibility = () => {
                       )}
                     </td>
                     <td className="px-4 py-3">
+                      <span
+                        className={`px-2.5 py-1 rounded-full text-xs font-medium ${p.is_active
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-700"
+                          }`}
+                      >
+                        {p.is_active ? "Active" : "Inactive"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
                       <input
                         type="checkbox"
                         checked={p.show_in_simulation}
@@ -277,12 +331,7 @@ const ProductVisibility = () => {
           </div>
 
           {/* Footer */}
-          <div className="flex flex-wrap items-center justify-between gap-3 mt-4">
-            <span className="text-xs text-[#64748B]">
-              {t("showingRange", { from, to, total })} ·{" "}
-              {t("enabledOfTotal", { enabled: enabledCount, total })}
-            </span>
-
+          <div className="flex flex-wrap items-center justify-between gap-3">
             {total > PAGE_SIZE && (
               <Pagination
                 currentPage={page}

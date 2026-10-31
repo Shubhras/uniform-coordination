@@ -48,13 +48,25 @@ export async function apiChangePassword(data, accessToken) {
   });
 }
 
-export async function apiLogout(data,accessToken) {
+export async function apiLogout(data, accessToken) {
   return ApiService.fetchDataWithAxios({
     url: "/v1/uniformAdmin/logout/",
     method: "post",
     data,
-        headers: {
+    headers: {
       Authorization: `Bearer ${accessToken}`,
     },
   });
 }
+
+export async function apiRefreshToken(refreshToken) {
+  return ApiService.fetchDataWithAxios({
+    url: "/v1/uniformAdmin/token/refresh/",
+    method: "post",
+    data: {
+      refresh: refreshToken,
+      refresh_token: refreshToken,
+    },
+  });
+}
+

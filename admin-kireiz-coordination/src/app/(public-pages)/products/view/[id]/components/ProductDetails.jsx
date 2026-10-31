@@ -100,6 +100,10 @@ const ProductDetails = () => {
     );
   }
 
+  const handleBack = () => {
+    router.push("/simulation-assets?tab=visibility");
+  };
+
   if (notFound || !product) {
     return (
       <div className="px-5 md:px-8 lg:px-12 py-8 bg-white min-h-screen">
@@ -107,7 +111,7 @@ const ProductDetails = () => {
           <p className="text-base font-medium text-[#1C2C56]">{t("notFound")}</p>
           <button
             type="button"
-            onClick={() => router.back()}
+            onClick={handleBack}
             className="mt-4 bg-[#1C4FA8] text-white px-5 py-2 rounded-lg text-sm font-medium"
           >
             {t("back")}
@@ -131,7 +135,7 @@ const ProductDetails = () => {
         <div className="flex items-start gap-3">
           <button
             type="button"
-            onClick={() => router.back()}
+            onClick={handleBack}
             title={t("back")}
             className="w-10 h-10 bg-white rounded-full shadow-sm border border-[#E2E8F0] flex items-center justify-center hover:bg-[#F8FAFC]"
           >
@@ -147,14 +151,6 @@ const ProductDetails = () => {
             </p>
           </div>
         </div>
-
-        <button
-          type="button"
-          onClick={() => router.push("/products")}
-          className="bg-[#1C4FA8] text-white px-4 py-2 rounded-lg text-sm font-medium"
-        >
-          {t("editProduct")}
-        </button>
       </div>
 
       <div className="space-y-5 mt-6">

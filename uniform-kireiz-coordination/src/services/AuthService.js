@@ -83,3 +83,20 @@ export async function verifyEmail(data) {
   })
 }
 
+/**
+ * Refreshes authentication access token using a refresh token.
+ *
+ * @param {string} refreshToken - Refresh token string.
+ * @returns {Promise<Object>} API response containing new tokens.
+ */
+export async function apiRefreshToken(refreshToken) {
+  return ApiService.fetchDataWithAxios({
+    url: '/v1/userhub/token/refresh/',
+    method: 'post',
+    data: {
+      refresh: refreshToken,
+      refreshToken: refreshToken,
+    },
+  })
+}
+

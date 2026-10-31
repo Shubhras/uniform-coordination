@@ -61,6 +61,9 @@ export async function apiGetSimulationStructure(accessToken) {
   return ApiService.fetchDataWithAxios({
     url: "/v1/uniformAdmin/simulation-assets/structure/",
     method: "get",
+    params: {
+      is_active: true,
+    },
     headers: authHeader(accessToken),
   });
 }

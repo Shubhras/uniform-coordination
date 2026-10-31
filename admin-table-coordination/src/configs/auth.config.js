@@ -38,7 +38,7 @@ export default {
         }),
     ],
     callbacks: {
-        async jwt({ token, user }) {
+        async jwt({ token, user, trigger, session }) {
             /** On initial sign in, store extra data in the JWT */
             if (user) {
                 token.accessToken = user.accessToken
@@ -47,6 +47,10 @@ export default {
                 token.role = user.role || user.authority?.[0] || 'admin'
                 token.permissions = user.permissions
                 token.entryPath = user.entryPath
+            }
+            if (trigger === 'update' && session?.user) {
+                if (session.user.accessToken) token.accessToken = session.user.accessToken
+                if (session.user.refreshToken) token.refreshToken = session.user.refreshToken
             }
             return token
         },

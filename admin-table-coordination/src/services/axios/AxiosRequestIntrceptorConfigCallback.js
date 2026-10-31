@@ -1,3 +1,5 @@
+import { tokenStorage } from '@/utils/token'
+
 const AxiosRequestIntrceptorConfigCallback = (config) => {
     let locale = 'en'
 
@@ -16,6 +18,16 @@ const AxiosRequestIntrceptorConfigCallback = (config) => {
         config.headers.set('Accept-Language', locale)
     } else {
         config.headers['Accept-Language'] = locale
+    }
+
+    // Always attach latest active access token from tokenStorage if available
+    const activeToken = tokenStorage.getAccessToken()
+    if (activeToken) {
+        if (typeof config.headers.set === 'function') {
+            config.headers.set('Authorization', `Bearer ${activeToken}`)
+        } else {
+            config.headers['Authorization'] = `Bearer ${activeToken}`
+        }
     }
 
     return config

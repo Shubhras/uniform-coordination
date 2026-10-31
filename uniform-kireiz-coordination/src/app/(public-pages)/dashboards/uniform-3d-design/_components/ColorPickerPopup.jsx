@@ -12,10 +12,10 @@ import { useState } from "react";
 export default function ColorPickerPopup({ value, onChange, onClose }) {
   const [color, setColor] = useState(value);
 
-   /**
-   * Updates the local color state and notifies the parent
-   * component of the new selected color.
-   */
+  /**
+  * Updates the local color state and notifies the parent
+  * component of the new selected color.
+  */
   function updateColor(newColor) {
     setColor(newColor);
     onChange(newColor);

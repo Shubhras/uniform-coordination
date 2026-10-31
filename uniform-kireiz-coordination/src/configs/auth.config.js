@@ -54,59 +54,58 @@ export default {
                     image: user.avatar || null,
                     roleName: user.roleName,
                     userType: user.userType,
-                    accessToken: user.accessToken,
+                    accessToken: user.accessToken || user.access || response?.accessToken || response?.access,
+                    refreshToken: user.refreshToken || user.refresh || user.refresh_token || response?.refreshToken || response?.refresh || null,
                     firstName: user.firstName,
                     lastName: user.lastName,
                     language: user.language,
                     profileImage: user.profileImage || null,
                     isActive: user.isActive,
                     loginType: user.loginType,
-
                 }
-
-
-                // if (!user) {
-                //     return null
-                // }
-
-                // return {
-                //     id: user.id,
-                //     name: user.userName,
-                //     email: user.email,
-                //     image: user.avatar,
-                // }
             },
         }),
     ],
     callbacks: {
-        async jwt({ token, user }) {
+        async jwt({ token, user, trigger, session }) {
             if (user) {
-                token.id = user.id,
-                    token.name = user.userName,
-                    token.email = user.email,
-                    token.image = user.avatar || null,
-                    token.roleName = user.roleName,
-                    token.userType = user.userType,
-                    token.accessToken = user.accessToken,
-                    token.firstName = user.firstName,
-                    token.lastName = user.lastName,
-                    token.language = user.language,
-                    token.profileImage = user.profileImage || null,
-                    token.isActive = user.isActive,
-                    token.loginType = user.loginType
+                token.id = user.id
+                token.name = user.name || user.userName
+                token.userName = user.userName || user.name
+                token.email = user.email
+                token.image = user.image || user.avatar || null
+                token.roleName = user.roleName
+                token.userType = user.userType
+                token.accessToken = user.accessToken
+                token.refreshToken = user.refreshToken
+                token.firstName = user.firstName
+                token.lastName = user.lastName
+                token.language = user.language
+                token.profileImage = user.profileImage || null
+                token.isActive = user.isActive
+                token.loginType = user.loginType
             }
+
+            if (trigger === 'update' && session) {
+                if (session.accessToken) token.accessToken = session.accessToken
+                if (session.refreshToken) token.refreshToken = session.refreshToken
+                if (session.user?.accessToken) token.accessToken = session.user.accessToken
+                if (session.user?.refreshToken) token.refreshToken = session.user.refreshToken
+            }
+
             return token
         },
         // ✅ STEP 2: EXPOSE TOKEN DATA TO SESSION
         async session({ session, token }) {
             session.user = {
                 id: token.id,
-                name: token.userName,
+                name: token.userName || token.name,
                 email: token.email,
-                image: token.avatar || null,
+                image: token.profileImage || token.avatar || token.image || null,
                 roleName: token.roleName,
                 userType: token.userType,
                 accessToken: token.accessToken,
+                refreshToken: token.refreshToken,
                 firstName: token.firstName,
                 lastName: token.lastName,
                 language: token.language,
@@ -117,6 +116,7 @@ export default {
 
             // Token for APIs
             session.accessToken = token.accessToken
+            session.refreshToken = token.refreshToken
 
             return session
         },

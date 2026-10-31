@@ -1163,7 +1163,7 @@ const Uniform3DmoduleDegisn = () => {
                     {panels[active].data.map((opt) => {
                       const selected =
                         designJSON.optionKeys?.[active] !== undefined &&
-                        designJSON.optionKeys?.[active] !== ""
+                          designJSON.optionKeys?.[active] !== ""
                           ? designJSON.optionKeys[active] === String(opt.id)
                           : designJSON.options?.[active] === opt.name;
                       return (
@@ -1219,7 +1219,7 @@ const Uniform3DmoduleDegisn = () => {
                     const optKey = String(i);
                     const selected =
                       designJSON.optionKeys?.[active] !== undefined &&
-                      designJSON.optionKeys?.[active] !== ""
+                        designJSON.optionKeys?.[active] !== ""
                         ? designJSON.optionKeys[active] === optKey
                         : designJSON.options?.[active] === opt;
                     return (

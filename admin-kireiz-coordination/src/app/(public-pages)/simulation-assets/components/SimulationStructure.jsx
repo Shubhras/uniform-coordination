@@ -85,6 +85,110 @@ const panelKeyFor = (name) => {
   return hit ? hit[1] : null;
 };
 
+const SimulationStructureSkeleton = ({ t }) => {
+  return (
+    <div className="mt-5">
+      <h2 className="text-2xl font-semibold text-[#1C2C56]">
+        {t("structureTitle")}
+      </h2>
+      <p className="text-sm text-[#64748B] mt-1">{t("structureSubtitle")}</p>
+
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-5 mt-5">
+        {/* Category list skeleton */}
+        <div className="border border-[#E2E8F0] rounded-xl p-3 h-fit bg-white">
+          <p className="text-sm font-medium text-[#1C2C56] px-2 pb-2 border-b border-[#E2E8F0]">
+            {t("structureCategories")}
+          </p>
+          <ul className="mt-2 space-y-1">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <li key={i}>
+                <div
+                  className={`w-full px-3 py-2.5 rounded-lg flex items-center ${
+                    i === 1 ? "bg-[#E8EEF9]" : "bg-transparent"
+                  }`}
+                >
+                  <div
+                    className={`h-4 rounded animate-pulse ${
+                      i === 1 ? "w-28 bg-[#CBD5E1]" : "w-24 bg-[#E2E8F0]"
+                    }`}
+                  />
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Attribute table skeleton */}
+        <div className="lg:col-span-3 border border-[#E2E8F0] rounded-xl p-5 bg-white">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="space-y-1.5">
+              <div className="h-5 w-44 bg-[#E2E8F0] rounded-md animate-pulse" />
+              <div className="h-4 w-72 max-w-full bg-[#F1F5F9] rounded-md animate-pulse" />
+            </div>
+
+            <div className="h-9 w-32 bg-[#F8FAFC] border border-[#CBD5E1] rounded-lg animate-pulse" />
+          </div>
+
+          <div className="overflow-x-auto mt-4">
+            <table className="w-full text-sm">
+              <thead className="bg-[#F8FAFC] text-[#64748B]">
+                <tr>
+                  <th className="text-left font-medium px-4 py-3">
+                    {t("colAttribute")}
+                  </th>
+                  <th className="text-left font-medium px-4 py-3">
+                    {t("colShowInSimulation")}
+                  </th>
+                  <th className="text-left font-medium px-4 py-3">
+                    {t("colDisplayOrder")}
+                  </th>
+                  <th className="text-right font-medium px-4 py-3">
+                    {t("colAction")}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {[1, 2, 3, 4].map((i) => (
+                  <tr key={i} className="border-t border-[#F1F5F9]">
+                    <td className="px-4 py-3.5">
+                      <div
+                        className={`h-4 rounded animate-pulse bg-[#E2E8F0] ${
+                          i === 1
+                            ? "w-24"
+                            : i === 2
+                              ? "w-20"
+                              : i === 3
+                                ? "w-28"
+                                : "w-16"
+                        }`}
+                      />
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <div className="w-4 h-4 bg-[#E2E8F0] rounded animate-pulse" />
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <div className="w-20 h-7 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md animate-pulse" />
+                    </td>
+                    <td className="px-4 py-3.5 text-right">
+                      <div className="w-4 h-4 bg-[#E2E8F0] rounded animate-pulse ml-auto" />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      {/* Actions skeleton */}
+      <div className="flex flex-wrap items-center justify-end gap-3 mt-6">
+        <div className="h-9 w-20 bg-[#F8FAFC] border border-[#CBD5E1] rounded-lg animate-pulse" />
+        <div className="h-9 w-32 bg-[#1C4FA8]/30 rounded-lg animate-pulse" />
+      </div>
+    </div>
+  );
+};
+
 const SimulationStructure = () => {
   const t = useTranslations("simulationAssets");
   const { session } = useCurrentSession();
@@ -209,22 +313,24 @@ const SimulationStructure = () => {
   };
 
   if (loading) {
-    return (
-      <div className="mt-5 grid grid-cols-1 lg:grid-cols-4 gap-5">
-        <div className="border border-[#E2E8F0] rounded-xl p-4 animate-pulse h-72" />
-        <div className="lg:col-span-3 border border-[#E2E8F0] rounded-xl p-4 animate-pulse h-72" />
-      </div>
-    );
+    return <SimulationStructureSkeleton t={t} />;
   }
 
   const categories = Object.keys(structures);
 
   if (categories.length === 0) {
     return (
-      <div className="mt-5 border border-dashed border-[#CBD5E1] rounded-xl py-12 text-center">
-        <p className="text-base font-medium text-[#1C2C56]">
-          {t("noCategories")}
-        </p>
+      <div className="mt-5">
+        <h2 className="text-2xl font-semibold text-[#1C2C56]">
+          {t("structureTitle")}
+        </h2>
+        <p className="text-sm text-[#64748B] mt-1">{t("structureSubtitle")}</p>
+
+        <div className="mt-5 border border-dashed border-[#CBD5E1] rounded-xl py-12 text-center">
+          <p className="text-base font-medium text-[#1C2C56]">
+            {t("noCategories")}
+          </p>
+        </div>
       </div>
     );
   }
@@ -249,8 +355,8 @@ const SimulationStructure = () => {
                   type="button"
                   onClick={() => setActive(name)}
                   className={`w-full text-left px-3 py-2 rounded-lg text-sm truncate transition ${active === name
-                      ? "bg-[#E8EEF9] text-[#1C2C56] font-medium"
-                      : "text-[#486284] hover:bg-[#F8FAFC]"
+                    ? "bg-[#E8EEF9] text-[#1C2C56] font-medium"
+                    : "text-[#486284] hover:bg-[#F8FAFC]"
                     }`}
                 >
                   {name}

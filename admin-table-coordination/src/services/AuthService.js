@@ -1,4 +1,5 @@
 import ApiService from './ApiService'
+import axios from 'axios'
 
 export async function apiSignIn(data) {
     return ApiService.fetchDataWithAxios({
@@ -60,4 +61,21 @@ export async function apiLogout(data, accessToken) {
         }
       : {},
   });
+}
+
+export async function apiRefreshToken(refreshToken) {
+  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ''
+  return axios.post(
+    `${baseUrl}/api/v1/space/uniformAdmin/token/refresh/`,
+    {
+      refresh: refreshToken,
+      refresh_token: refreshToken,
+    },
+    {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      withCredentials: true,
+    }
+  )
 }
