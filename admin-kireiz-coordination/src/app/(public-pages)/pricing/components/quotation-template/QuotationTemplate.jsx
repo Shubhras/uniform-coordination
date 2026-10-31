@@ -181,35 +181,36 @@ const QuotationTemplate = () => {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-5">
-        <div>
-          <h2 className="text-2xl font-semibold text-[#1C2C56]">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+        <div className="min-w-0">
+          <h2 className="text-xl sm:text-2xl font-semibold text-[#1C2C56]">
             {t("title")}
           </h2>
 
           <p className="text-sm text-gray-500 mt-1">{t("subtitle")}</p>
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 w-full md:w-auto shrink-0">
           <button
             type="button"
             onClick={handleResetDefault}
             disabled={loading || resetting}
-            className="border border-gray-300 text-[#91A1B6] px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50 disabled:opacity-50 flex items-center gap-2"
+            className="flex-1 sm:flex-initial border border-gray-300 text-[#91A1B6] px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50 disabled:opacity-50 flex items-center justify-center gap-2 whitespace-nowrap transition-colors"
           >
-            <FiRotateCcw size={15} />
-            {resetting ? t("resetting") : t("resetDefault")}
+            <FiRotateCcw size={15} className="shrink-0" />
+            <span>{resetting ? t("resetting") : t("resetDefault")}</span>
           </button>
 
           <button
             type="button"
             onClick={handleSave}
             disabled={loading || saving}
-            className="bg-[#1C4FA8] text-[#FFFFFF] px-3 py-2 rounded-md text-sm fw-500 flex items-center gap-2 disabled:opacity-50"
+            className="flex-1 sm:flex-initial bg-[#1C4FA8] text-[#FFFFFF] px-4 py-2 rounded-md text-sm font-medium hover:bg-[#163e85] flex items-center justify-center gap-2 disabled:opacity-50 whitespace-nowrap transition-colors"
           >
-            <FiSave size={16} /> {saving ? t("saving") : t("saveTemplate")}
+            <FiSave size={16} className="shrink-0" />
+            <span>{saving ? t("saving") : t("saveTemplate")}</span>
           </button>
         </div>
       </div>

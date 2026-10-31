@@ -114,7 +114,7 @@ const SalesRepresentation = () => {
     return (
         <div className="bg-white md:p-6 p-3 rounded-xl shadow border border-gray-200">
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <div>
                     <h1 className="text-xl font-semibold text-[#1C2C56]">
                         {t("title")}
@@ -126,7 +126,7 @@ const SalesRepresentation = () => {
 
                 <button
                     onClick={() => setAddOpen(true)}
-                    className="flex items-center gap-2 bg-[#1C4FA8] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#163F86] transition"
+                    className="w-fit self-start sm:self-auto flex items-center gap-2 bg-[#1C4FA8] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#163F86] transition whitespace-nowrap"
                 >
                     <FiUserPlus />
                     {t("addRepresentative")}

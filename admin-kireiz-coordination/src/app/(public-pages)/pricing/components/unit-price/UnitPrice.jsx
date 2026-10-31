@@ -395,12 +395,6 @@ const UnitPrice = () => {
             <h3 className="text-lg font-semibold text-[#1C2C56]">
               {t("editModal.title")}
             </h3>
-            <button
-              onClick={() => setEditModalOpen(false)}
-              className="text-gray-400 hover:text-gray-600"
-            >
-              <FiX size={18} />
-            </button>
           </div>
 
           {selectedItem && (

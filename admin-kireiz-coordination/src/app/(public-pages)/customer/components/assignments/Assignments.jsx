@@ -100,7 +100,7 @@ const Assignments = () => {
     return (
         <div className="bg-white rounded-xl shadow border border-[#E2E8F0] md:p-6 p-3">
             {/* Header */}
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <div>
                     <h1 className="text-2xl font-semibold text-[#1C2C56]">
                         {t("title")}
@@ -112,7 +112,7 @@ const Assignments = () => {
 
                 <button
                     onClick={() => setAddOpen(true)}
-                    className="flex items-center gap-2 bg-[#1C4FA8] text-white px-4 py-2 hover:bg-[#163F86] rounded-md text-sm font-medium"
+                    className="w-fit self-start sm:self-auto flex items-center gap-2 bg-[#1C4FA8] text-white px-4 py-2 hover:bg-[#163F86] transition-colors rounded-md text-sm font-medium whitespace-nowrap"
                 >
                     <FiUserPlus size={16} />
                     {t("addRepresentative")}

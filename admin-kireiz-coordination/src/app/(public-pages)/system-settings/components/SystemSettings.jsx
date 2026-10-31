@@ -8,6 +8,7 @@ import GeneralSettings from "./generalSettings/GeneralSettings";
 import PaymentSettings from "./paymentSettings/PaymentSettings";
 import EmailNotifications from "./emailNotifications/EmailNotifications";
 import SystemAlerts from "./systemAlerts/SystemAlerts";
+import TermsPolicy from "./termsPolicy/TermsPolicy";
 
 const SystemSettings = () => {
   const t = useTranslations("systemSettings");
@@ -20,6 +21,7 @@ const SystemSettings = () => {
     if (tabFromUrl === "payment") return "Payment Settings";
     if (tabFromUrl === "notifications") return "Email & Notifications";
     if (tabFromUrl === "alerts") return "System Alerts";
+    if (tabFromUrl === "terms-policy" || tabFromUrl === "terms") return "Terms & Policy";
     return "General Settings";
   });
 
@@ -30,6 +32,8 @@ const SystemSettings = () => {
       setActiveTab("Email & Notifications");
     } else if (tabFromUrl === "alerts") {
       setActiveTab("System Alerts");
+    } else if (tabFromUrl === "terms-policy" || tabFromUrl === "terms") {
+      setActiveTab("Terms & Policy");
     } else if (tabFromUrl === "general") {
       setActiveTab("General Settings");
     }
@@ -41,6 +45,7 @@ const SystemSettings = () => {
     if (tabName === "Payment Settings") slug = "payment";
     if (tabName === "Email & Notifications") slug = "notifications";
     if (tabName === "System Alerts") slug = "alerts";
+    if (tabName === "Terms & Policy") slug = "terms-policy";
     router.push(`/system-settings?tab=${slug}`, { scroll: false });
   };
 
@@ -54,6 +59,8 @@ const SystemSettings = () => {
         return <EmailNotifications />;
       case "System Alerts":
         return <SystemAlerts />;
+      case "Terms & Policy":
+        return <TermsPolicy />;
       default:
         return null;
     }

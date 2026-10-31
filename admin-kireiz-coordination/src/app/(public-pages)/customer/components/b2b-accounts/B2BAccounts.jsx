@@ -229,7 +229,7 @@ const B2BAccounts = () => {
     <>
       <div className="bg-white rounded-xl shadow md:p-6 p-3">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
             <h2 className="text-2xl font-semibold text-[#1C2C56]">
               {t("title")}
@@ -240,7 +240,7 @@ const B2BAccounts = () => {
           </div>
 
           <button
-            className="bg-[#1C4FA8] text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 hover:bg-[#163F86]"
+            className="w-fit self-start sm:self-auto bg-[#1C4FA8] text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 hover:bg-[#163F86] transition-colors whitespace-nowrap"
             onClick={() => {
               setEditData(null);
               setOpenModal(true);
