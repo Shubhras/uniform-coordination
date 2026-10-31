@@ -48,7 +48,8 @@ export default {
           image: user.avatar || null,
           roleName: user.roleName,
           userType: user.userType,
-          accessToken: user.accessToken,
+          accessToken: user.accessToken || user.access,
+          refreshToken: user.refreshToken || user.refresh || null,
           firstName: user.firstName,
           lastName: user.lastName,
           language: user.language,
@@ -60,7 +61,7 @@ export default {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
         token.name = user.name || user.userName;
@@ -69,13 +70,18 @@ export default {
         token.image = user.avatar || user.image || null;
         token.roleName = user.roleName;
         token.userType = user.userType;
-        token.accessToken = user.accessToken;
+        token.accessToken = user.accessToken || user.access;
+        token.refreshToken = user.refreshToken || user.refresh || null;
         token.firstName = user.firstName;
         token.lastName = user.lastName;
         token.language = user.language;
         token.profileImage = user.profileImage || null;
         token.isActive = user.isActive;
         token.loginType = user.loginType;
+      }
+      if (trigger === 'update' && session) {
+        if (session.accessToken) token.accessToken = session.accessToken;
+        if (session.refreshToken) token.refreshToken = session.refreshToken;
       }
       return token;
     },
@@ -91,6 +97,7 @@ export default {
         roleName: token.roleName,
         userType: token.userType,
         accessToken: token.accessToken,
+        refreshToken: token.refreshToken,
         firstName: token.firstName,
         lastName: token.lastName,
         language: token.language,
@@ -101,6 +108,7 @@ export default {
 
       // Token for APIs
       session.accessToken = token.accessToken;
+      session.refreshToken = token.refreshToken;
 
       return session;
     },

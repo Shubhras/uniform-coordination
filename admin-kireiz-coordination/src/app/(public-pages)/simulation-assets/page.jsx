@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FiSliders, FiEye } from "react-icons/fi";
 import { useTranslations } from "next-intl";
 import SimulationStructure from "./components/SimulationStructure";
@@ -24,7 +25,26 @@ const TABS = [
 
 export default function Page() {
   const t = useTranslations("simulationAssets");
-  const [activeTab, setActiveTab] = useState("structure");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const tabFromUrl = searchParams.get("tab");
+
+  const [activeTab, setActiveTab] = useState(
+    tabFromUrl === "visibility" ? "visibility" : "structure"
+  );
+
+  useEffect(() => {
+    if (tabFromUrl === "visibility") {
+      setActiveTab("visibility");
+    } else if (tabFromUrl === "structure") {
+      setActiveTab("structure");
+    }
+  }, [tabFromUrl]);
+
+  const handleTabChange = (key) => {
+    setActiveTab(key);
+    router.replace(`/simulation-assets?tab=${key}`, { scroll: false });
+  };
 
   return (
     <div>
@@ -34,7 +54,7 @@ export default function Page() {
             <button
               key={key}
               type="button"
-              onClick={() => setActiveTab(key)}
+              onClick={() => handleTabChange(key)}
               className={`pb-1 text-base font-medium flex items-center gap-2 whitespace-nowrap ${activeTab === key
                 ? "text-[#1C2C56] border-b-4 border-[#1C2C56]"
                 : "text-[#64748B]"

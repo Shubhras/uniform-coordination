@@ -2074,7 +2074,8 @@
       "generalSettings": "General Settings",
       "paymentSettings": "Payment Settings",
       "emailNotifications": "Email & Notifications",
-      "systemAlerts": "System Alerts"
+      "systemAlerts": "System Alerts",
+      "termsPolicy": "Terms & Policy"
     },
     "generalSettings": {
       "companyNameLabel": "Company Name",
@@ -2171,6 +2172,35 @@
       "daysLabel": "days",
       "cancel": "Cancel",
       "saveChanges": "Save Changes"
+    },
+    "termsPolicy": {
+      "privacyPolicy": "Privacy Policy",
+      "termsAndConditions": "Terms and Conditions",
+      "edit": "Edit",
+      "add": "Add",
+      "cancel": "Cancel",
+      "savePolicy": "Save Policy",
+      "saveChanges": "Save Changes",
+      "saving": "Saving...",
+      "addTitle": "Add {type}",
+      "editTitle": "Edit {type}",
+      "titleLabel": "Title",
+      "titlePlaceholder": "Enter {type} title",
+      "contentLabel": "Content",
+      "titleRequired": "Title is required",
+      "contentRequired": "Content is required",
+      "successTitle": "Success",
+      "errorTitle": "Error",
+      "createSuccess": "{type} created successfully",
+      "updateSuccess": "{type} updated successfully",
+      "createError": "Failed to create policy",
+      "updateError": "Failed to update policy",
+      "unexpectedError": "An unexpected error occurred while saving",
+      "updated": "Updated:",
+      "active": "Active",
+      "inactive": "Inactive",
+      "noDocumentFound": "No {type} Found",
+      "noDocumentDesc": "No policy has been created yet. Click the button below to add your {type}."
     }
   },
   "notificationsPage": {

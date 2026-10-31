@@ -10,6 +10,7 @@ const Tabs = ({ activeTab, setActiveTab }) => {
     { id: "Payment Settings", label: t("paymentSettings") },
     { id: "Email & Notifications", label: t("emailNotifications") },
     { id: "System Alerts", label: t("systemAlerts") },
+    { id: "Terms & Policy", label: t("termsPolicy") },
   ];
 
   return (

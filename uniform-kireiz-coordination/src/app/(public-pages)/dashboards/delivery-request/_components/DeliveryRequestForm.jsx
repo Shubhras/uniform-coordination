@@ -94,6 +94,7 @@ const DeliveryRequestForm = () => {
         reset,
         formState: { errors },
         control,
+        setValue,
     } = useForm({
         defaultValues: {
             company_name: "",
@@ -374,13 +375,22 @@ const DeliveryRequestForm = () => {
                                 name="agreed_to_terms"
                                 control={control}
                                 render={({ field }) => (
-                                    <Checkbox {...field} checkboxClass="text-[#1C4FA8]">
-                                        I agree to privacy
+                                    <Checkbox
+                                        {...field}
+                                        checked={Boolean(field.value)}
+                                        onChange={(val) => field.onChange(val)}
+                                        checkboxClass="text-[#1C4FA8]"
+                                    >
+                                        I agree to
                                         <span
-                                            className="text-[#87CEEB] cursor-pointer ml-2"
-                                            onClick={openDialogTerms}
+                                            className="text-[#1C4FA8] font-medium hover:underline cursor-pointer ml-1"
+                                            onClick={(e) => {
+                                                e.preventDefault()
+                                                e.stopPropagation()
+                                                openDialogTerms()
+                                            }}
                                         >
-                                            policy & terms
+                                            Terms & Conditions
                                         </span>
                                     </Checkbox>
                                 )}
@@ -402,6 +412,9 @@ const DeliveryRequestForm = () => {
             <TermsAndConditionsPopup
                 isOpen={dialogTermsOpen}
                 onClose={() => setDialogTermsOpen(false)}
+                onAgree={() => {
+                    setValue('agreed_to_terms', true, { shouldValidate: true })
+                }}
             />
             {/* Quote request confirmation popup, shown after successful submission */}
             {dialoQuoteRequestOpen && (

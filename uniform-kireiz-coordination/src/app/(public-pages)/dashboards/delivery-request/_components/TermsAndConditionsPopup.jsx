@@ -1,43 +1,69 @@
+'use client'
 import Button from '@/components/ui/Button'
 import Dialog from '@/components/ui/Dialog'
 import React, { useState, useEffect } from 'react'
-import { apiPrivatePolicy } from '@/services/privatePolicyService'
+import { apiGetTermsAndConditions } from '@/services/privatePolicyService'
 import { formatDate } from '@/utils/dateFormater'
 
 /**
  * TermsAndConditionsPopup Component
  *
- * Displays the terms and conditions / privacy agreement popup by
- * fetching the latest policy content from the API and rendering it.
+ * Displays the terms and conditions popup by fetching all terms and
+ * conditions from the API endpoint when opened and rendering them.
  */
-const TermsAndConditionsPopup = ({ isOpen, onClose }) => {
+const TermsAndConditionsPopup = ({ isOpen, onClose, onAgree }) => {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
-    const [termsConditions, setTermsConditions] = useState(null)
+    const [termsList, setTermsList] = useState([])
+
     /**
- * Fetches the privacy/terms policy content of the given type
- * from the API and updates state accordingly.
- */
-    const fetchPrivatePolicy = async (policyType) => {
+     * Fetches terms and conditions list from the API.
+     */
+    const fetchTermsAndConditions = async () => {
         try {
             setLoading(true)
             setError(null)
-            const res = await apiPrivatePolicy(policyType)
+            const res = await apiGetTermsAndConditions()
 
-            if (res?.status && res?.data?.length > 0) {
-                setTermsConditions(res.data[0])
+            let list = []
+            if (Array.isArray(res?.data)) {
+                list = res.data
+            } else if (Array.isArray(res?.data?.results)) {
+                list = res.data.results
+            } else if (Array.isArray(res?.results)) {
+                list = res.results
+            } else if (Array.isArray(res)) {
+                list = res
+            } else if (res?.data && typeof res.data === 'object') {
+                list = [res.data]
+            } else if (res?.data && typeof res.data === 'string') {
+                list = [{ content: res.data }]
+            }
+
+            if (list.length > 0) {
+                setTermsList(list)
             } else {
-                setError('Data not found')
+                setError('No terms & conditions found.')
             }
         } catch (err) {
-            setError('Failed to load data')
+            console.error('Failed to load terms & conditions:', err)
+            setError('Failed to load terms & conditions.')
         } finally {
             setLoading(false)
         }
     }
+
     useEffect(() => {
-        fetchPrivatePolicy("agreement")
-    }, [])
+        if (isOpen) {
+            fetchTermsAndConditions()
+        }
+    }, [isOpen])
+
+    const lastUpdatedDate =
+        termsList?.find((item) => item?.updated_at)?.updated_at ||
+        termsList?.[0]?.updated_at ||
+        termsList?.[0]?.created_at
+
     return (
         <Dialog
             isOpen={isOpen}
@@ -46,58 +72,53 @@ const TermsAndConditionsPopup = ({ isOpen, onClose }) => {
             width={800}
         >
             <div className="flex flex-col h-full max-h-[90vh] min-h-[400px]">
-                <div className="
-                    relative
-                    px-16 sm:px-16
-                    pt-5 pb-4
-                    border-b
-                    flex
-                    flex-col
-                    sm:flex-row
-                    sm:items-center
-                    sm:justify-between
-                    gap-2
-                ">
-                    <h2 className="
-                        text-lg
-                        sm:text-xl
-                        font-semibold
-                        text-center
-                        sm:text-left
-                        text-[#003562]
-                    ">
+                <div className="relative px-4 pt-5 pb-4 border-b flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                    <h2 className="text-lg sm:text-xl font-semibold text-center sm:text-left">
                         Terms & Conditions
                     </h2>
-                    <span className="
-                        text-xs
-                        sm:text-sm
-                        text-gray-500
-                        text-center
-                        sm:text-right
-                    ">
-                        Last Updated: {termsConditions?.updated_at && formatDate(termsConditions.updated_at)}
-                    </span>
                 </div>
-                <div className="
-                    px-4 sm:px-6
-                    py-4
-                    overflow-y-auto
-                    flex-1
-                ">
+                <div className="px-4 sm:px-6 py-4 overflow-y-auto flex-1">
                     {loading && (
                         <div className="flex justify-center items-center py-20">
                             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C4FA8]"></div>
                         </div>
                     )}
 
-                    {!loading && termsConditions && (
-                        <div
-                            className="space-y-4 prose max-w-none text-sm sm:text-base leading-relaxed text-[#374151]"
-                            dangerouslySetInnerHTML={{ __html: termsConditions.content }}
-                        />
+                    {!loading && error && (
+                        <div className="py-20 text-center text-red-500 text-sm sm:text-base font-medium">
+                            {error}
+                        </div>
                     )}
 
-                    {!loading && !termsConditions && (
+                    {!loading && !error && termsList.length > 0 && (
+                        <div className="space-y-6">
+                            {termsList.map((item, index) => (
+                                <div
+                                    key={item.id || index}
+                                    className="space-y-3 pb-5 border-b border-gray-100 last:border-b-0 last:pb-0"
+                                >
+                                    {item.title && (
+                                        <h3 className="text-base sm:text-lg font-semibold text-[#003562]">
+                                            {item.title}
+                                        </h3>
+                                    )}
+                                    {item.content ? (
+                                        <div
+                                            className="space-y-4 prose max-w-none text-sm sm:text-base leading-relaxed text-[#374151]"
+                                            dangerouslySetInnerHTML={{ __html: item.content }}
+                                        />
+                                    ) : typeof item === 'string' ? (
+                                        <div
+                                            className="space-y-4 prose max-w-none text-sm sm:text-base leading-relaxed text-[#374151]"
+                                            dangerouslySetInnerHTML={{ __html: item }}
+                                        />
+                                    ) : null}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {!loading && !error && termsList.length === 0 && (
                         <div className="py-20 text-center text-gray-500 text-lg font-medium">
                             Data not found
                         </div>
@@ -131,7 +152,10 @@ const TermsAndConditionsPopup = ({ isOpen, onClose }) => {
                             py-2
                             rounded-md
                         "
-                        onClick={onClose}
+                        onClick={() => {
+                            onAgree?.()
+                            onClose()
+                        }}
                     >
                         I Agree
                     </Button>

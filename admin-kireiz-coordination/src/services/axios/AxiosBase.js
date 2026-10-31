@@ -19,10 +19,21 @@ AxiosBase.interceptors.request.use(
 )
 
 AxiosBase.interceptors.response.use(
-    (response) => response,
+    (response) => {
+        if (
+            response?.data?.statusCode === 401 ||
+            response?.data?.code === 'token_not_valid'
+        ) {
+            const fakeError = {
+                config: response.config,
+                response: response,
+            }
+            return AxiosResponseIntrceptorErrorCallback(fakeError, AxiosBase)
+        }
+        return response
+    },
     (error) => {
-        AxiosResponseIntrceptorErrorCallback(error)
-        return Promise.reject(error)
+        return AxiosResponseIntrceptorErrorCallback(error, AxiosBase)
     },
 )
 

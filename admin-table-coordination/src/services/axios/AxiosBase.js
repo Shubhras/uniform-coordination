@@ -21,8 +21,7 @@ AxiosBase.interceptors.request.use(
 AxiosBase.interceptors.response.use(
     (response) => response,
     (error) => {
-        AxiosResponseIntrceptorErrorCallback(error)
-        return Promise.reject(error)
+        return AxiosResponseIntrceptorErrorCallback(error, AxiosBase)
     },
 )
 

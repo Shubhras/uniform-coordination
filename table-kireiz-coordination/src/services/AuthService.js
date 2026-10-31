@@ -81,3 +81,23 @@ export async function verifyEmail(data) {
   });
 }
 
+/**
+ * Refreshes session tokens using the refresh token.
+ * 
+ * @param {string} refreshToken - The refresh token string.
+ * @returns {Promise<Object>} API response containing new access token and optional refresh token.
+ */
+export async function apiRefreshToken(refreshToken) {
+  const payload = {
+    refresh: refreshToken,
+    refreshToken: refreshToken,
+  };
+
+  return ApiService.fetchDataWithAxios({
+    url: "/v1/space/userhub/token/refresh/",
+    method: "post",
+    data: payload,
+  });
+}
+
+

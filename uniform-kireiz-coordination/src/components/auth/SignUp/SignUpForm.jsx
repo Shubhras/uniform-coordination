@@ -7,6 +7,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import PasswordInput from "@/components/shared/PasswordInput";
+import PrivacyPolicyPopup from "./PrivacyPolicyPopup";
 
 const validationSchema = z
   .object({
@@ -38,6 +39,7 @@ const SignUpForm = (props) => {
 
   const [isSubmitting, setSubmitting] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [dialogPrivacyOpen, setDialogPrivacyOpen] = useState(false);
 
   const {
     handleSubmit,
@@ -209,8 +211,19 @@ const SignUpForm = (props) => {
                 </svg>
               </div>
               <p>
-                I Agree to privacy
-                <span className="text-[#87CEEB]"> policy & terms</span>
+                I Agree to
+                <span
+                  role="button"
+                  tabIndex={0}
+                  className="text-[#87CEEB] hover:underline cursor-pointer ml-1"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setDialogPrivacyOpen(true);
+                  }}
+                >
+                  Privacy Policy
+                </span>
               </p>
             </label>
           </div>
@@ -226,6 +239,11 @@ const SignUpForm = (props) => {
           {isSubmitting ? "Creating Account..." : "Create Account"}
         </Button>
       </Form>
+      <PrivacyPolicyPopup
+        isOpen={dialogPrivacyOpen}
+        onClose={() => setDialogPrivacyOpen(false)}
+        onAgree={() => setAgreedToTerms(true)}
+      />
     </div>
   );
 };

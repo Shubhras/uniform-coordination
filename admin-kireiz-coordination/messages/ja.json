@@ -2072,7 +2072,8 @@
       "generalSettings": "一般設定",
       "paymentSettings": "支払い設定",
       "emailNotifications": "メールと通知",
-      "systemAlerts": "システムアラート"
+      "systemAlerts": "システムアラート",
+      "termsPolicy": "利用規約とポリシー"
     },
     "generalSettings": {
       "companyNameLabel": "会社名",
@@ -2169,6 +2170,35 @@
       "daysLabel": "日",
       "cancel": "キャンセル",
       "saveChanges": "変更を保存"
+    },
+    "termsPolicy": {
+      "privacyPolicy": "プライバシーポリシー",
+      "termsAndConditions": "利用規約",
+      "edit": "編集",
+      "add": "追加",
+      "cancel": "キャンセル",
+      "savePolicy": "ポリシーを保存",
+      "saveChanges": "変更を保存",
+      "saving": "保存中...",
+      "addTitle": "{type}を追加",
+      "editTitle": "{type}を編集",
+      "titleLabel": "タイトル",
+      "titlePlaceholder": "{type}のタイトルを入力",
+      "contentLabel": "本文",
+      "titleRequired": "タイトルは必須です",
+      "contentRequired": "本文は必須です",
+      "successTitle": "成功",
+      "errorTitle": "エラー",
+      "createSuccess": "{type}を作成しました",
+      "updateSuccess": "{type}を更新しました",
+      "createError": "ポリシーの作成に失敗しました",
+      "updateError": "ポリシーの更新に失敗しました",
+      "unexpectedError": "保存中に予期しないエラーが発生しました",
+      "updated": "更新日:",
+      "active": "有効",
+      "inactive": "無効",
+      "noDocumentFound": "{type}が見つかりません",
+      "noDocumentDesc": "まだポリシーが作成されていません。ボタンをクリックして{type}を追加してください。"
     }
   },
   "notificationsPage": {
