@@ -116,12 +116,24 @@ class FabricListView(APIView):
     def get(self, request):
         try:
             search_query = request.query_params.get("search", "").strip()
-            category_id = request.query_params.get("category_id") or request.query_params.get("category")
+            category_id = (
+                request.query_params.get("category_id")
+                or request.query_params.get("category")
+                or request.query_params.get("categoryId")
+            )
+            subcategory_id = (
+                request.query_params.get("subcategory_id")
+                or request.query_params.get("subcategory")
+                or request.query_params.get("subcategoryId")
+            )
 
             fabrics = Fabric.objects.filter(isDeleted=False)
 
-            if category_id and category_id.strip() and category_id.strip().lower() != "all":
-                fabrics = fabrics.filter(category_id=category_id.strip())
+            if category_id and str(category_id).strip() and str(category_id).strip().lower() not in ["all", "null", "undefined"]:
+                fabrics = fabrics.filter(category_id=str(category_id).strip())
+
+            if subcategory_id and str(subcategory_id).strip() and str(subcategory_id).strip().lower() not in ["all", "null", "undefined"]:
+                fabrics = fabrics.filter(subcategory_id=str(subcategory_id).strip())
 
             if search_query:
                 fabrics = fabrics.filter(
@@ -130,7 +142,7 @@ class FabricListView(APIView):
                     Q(materialType__icontains=search_query)
                 )
 
-            fabrics = fabrics.order_by("-id")
+            fabrics = fabrics.select_related("category", "subcategory", "theme").order_by("-id")
 
             paginator = CustomPagination()
             page = paginator.paginate_queryset(fabrics, request)
