@@ -296,16 +296,45 @@ class SimulationStructureAPIView(APIView):
     @extend_schema(
         tags=["Simulation Assets"],
         summary="Get simulation structure for every category",
+        parameters=[
+            OpenApiParameter(
+                "is_active", OpenApiTypes.STR, OpenApiParameter.QUERY,
+                description="Filter by active status ('true', 'false', or 'all'). Defaults to true.",
+            ),
+            OpenApiParameter(
+                "isActive", OpenApiTypes.STR, OpenApiParameter.QUERY,
+                description="Alias for is_active",
+            ),
+        ],
         responses={200: OpenApiResponse(description="Structures fetched")},
     )
     def get(self, request):
         try:
+            is_active_param = (
+                request.query_params.get("is_active")
+                if request.query_params.get("is_active") is not None
+                else request.query_params.get("isActive")
+            )
+
             # type='uniform' matters: the Category table also holds KIREIZ SPACE
             # rows (Classy Corporate, Olive Chic, Warm Elegance), which must not
             # appear in the uniform admin.
             categories = Category.objects.filter(
                 isDeleted=False, type=UNIFORM_PART_TYPE
-            ).order_by("order", "id")
+            )
+
+            # Filter active categories (defaults to active categories only)
+            if is_active_param is not None:
+                val = str(is_active_param).strip().lower()
+                if val in ["true", "1"]:
+                    categories = categories.filter(isActive=True)
+                elif val in ["false", "0"]:
+                    categories = categories.filter(isActive=False)
+                # if 'all', keep both active and inactive
+            else:
+                categories = categories.filter(isActive=True)
+
+            categories = categories.order_by("order", "id")
 
             data = {}
             for category in categories:
