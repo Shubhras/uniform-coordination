@@ -191,8 +191,8 @@ STATIC_URL = 'static/'
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-SITE_DOMAIN = config("SITE_DOMAIN", default="http://table.172.237.71.124.sslip.io")
-SITE_URL = config("SITE_URL", default="http://table.172.237.71.124.sslip.io")
+SITE_DOMAIN = config("SITE_DOMAIN", default="https://table.172.237.71.124.sslip.io")
+SITE_URL = config("SITE_URL", default="https://table.172.237.71.124.sslip.io")
 
 #large file/JSON upload (R.T)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 150 * 1024 * 1024
@@ -207,7 +207,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        # "rest_framework_simplejwt.authentication.JWTAuthentication",  
+        # "rest_framework_simplejwt.authentication.JWTAuthentication",
         "userhub.authentication.CustomUserJWTAuthentication",# For Customers
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
@@ -235,12 +235,19 @@ CORS_ALLOWED_ORIGINS = [
     "http://0.0.0.0:8000",
     "http://54.81.43.26",
 
-    # Linode server (nginx par port 80)
+    # Linode server HTTPS domains (sslip.io)
+    "https://uniform.172.237.71.124.sslip.io",
+    "https://table.172.237.71.124.sslip.io",
+    "https://admin.172.237.71.124.sslip.io",
+    "https://admintable.172.237.71.124.sslip.io",
+
+    # Linode server HTTP domains
     "http://172.237.71.124",
     "http://172.237.71.124:7000",
     "http://172.237.71.124:7001",
     "http://172.237.71.124:7002",
     "http://172.237.71.124:7003",
+    "http://uniform.172.237.71.124.sslip.io",
     "http://table.172.237.71.124.sslip.io",
     "http://admin.172.237.71.124.sslip.io",
     "http://admintable.172.237.71.124.sslip.io",
@@ -264,6 +271,7 @@ CSRF_TRUSTED_ORIGINS = [
     "https://table.dxtspace.com",
     "https://uniform-admin.dxtspace.com",
     "https://table-admin.dxtspace.com",
+    "https://*.172.237.71.124.sslip.io",
     "http://172.237.71.124",
     "http://*.172.237.71.124.sslip.io",
 ]
