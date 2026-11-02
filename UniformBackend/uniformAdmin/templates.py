@@ -162,6 +162,12 @@ class TemplateListView(APIView):
             if active_only:
                 templates = templates.filter(isActive=True)
 
+            category_name = None
+            if category_id:
+                cat_obj = Category.objects.filter(id=category_id, isDeleted=False).first()
+                if cat_obj:
+                    category_name = cat_obj.categoryName
+
             templates = templates.order_by("-id")
 
             paginator = CustomPagination()
@@ -175,6 +181,7 @@ class TemplateListView(APIView):
                 "statusCode": 200,
                 "status": True,
                 "message": "Templates fetched successfully",
+                "categoryName": category_name,
                 "data": serializer.data,
                 "pagination": {
                     "page": paginator.page.number,
