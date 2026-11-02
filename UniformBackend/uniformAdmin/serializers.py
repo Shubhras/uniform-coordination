@@ -1862,7 +1862,8 @@ class AdminNotificationSerializer(serializers.ModelSerializer):
         
         
 class UnitPriceSerializer(serializers.Serializer):
-    id = serializers.IntegerField(required=False, allow_null=True)
+    id = serializers.CharField(required=False, allow_null=True)
+    item_id = serializers.IntegerField(required=False, allow_null=True)
     type = serializers.CharField()
     itemName = serializers.CharField()
     unit = serializers.CharField()

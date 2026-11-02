@@ -271,6 +271,7 @@ class Parts(models.Model):
     subcategory = models.ForeignKey('SubCategory', on_delete=models.SET_NULL, null=True, blank=True, related_name="parts_subcategory")
     partType = models.CharField(max_length=20,choices=PART_TYPE_CHOICES,default='uniform')
     fabric = models.ForeignKey(Fabric, on_delete=models.CASCADE)
+    pricePerUnit = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     usageTemmpCount = models.IntegerField(default=0)
     theme = models.ForeignKey('TableTheme',on_delete=models.SET_NULL,null=True,blank=True,related_name="parts")
     zIndex = models.IntegerField(default=0)

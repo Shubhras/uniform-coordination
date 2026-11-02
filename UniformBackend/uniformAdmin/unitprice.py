@@ -81,7 +81,8 @@ class UnitPriceListAPIView(APIView):
                 base = fabric.pricePerUnit or 0
                 bulk = round(float(base) * 0.90, 2)
                 data.append({
-                    "id": fabric.id,
+                    "id": f"fabric_{fabric.id}",
+                    "item_id": fabric.id,
                     "type": "Fabric",
                     "itemName": fabric.fabricName,
                     "unit": "Meter",
@@ -93,10 +94,11 @@ class UnitPriceListAPIView(APIView):
             # ================= PARTS =================
             parts = Parts.objects.filter(isDeleted=False, isActive=True).select_related("fabric")
             for part in parts:
-                base = (part.fabric.pricePerUnit if part.fabric else 0) or 0
+                base = part.pricePerUnit if part.pricePerUnit is not None else ((part.fabric.pricePerUnit if part.fabric else 0) or 0)
                 bulk = round(float(base) * 0.90, 2)
                 data.append({
-                    "id": part.id,
+                    "id": f"part_{part.id}",
+                    "item_id": part.id,
                     "type": "Part",
                     "itemName": part.partName,
                     "unit": "Piece",
@@ -134,7 +136,8 @@ class UnitPriceUpdateAPIView(APIView):
             "application/json": {
                 "type": "object",
                 "properties": {
-                    "id": {"type": "integer"},
+                    "id": {"type": "string"},
+                    "item_id": {"type": "integer"},
                     "type": {"type": "string", "enum": ["Fabric", "Part"]},
                     "basePrice": {"type": "number"}
                 },
@@ -146,8 +149,25 @@ class UnitPriceUpdateAPIView(APIView):
     def post(self, request):
         try:
             item_type = request.data.get("type")
-            item_id = request.data.get("id")
+            raw_id = request.data.get("id") or request.data.get("item_id")
             base_price = request.data.get("basePrice")
+
+            if raw_id is None or raw_id == "":
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "id is required."
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            clean_id_str = str(raw_id).replace("fabric_", "").replace("part_", "")
+            try:
+                item_id = int(clean_id_str)
+            except (ValueError, TypeError):
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "Invalid id format."
+                }, status=status.HTTP_400_BAD_REQUEST)
 
             if base_price is None or base_price == "":
                 return Response({
@@ -182,7 +202,8 @@ class UnitPriceUpdateAPIView(APIView):
                     "statusCode": 200,
                     "message": "Fabric unit price updated successfully.",
                     "data": {
-                        "id": fabric.id,
+                        "id": f"fabric_{fabric.id}",
+                        "item_id": fabric.id,
                         "type": "Fabric",
                         "itemName": fabric.fabricName,
                         "basePrice": str(fabric.pricePerUnit),
@@ -191,22 +212,23 @@ class UnitPriceUpdateAPIView(APIView):
                 }, status=status.HTTP_200_OK)
 
             elif item_type == "Part":
-                part = Parts.objects.filter(id=item_id, isDeleted=False).select_related("fabric").first()
+                part = Parts.objects.filter(id=item_id, isDeleted=False).first()
                 if not part:
                     return Response({
                         "status": False,
                         "statusCode": 404,
                         "message": "Part not found."
                     }, status=status.HTTP_404_NOT_FOUND)
-                if part.fabric:
-                    part.fabric.pricePerUnit = base_price
-                    part.fabric.save(update_fields=["pricePerUnit", "updated_at"])
+                # Update Part's own pricePerUnit directly - never overwrite Fabric!
+                part.pricePerUnit = base_price
+                part.save(update_fields=["pricePerUnit", "updated_at"])
                 return Response({
                     "status": True,
                     "statusCode": 200,
                     "message": "Part unit price updated successfully.",
                     "data": {
-                        "id": part.id,
+                        "id": f"part_{part.id}",
+                        "item_id": part.id,
                         "type": "Part",
                         "itemName": part.partName,
                         "basePrice": str(base_price),
@@ -472,7 +494,7 @@ class UnitPriceExportAPIView(APIView):
         # ---------- PARTS ----------
         parts = Parts.objects.filter(isDeleted=False, isActive=True).select_related("fabric")
         for part in parts:
-            base = (part.fabric.pricePerUnit if part.fabric else 0) or 0
+            base = part.pricePerUnit if part.pricePerUnit is not None else ((part.fabric.pricePerUnit if part.fabric else 0) or 0)
             bulk = round(float(base) * 0.90, 2)
             rows.append({
                 "type": "Part",
