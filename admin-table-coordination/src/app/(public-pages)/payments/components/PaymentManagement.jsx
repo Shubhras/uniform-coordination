@@ -441,11 +441,13 @@ export default function PaymentManagement() {
     setSelectedPromocode(promo);
     if (promo) {
       const rawDesc = promo.description || "";
-      let eligibility = "all";
-      if (rawDesc.includes("[Eligibility: first_purchase]")) {
-        eligibility = "first_purchase";
-      } else if (rawDesc.includes("[Eligibility: repeat_customer]")) {
-        eligibility = "repeat_customer";
+      let eligibility = promo.customer_eligibility || "all";
+      if (eligibility === "all" && rawDesc) {
+        if (rawDesc.includes("[Eligibility: first_purchase]")) {
+          eligibility = "first_purchase";
+        } else if (rawDesc.includes("[Eligibility: repeat_customer]")) {
+          eligibility = "repeat_customer";
+        }
       }
 
       setPromoForm({
@@ -495,6 +497,7 @@ export default function PaymentManagement() {
         desc = `[Eligibility: repeat_customer] ${desc}`.trim();
       }
       formData.append("description", desc);
+      formData.append("customer_eligibility", promoForm.customerEligibility || "all");
       formData.append("promocodeType", promoForm.promocodeType);
       if (promoForm.amount) formData.append("amount", promoForm.amount);
       if (promoForm.min_order_value)
@@ -1370,8 +1373,23 @@ export default function PaymentManagement() {
                         </span>
                       </div>
 
+                      {(promo.customer_eligibility === "first_purchase" || promo.description?.includes("[Eligibility: first_purchase]")) && (
+                        <div className="mb-2">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-400">
+                            First-Purchase Incentive
+                          </span>
+                        </div>
+                      )}
+                      {(promo.customer_eligibility === "repeat_customer" || promo.description?.includes("[Eligibility: repeat_customer]")) && (
+                        <div className="mb-2">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-950/40 dark:text-purple-400">
+                            Repeat Customer Discount
+                          </span>
+                        </div>
+                      )}
+
                       <p className="text-xs text-gray-500 dark:text-gray-400 mb-4 line-clamp-2">
-                        {promo.description || t("noSpecificPromotionalTerms")}
+                        {(promo.description || "").replace(/\[Eligibility:\s*[^\]]+\]\s*/g, "").trim() || t("noSpecificPromotionalTerms")}
                       </p>
 
                       <div className="space-y-1.5 text-xs text-gray-600 dark:text-gray-300">

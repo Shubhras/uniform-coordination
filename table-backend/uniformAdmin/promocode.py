@@ -545,20 +545,37 @@ class ValidatePromocodeAPIView(APIView):
                 }, status=status.HTTP_200_OK)
 
         desc = coupon.description or ""
-        if "[Eligibility: first_purchase]" in desc:
-            if request.user.is_authenticated and Order.objects.filter(user=request.user, is_paid=True).exists():
+        eligibility = getattr(coupon, "customer_eligibility", "all")
+        is_first_purchase = eligibility == "first_purchase" or "[Eligibility: first_purchase]" in desc
+        is_repeat_customer = eligibility == "repeat_customer" or "[Eligibility: repeat_customer]" in desc
+
+        if is_first_purchase:
+            has_paid_order = request.user.is_authenticated and Order.objects.filter(
+                user=request.user, is_paid=True, is_deleted=False
+            ).exists()
+            already_used_first_purchase = request.user.is_authenticated and Order.objects.filter(
+                Q(promocode__customer_eligibility="first_purchase")
+                | Q(promocode__description__icontains="[Eligibility: first_purchase]"),
+                user=request.user,
+                is_deleted=False
+            ).exclude(status="cancelled").exists()
+
+            if has_paid_order or already_used_first_purchase:
                 return Response({
                     "status": False,
                     "statusCode": 200,
-                    "message": "This promocode is only valid for first-time purchases."
+                    "message": "This promocode is only valid for first-time purchases and cannot be reused."
                 }, status=status.HTTP_200_OK)
 
-        if "[Eligibility: repeat_customer]" in desc:
-            if not request.user.is_authenticated or not Order.objects.filter(user=request.user, is_paid=True).exists():
+        if is_repeat_customer:
+            has_paid_order = request.user.is_authenticated and Order.objects.filter(
+                user=request.user, is_paid=True, is_deleted=False
+            ).exists()
+            if not has_paid_order:
                 return Response({
                     "status": False,
                     "statusCode": 200,
-                    "message": "This promocode is only valid for repeat customers with prior orders."
+                    "message": "This promocode is only valid for repeat customers with at least one paid order."
                 }, status=status.HTTP_200_OK)
 
 
@@ -570,6 +587,7 @@ class ValidatePromocodeAPIView(APIView):
                 "id": coupon.id,
                 "promocode": coupon.promocodeName,
                 "type": coupon.promocodeType,
+                "customer_eligibility": getattr(coupon, "customer_eligibility", "all"),
                 "amount": coupon.amount,
                 "min_order_value": coupon.min_order_value,
                 "started_at": coupon.started_at,

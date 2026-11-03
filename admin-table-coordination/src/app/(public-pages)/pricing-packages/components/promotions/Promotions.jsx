@@ -147,15 +147,17 @@ const Promotions = () => {
     return promotion.isActive ? "active" : "inactive";
   };
 
-  const getCustomerEligibility = (description = "") => {
-    if (description.includes("[Eligibility: first_purchase]")) {
+  const getCustomerEligibility = (promotion = {}) => {
+    const directElig = promotion.customer_eligibility;
+    const desc = promotion.description || "";
+    if (directElig === "first_purchase" || desc.includes("[Eligibility: first_purchase]")) {
       return {
         key: "first_purchase",
         label: t("tagFirstPurchase") || "First-Purchase",
         badgeClass: "bg-[#E6F4FE] text-[#0066CC] border border-[#B3D9FF]",
       };
     }
-    if (description.includes("[Eligibility: repeat_customer]")) {
+    if (directElig === "repeat_customer" || desc.includes("[Eligibility: repeat_customer]")) {
       return {
         key: "repeat_customer",
         label: t("tagRepeatCustomer") || "Repeat Customer",
@@ -199,7 +201,7 @@ const Promotions = () => {
 
       let matchesEligibility = true;
       if (eligibility && eligibility.value !== "all") {
-        const promoElig = getCustomerEligibility(promotion.description || "").key;
+        const promoElig = getCustomerEligibility(promotion).key;
         matchesEligibility = promoElig === eligibility.value;
       }
 
@@ -347,7 +349,7 @@ const Promotions = () => {
 
                     <td className="px-4 py-3">
                       {(() => {
-                        const elig = getCustomerEligibility(promotion.description || "");
+                        const elig = getCustomerEligibility(promotion);
                         return (
                           <span
                             className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${elig.badgeClass}`}

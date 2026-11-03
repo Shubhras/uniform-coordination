@@ -135,11 +135,13 @@ const CreatePromotion = () => {
           const data = res.data;
 
           const rawDesc = data.description || "";
-          let eligibility = "all";
-          if (rawDesc.includes("[Eligibility: first_purchase]")) {
-            eligibility = "first_purchase";
-          } else if (rawDesc.includes("[Eligibility: repeat_customer]")) {
-            eligibility = "repeat_customer";
+          let eligibility = data.customer_eligibility || "all";
+          if (eligibility === "all") {
+            if (rawDesc.includes("[Eligibility: first_purchase]")) {
+              eligibility = "first_purchase";
+            } else if (rawDesc.includes("[Eligibility: repeat_customer]")) {
+              eligibility = "repeat_customer";
+            }
           }
 
           setForm({
@@ -175,6 +177,7 @@ const CreatePromotion = () => {
       formData.append("promocodeName", form.promocodeName);
       formData.append("promocodeType", form.promocodeType);
       formData.append("amount", form.amount);
+      formData.append("customer_eligibility", form.customerEligibility || "all");
       // formData.append("min_order_value", form.min_order_value);
       // formData.append("limit_uses", form.limit_uses);
       // formData.append("max_uses", form.max_uses);
@@ -196,13 +199,7 @@ const CreatePromotion = () => {
       );
 
       formData.append("isActive", form.isActive);
-      let desc = (form.description || "").trim();
-      if (form.customerEligibility === "first_purchase") {
-        desc = `[Eligibility: first_purchase] ${desc}`.trim();
-      } else if (form.customerEligibility === "repeat_customer") {
-        desc = `[Eligibility: repeat_customer] ${desc}`.trim();
-      }
-      formData.append("description", desc);
+      formData.append("description", (form.description || "").trim());
 
       // const res = await apiCreatePromoCode(accessToken, formData);
       let res;

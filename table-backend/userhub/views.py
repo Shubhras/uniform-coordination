@@ -9,10 +9,9 @@ from .utils import *
 from django.core.mail import send_mail
 from django.conf import settings
 from .serializers import*
-from django.db.models import F
+from django.db.models import F, Q, Sum
 from django.shortcuts import get_object_or_404
 import logging
-from django.db.models import Sum
 from django.db import transaction
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
@@ -1942,20 +1941,33 @@ class CreateOrderAPIView(APIView):
                     })
 
                 desc = promo.description or ""
-                if "[Eligibility: first_purchase]" in desc:
-                    if Order.objects.filter(user=user, is_paid=True).exists():
+                eligibility = getattr(promo, "customer_eligibility", "all")
+                is_first_purchase = eligibility == "first_purchase" or "[Eligibility: first_purchase]" in desc
+                is_repeat_customer = eligibility == "repeat_customer" or "[Eligibility: repeat_customer]" in desc
+
+                if is_first_purchase:
+                    has_paid_order = Order.objects.filter(user=user, is_paid=True, is_deleted=False).exists()
+                    already_used_first_purchase = Order.objects.filter(
+                        Q(promocode__customer_eligibility="first_purchase")
+                        | Q(promocode__description__icontains="[Eligibility: first_purchase]"),
+                        user=user,
+                        is_deleted=False
+                    ).exclude(status="cancelled").exists()
+
+                    if has_paid_order or already_used_first_purchase:
                         return Response({
                             "status": False,
                             "statusCode": 400,
-                            "message": "This promocode is only valid for first-time purchases."
+                            "message": "This promocode is only valid for first-time purchases and cannot be reused."
                         }, status=status.HTTP_400_BAD_REQUEST)
 
-                if "[Eligibility: repeat_customer]" in desc:
-                    if not Order.objects.filter(user=user, is_paid=True).exists():
+                if is_repeat_customer:
+                    has_paid_order = Order.objects.filter(user=user, is_paid=True, is_deleted=False).exists()
+                    if not has_paid_order:
                         return Response({
                             "status": False,
                             "statusCode": 400,
-                            "message": "This promocode is only valid for repeat customers."
+                            "message": "This promocode is only valid for repeat customers with at least one paid order."
                         }, status=status.HTTP_400_BAD_REQUEST)
 
                 applied_promo = promo

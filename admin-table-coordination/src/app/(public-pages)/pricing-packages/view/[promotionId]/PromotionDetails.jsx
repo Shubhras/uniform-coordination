@@ -125,9 +125,9 @@ const PromotionDetails = ({ promotionId }) => {
               {t("eligibleCustomers")}
             </p>
             <p className="mt-2 text-[15px] font-medium text-[#3F332C]">
-              {promotion?.description?.includes("[Eligibility: first_purchase]")
+              {promotion?.customer_eligibility === "first_purchase" || promotion?.description?.includes("[Eligibility: first_purchase]")
                 ? t("eligibilityFirstPurchase")
-                : promotion?.description?.includes("[Eligibility: repeat_customer]")
+                : promotion?.customer_eligibility === "repeat_customer" || promotion?.description?.includes("[Eligibility: repeat_customer]")
                   ? t("eligibilityRepeatCustomer")
                   : `${t("eligibilityAll")} (Default)`}
             </p>

@@ -689,12 +689,23 @@ class Promocode(models.Model):
         ("fix_price", "Fix Price"),
         ("discount", "Discount"),
     ]
+
+    CUSTOMER_ELIGIBILITY_CHOICES = [
+        ("all", "All Customers"),
+        ("first_purchase", "First Purchase"),
+        ("repeat_customer", "Repeat Customer"),
+    ]
  
     promocodeName = models.CharField(max_length=150, unique=True)
     slug = models.SlugField(max_length=180, unique=True, blank=True)
     promocodeImage = models.ImageField(upload_to="promocode/", null=True, blank=True)
     description = models.TextField(blank=True)
     promocodeType = models.CharField(max_length=20, choices=PROMOCODE_TYPE_CHOICES)
+    customer_eligibility = models.CharField(
+        max_length=30,
+        choices=CUSTOMER_ELIGIBILITY_CHOICES,
+        default="all"
+    )
     amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     started_at = models.DateTimeField(null=True, blank=True)
     ended_at = models.DateTimeField(null=True, blank=True)
