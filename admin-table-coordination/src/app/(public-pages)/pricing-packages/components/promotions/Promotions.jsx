@@ -15,6 +15,7 @@ import {
   FiEye,
   FiEdit2,
   FiTrash2,
+  FiRotateCcw,
 } from "react-icons/fi";
 import {
   apiGetPromoCodeList,
@@ -85,10 +86,19 @@ const Promotions = () => {
     { value: "expired", label: t("statusExpired") },
   ];
 
+  const eligibilityOptions = [
+    { value: "all", label: t("allEligibilities") || "All Customer Types" },
+    { value: "first_purchase", label: t("tagFirstPurchase") || "First-Purchase" },
+    { value: "repeat_customer", label: t("tagRepeatCustomer") || "Repeat Customer" },
+    { value: "all_customers", label: t("tagAllCustomers") || "All Customers" },
+  ];
+
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [type, setType] = useState(typeOptions[0]);
   const [status, setStatus] = useState(statusOptions[0]);
+  const [eligibility, setEligibility] = useState(eligibilityOptions[0]);
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -102,15 +112,34 @@ const Promotions = () => {
   const pageSize = 10;
   const [totalItems, setTotalItems] = useState(0);
 
+  // Debounce search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
   const getPromotionList = async () => {
     try {
       setLoading(true);
 
-      const res = await apiGetPromoCodeList(accessToken, currentPage, pageSize);
+      const res = await apiGetPromoCodeList(
+        accessToken,
+        currentPage,
+        pageSize,
+        status?.value || "",
+        type?.value || "",
+        eligibility?.value || "",
+        debouncedSearch.trim(),
+      );
 
       if (res?.status) {
         setPromotions(res.data || []);
-        setTotalItems(res.pagination?.total_items || 0);
+        setTotalItems(
+          res.pagination?.total_items ?? res.count ?? (res.data?.length || 0),
+        );
       } else {
         setPromotions([]);
         setTotalItems(0);
@@ -126,7 +155,7 @@ const Promotions = () => {
     if (accessToken) {
       getPromotionList();
     }
-  }, [accessToken, currentPage]);
+  }, [accessToken, currentPage, debouncedSearch, status, type, eligibility]);
 
   const getPromotionStatus = (promotion) => {
     if (promotion.ended_at) {
@@ -139,41 +168,55 @@ const Promotions = () => {
     return promotion.isActive ? "active" : "inactive";
   };
 
-  const filteredPromotions = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
+  const getCustomerEligibility = (promotion = {}) => {
+    const directElig = promotion.customer_eligibility;
+    const desc = promotion.description || "";
+    if (directElig === "first_purchase" || desc.includes("[Eligibility: first_purchase]")) {
+      return {
+        key: "first_purchase",
+        label: t("tagFirstPurchase") || "First-Purchase",
+        badgeClass: "bg-[#E6F4FE] text-[#0066CC] border border-[#B3D9FF]",
+      };
+    }
+    if (directElig === "repeat_customer" || desc.includes("[Eligibility: repeat_customer]")) {
+      return {
+        key: "repeat_customer",
+        label: t("tagRepeatCustomer") || "Repeat Customer",
+        badgeClass: "bg-[#F3E8FF] text-[#7E22CE] border border-[#DDD6FE]",
+      };
+    }
+    return {
+      key: "all_customers",
+      label: t("tagAllCustomers") || "All Customers",
+      badgeClass: "bg-[#F3F4F6] text-[#4B5563] border border-[#E5E7EB]",
+    };
+  };
 
-    return promotions.filter((promotion) => {
-      const matchesSearch =
-        !query || promotion.promocodeName?.toLowerCase().includes(query);
+  const filteredPromotions = promotions;
 
-      let matchesType = true;
-      if (type && type.value !== "all") {
-        const pType = (promotion.promocodeType || "").toLowerCase();
-        if (type.value === "fix_price") {
-          matchesType =
-            pType === "fix_price" ||
-            pType === "fixed amount" ||
-            pType === "fix price";
-        } else if (type.value === "discount") {
-          matchesType = pType === "discount" || pType === "percentage";
-        } else {
-          matchesType = pType === type.value;
-        }
-      }
-
-      let matchesStatus = true;
-      if (status && status.value !== "all") {
-        const currentStatus = getPromotionStatus(promotion);
-        matchesStatus = currentStatus === status.value;
-      }
-
-      return matchesSearch && matchesType && matchesStatus;
-    });
-  }, [promotions, searchQuery, type, status]);
-
-  useEffect(() => {
+  const handleStatusChange = (val) => {
+    setStatus(val);
     setCurrentPage(1);
-  }, [searchQuery, type, status]);
+  };
+
+  const handleTypeChange = (val) => {
+    setType(val);
+    setCurrentPage(1);
+  };
+
+  const handleEligibilityChange = (val) => {
+    setEligibility(val);
+    setCurrentPage(1);
+  };
+
+  const handleReset = () => {
+    setSearchQuery("");
+    setDebouncedSearch("");
+    setType(typeOptions[0]);
+    setStatus(statusOptions[0]);
+    setEligibility(eligibilityOptions[0]);
+    setCurrentPage(1);
+  };
 
   const handleDeleteConfirm = async () => {
     if (!promotionToDelete) return;
@@ -217,8 +260,8 @@ const Promotions = () => {
   return (
     <>
       <div className="mt-5">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 ">
-          <div className="relative w-full lg:max-w-xl">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div className="relative w-full md:w-72">
             <FiSearch
               className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A85A32B2]"
               size={16}
@@ -228,13 +271,20 @@ const Promotions = () => {
               type="text"
               placeholder={t("searchPromotion")}
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setCurrentPage(1);
+              }}
               className="w-full h-10 border border-[#D1D5DB] text-[#A85A32B2] rounded-lg pl-10 pr-10 outline-none focus:border-[#A85A32B2]"
             />
 
             {searchQuery && (
               <button
-                onClick={() => setSearchQuery("")}
+                type="button"
+                onClick={() => {
+                  setSearchQuery("");
+                  setCurrentPage(1);
+                }}
                 className="absolute right-3 top-1/2 -translate-y-1/2"
               >
                 <FiX className="text-gray-500" />
@@ -242,29 +292,60 @@ const Promotions = () => {
             )}
           </div>
 
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            {/* Filters */}
-            <div className="flex gap-3">
-              <div className="w-52">
-                <Select
-                  value={status}
-                  onChange={setStatus}
-                  options={statusOptions}
-                  styles={selectStyles}
-                  isSearchable={false}
-                />
-              </div>
-
-              <div className="w-52">
-                <Select
-                  value={type}
-                  onChange={setType}
-                  options={typeOptions}
-                  styles={selectStyles}
-                  isSearchable={false}
-                />
-              </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="w-48">
+              <Select
+                // value={status}
+                value={
+                  statusOptions.find(
+                    (option) => option.value === status?.value
+                  ) || statusOptions[0]
+                }
+                onChange={handleStatusChange}
+                options={statusOptions}
+                styles={selectStyles}
+                isSearchable={false}
+              />
             </div>
+
+            <div className="w-48">
+              <Select
+                // value={type}
+                value={
+                  typeOptions.find(
+                    (option) => option.value === type?.value
+                  ) || typeOptions[0]
+                }
+                onChange={handleTypeChange}
+                options={typeOptions}
+                styles={selectStyles}
+                isSearchable={false}
+              />
+            </div>
+
+            <div className="w-56">
+              <Select
+                // value={eligibility}
+                value={
+                  eligibilityOptions.find(
+                    (option) => option.value === eligibility?.value
+                  ) || eligibilityOptions[0]
+                }
+                onChange={handleEligibilityChange}
+                options={eligibilityOptions}
+                styles={selectStyles}
+                isSearchable={false}
+              />
+            </div>
+
+            <button
+              type="button"
+              onClick={handleReset}
+              className="flex h-10 items-center gap-2 rounded-lg border border-[#EFE5DD] bg-white px-4 text-sm font-medium text-[#C08457] transition hover:bg-[#FCF7F3]"
+            >
+              <FiRotateCcw size={14} />
+              {t("reset") || "Reset"}
+            </button>
           </div>
         </div>
 
@@ -273,6 +354,7 @@ const Promotions = () => {
             <thead className="bg-[#F1F5F9] text-[#486284]">
               <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
                 <th className="text-left px-4 py-3">{t("promotionName")}</th>
+                <th className="text-left px-4 py-3">{t("customerEligibility")}</th>
                 <th className="text-left px-4 py-3">{t("type")}</th>
                 <th className=" text-left px-4 py-3">{t("value")}</th>
                 <th className="text-left px-4 py-3">{t("validity")}</th>
@@ -296,7 +378,20 @@ const Promotions = () => {
                     key={promotion.id}
                     className="odd:bg-white even:bg-[#FBF8F6]"
                   >
-                    <td className="px-4 py-3">{promotion.promocodeName}</td>
+                    <td className="px-4 py-3 font-semibold text-[#2A211D]">{promotion.promocodeName}</td>
+
+                    <td className="px-4 py-3">
+                      {(() => {
+                        const elig = getCustomerEligibility(promotion);
+                        return (
+                          <span
+                            className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${elig.badgeClass}`}
+                          >
+                            {elig.label}
+                          </span>
+                        );
+                      })()}
+                    </td>
 
                     <td className="px-4 py-3 font-medium capitalize">
                       {/* {(promotion.promocodeType || "").replace("_", " ")} */}
