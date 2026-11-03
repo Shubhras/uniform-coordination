@@ -1083,7 +1083,7 @@
             }
         },
         "promotions": {
-            "promotion": "プロモーション",
+            "promotion": "プロモーション・割引",
             "allTypes": "すべての種類",
             "promotionName": "プロモーション名",
             "value": "値",
@@ -1129,7 +1129,11 @@
             "eligibilityAll": "すべてのお客様",
             "eligibilityFirstPurchase": "初回購入特典（新規顧客のみ）",
             "eligibilityRepeatCustomer": "リピーター割引（リピーター顧客のみ）",
-            "customerEligibilityHint": "初回購入割引（SA-023）やリピーター割引（SA-024）などのインセンティブルールを設定します。",
+            "customerEligibilityHint": "初回購入割引やリピーター割引などのインセンティブルールを設定します。",
+            "allEligibilities": "すべての顧客対象",
+            "tagFirstPurchase": "初回購入",
+            "tagRepeatCustomer": "リピーター",
+            "tagAllCustomers": "全顧客",
             "saveChanges": "変更を保存",
             "promotionDetails": "プロモーションの詳細",
             "typeFixedPrice": "定額",

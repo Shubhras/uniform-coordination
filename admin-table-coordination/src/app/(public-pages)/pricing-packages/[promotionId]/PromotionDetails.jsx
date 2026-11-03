@@ -112,10 +112,10 @@ const PromotionDetails = ({ promotionId }) => {
               <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-[#B3A096]">Eligible Customers</p>
               <p className="mt-2 text-[13px] font-medium text-[#3F332C]">
                 {promo.description?.includes("[Eligibility: first_purchase]")
-                  ? "First Purchase Only"
+                  ? "First-Purchase Incentive (New Customers Only)"
                   : promo.description?.includes("[Eligibility: repeat_customer]")
-                    ? "Repeat Customers Only"
-                    : "All Customers"}
+                    ? "Repeat Customer Discount (Returning Customers Only)"
+                    : "All Customers (Default)"}
               </p>
             </div>
             <div className="col-span-1 sm:col-span-2 lg:col-span-3">

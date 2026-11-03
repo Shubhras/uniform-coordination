@@ -125,7 +125,11 @@ const PromotionDetails = ({ promotionId }) => {
               {t("eligibleCustomers")}
             </p>
             <p className="mt-2 text-[15px] font-medium text-[#3F332C]">
-              {promotion?.eligibleCustomers || "-"}
+              {promotion?.description?.includes("[Eligibility: first_purchase]")
+                ? t("eligibilityFirstPurchase")
+                : promotion?.description?.includes("[Eligibility: repeat_customer]")
+                  ? t("eligibilityRepeatCustomer")
+                  : `${t("eligibilityAll")} (Default)`}
             </p>
           </div>
           <div className="col-span-1 sm:col-span-2 lg:col-span-3">
@@ -133,7 +137,9 @@ const PromotionDetails = ({ promotionId }) => {
               {t("descriptionLabel")}
             </p>
             <p className="mt-2 text-[14px] font-semibold uppercase text-[#3F332C]">
-              {promotion?.description || "-"}
+              {(promotion?.description || "")
+                .replace(/\[Eligibility:\s*[^\]]+\]\s*/g, "")
+                .trim() || "-"}
             </p>
           </div>
         </div>

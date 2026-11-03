@@ -226,6 +226,29 @@ const PromocodeModal = ({
 
           <div>
             <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+              Customer Eligibility
+            </label>
+            <select
+              value={promoForm.customerEligibility || "all"}
+              onChange={(e) => {
+                setPromoForm({
+                  ...promoForm,
+                  customerEligibility: e.target.value,
+                });
+              }}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 focus:outline-none"
+            >
+              <option value="all">All Customers (Default)</option>
+              <option value="first_purchase">First-Purchase Incentive (New Customers Only)</option>
+              <option value="repeat_customer">Repeat Customer Discount (Returning Customers Only)</option>
+            </select>
+            <p className="text-xs text-gray-400 mt-1">
+              Configure incentive rules such as First-Purchase discounts or Repeat Customer discounts.
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
               {t("minimumOrderValue")}
             </label>
             <input

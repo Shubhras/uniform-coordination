@@ -298,7 +298,7 @@ const CreatePromotion = () => {
   ];
 
   const customerEligibilityOptions = [
-    { value: "all", label: t("eligibilityAll") },
+    { value: "all", label: `${t("eligibilityAll")} (Default)` },
     { value: "first_purchase", label: t("eligibilityFirstPurchase") },
     { value: "repeat_customer", label: t("eligibilityRepeatCustomer") },
   ];

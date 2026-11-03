@@ -1081,7 +1081,7 @@
             }
         },
         "promotions": {
-            "promotion": "Promotions",
+            "promotion": "Promotions & Discounts",
             "allTypes": "All Types",
             "promotionName": "Promotion Name",
             "value": "Value",
@@ -1127,7 +1127,11 @@
             "eligibilityAll": "All Customers",
             "eligibilityFirstPurchase": "First-Purchase Incentive (New Customers Only)",
             "eligibilityRepeatCustomer": "Repeat Customer Discount (Returning Customers Only)",
-            "customerEligibilityHint": "Configure incentive rules such as First-Purchase discounts (SA-023) or Repeat Customer discounts (SA-024).",
+            "customerEligibilityHint": "Configure incentive rules such as First-Purchase discounts or Repeat Customer discounts.",
+            "allEligibilities": "All Customer Types",
+            "tagFirstPurchase": "First-Purchase",
+            "tagRepeatCustomer": "Repeat Customer",
+            "tagAllCustomers": "All Customers",
             "saveChanges": "Save Changes",
             "promotionDetails": "Promotion Details",
             "typeFixedPrice": "Fixed Price",

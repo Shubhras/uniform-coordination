@@ -440,9 +440,18 @@ export default function PaymentManagement() {
   const handleOpenPromoModal = (promo = null) => {
     setSelectedPromocode(promo);
     if (promo) {
+      const rawDesc = promo.description || "";
+      let eligibility = "all";
+      if (rawDesc.includes("[Eligibility: first_purchase]")) {
+        eligibility = "first_purchase";
+      } else if (rawDesc.includes("[Eligibility: repeat_customer]")) {
+        eligibility = "repeat_customer";
+      }
+
       setPromoForm({
         promocodeName: promo.promocodeName || "",
-        description: promo.description || "",
+        description: rawDesc.replace(/\[Eligibility:\s*[^\]]+\]\s*/g, "").trim(),
+        customerEligibility: eligibility,
         promocodeType: promo.promocodeType || "discount",
         amount: promo.amount || "",
         min_order_value: promo.min_order_value || "",
@@ -457,6 +466,7 @@ export default function PaymentManagement() {
       setPromoForm({
         promocodeName: "",
         description: "",
+        customerEligibility: "all",
         promocodeType: "discount",
         amount: "",
         min_order_value: "",
@@ -478,7 +488,13 @@ export default function PaymentManagement() {
     try {
       const formData = new FormData();
       formData.append("promocodeName", promoForm.promocodeName);
-      formData.append("description", promoForm.description);
+      let desc = (promoForm.description || "").trim();
+      if (promoForm.customerEligibility === "first_purchase") {
+        desc = `[Eligibility: first_purchase] ${desc}`.trim();
+      } else if (promoForm.customerEligibility === "repeat_customer") {
+        desc = `[Eligibility: repeat_customer] ${desc}`.trim();
+      }
+      formData.append("description", desc);
       formData.append("promocodeType", promoForm.promocodeType);
       if (promoForm.amount) formData.append("amount", promoForm.amount);
       if (promoForm.min_order_value)

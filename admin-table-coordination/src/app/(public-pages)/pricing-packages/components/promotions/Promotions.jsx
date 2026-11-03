@@ -85,10 +85,18 @@ const Promotions = () => {
     { value: "expired", label: t("statusExpired") },
   ];
 
+  const eligibilityOptions = [
+    { value: "all", label: t("allEligibilities") || "All Customer Types" },
+    { value: "first_purchase", label: t("tagFirstPurchase") || "First-Purchase" },
+    { value: "repeat_customer", label: t("tagRepeatCustomer") || "Repeat Customer" },
+    { value: "all_customers", label: t("tagAllCustomers") || "All Customers" },
+  ];
+
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [type, setType] = useState(typeOptions[0]);
   const [status, setStatus] = useState(statusOptions[0]);
+  const [eligibility, setEligibility] = useState(eligibilityOptions[0]);
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -139,6 +147,28 @@ const Promotions = () => {
     return promotion.isActive ? "active" : "inactive";
   };
 
+  const getCustomerEligibility = (description = "") => {
+    if (description.includes("[Eligibility: first_purchase]")) {
+      return {
+        key: "first_purchase",
+        label: t("tagFirstPurchase") || "First-Purchase",
+        badgeClass: "bg-[#E6F4FE] text-[#0066CC] border border-[#B3D9FF]",
+      };
+    }
+    if (description.includes("[Eligibility: repeat_customer]")) {
+      return {
+        key: "repeat_customer",
+        label: t("tagRepeatCustomer") || "Repeat Customer",
+        badgeClass: "bg-[#F3E8FF] text-[#7E22CE] border border-[#DDD6FE]",
+      };
+    }
+    return {
+      key: "all_customers",
+      label: t("tagAllCustomers") || "All Customers",
+      badgeClass: "bg-[#F3F4F6] text-[#4B5563] border border-[#E5E7EB]",
+    };
+  };
+
   const filteredPromotions = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
 
@@ -167,13 +197,19 @@ const Promotions = () => {
         matchesStatus = currentStatus === status.value;
       }
 
-      return matchesSearch && matchesType && matchesStatus;
+      let matchesEligibility = true;
+      if (eligibility && eligibility.value !== "all") {
+        const promoElig = getCustomerEligibility(promotion.description || "").key;
+        matchesEligibility = promoElig === eligibility.value;
+      }
+
+      return matchesSearch && matchesType && matchesStatus && matchesEligibility;
     });
-  }, [promotions, searchQuery, type, status]);
+  }, [promotions, searchQuery, type, status, eligibility]);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, type, status]);
+  }, [searchQuery, type, status, eligibility]);
 
   const handleDeleteConfirm = async () => {
     if (!promotionToDelete) return;
@@ -244,7 +280,7 @@ const Promotions = () => {
 
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             {/* Filters */}
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3">
               <div className="w-52">
                 <Select
                   value={status}
@@ -264,6 +300,16 @@ const Promotions = () => {
                   isSearchable={false}
                 />
               </div>
+
+              <div className="w-56">
+                <Select
+                  value={eligibility}
+                  onChange={setEligibility}
+                  options={eligibilityOptions}
+                  styles={selectStyles}
+                  isSearchable={false}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -273,6 +319,7 @@ const Promotions = () => {
             <thead className="bg-[#F1F5F9] text-[#486284]">
               <tr className="bg-[#F7F2EE] text-[#6B7280] text-sm">
                 <th className="text-left px-4 py-3">{t("promotionName")}</th>
+                <th className="text-left px-4 py-3">{t("customerEligibility")}</th>
                 <th className="text-left px-4 py-3">{t("type")}</th>
                 <th className=" text-left px-4 py-3">{t("value")}</th>
                 <th className="text-left px-4 py-3">{t("validity")}</th>
@@ -296,7 +343,20 @@ const Promotions = () => {
                     key={promotion.id}
                     className="odd:bg-white even:bg-[#FBF8F6]"
                   >
-                    <td className="px-4 py-3">{promotion.promocodeName}</td>
+                    <td className="px-4 py-3 font-semibold text-[#2A211D]">{promotion.promocodeName}</td>
+
+                    <td className="px-4 py-3">
+                      {(() => {
+                        const elig = getCustomerEligibility(promotion.description || "");
+                        return (
+                          <span
+                            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${elig.badgeClass}`}
+                          >
+                            {elig.label}
+                          </span>
+                        );
+                      })()}
+                    </td>
 
                     <td className="px-4 py-3 font-medium capitalize">
                       {/* {(promotion.promocodeType || "").replace("_", " ")} */}
