@@ -1122,6 +1122,7 @@
             "amountPlaceholder": "Enter amount",
             "descriptionLabel": "Description",
             "descriptionPlaceholder": "Write description...",
+            "reset": "Reset",
             "eligibleCustomers": "Eligible Customers",
             "customerEligibility": "Customer Eligibility",
             "eligibilityAll": "All Customers",

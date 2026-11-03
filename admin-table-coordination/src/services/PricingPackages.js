@@ -16,9 +16,31 @@ export async function apiGetPromoCodeList(
   accessToken,
   page = 1,
   pageSize = 10,
+  status = "",
+  type = "",
+  customertype = "",
+  search = "",
 ) {
+  const params = new URLSearchParams({
+    page,
+    page_size: pageSize,
+  });
+
+  if (status && status !== "all") {
+    params.append("status", status);
+  }
+  if (type && type !== "all") {
+    params.append("type", type);
+  }
+  if (customertype && customertype !== "all") {
+    params.append("customertype", customertype);
+  }
+  if (search) {
+    params.append("search", search);
+  }
+
   return ApiService.fetchDataWithAxios({
-    url: `/v1/space/uniformAdmin/promocode/list/?page=${page}&page_size=${pageSize}`,
+    url: `/v1/space/uniformAdmin/promocode/list/?${params.toString()}`,
     method: "get",
     headers: {
       Authorization: `Bearer ${accessToken}`,
