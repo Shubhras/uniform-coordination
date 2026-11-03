@@ -183,7 +183,7 @@ class PromocodeListAPIView(BaseAPIView):
         parameters=[
             OpenApiParameter(
                 name="search",
-                description="Search by promocode name",
+                description="Search by promocode name, description, or slug",
                 required=False,
                 type=OpenApiTypes.STR,
                 location=OpenApiParameter.QUERY,
@@ -198,11 +198,27 @@ class PromocodeListAPIView(BaseAPIView):
             ),
             OpenApiParameter(
                 name="type",
-                description="Filter by promocode type: percentage, fixed",
+                description="Filter by promocode type: discount/percentage, fix_price/fixed",
                 required=False,
                 type=OpenApiTypes.STR,
                 location=OpenApiParameter.QUERY,
-                enum=["percentage", "fixed"],
+                enum=["discount", "fix_price", "percentage", "fixed"],
+            ),
+            OpenApiParameter(
+                name="customertype",
+                description="Filter by customer eligibility: all, first_purchase, repeat_customer",
+                required=False,
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.QUERY,
+                enum=["all", "first_purchase", "repeat_customer"],
+            ),
+            OpenApiParameter(
+                name="customer_eligibility",
+                description="Alias for customertype filter",
+                required=False,
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.QUERY,
+                enum=["all", "first_purchase", "repeat_customer"],
             ),
             OpenApiParameter(
                 name="page",
@@ -239,6 +255,14 @@ class PromocodeListAPIView(BaseAPIView):
                 "type", ""
             ).strip().lower()
 
+            customer_type_filter = (
+                request.query_params.get("customertype")
+                or request.query_params.get("customer_type")
+                or request.query_params.get("customer_eligibility")
+                or request.query_params.get("eligibility")
+                or ""
+            ).strip().lower()
+
             queryset = Promocode.objects.filter(
                 isDeleted=False
             )
@@ -249,6 +273,8 @@ class PromocodeListAPIView(BaseAPIView):
             if search_query:
                 queryset = queryset.filter(
                     Q(promocodeName__icontains=search_query)
+                    | Q(description__icontains=search_query)
+                    | Q(slug__icontains=search_query)
                 )
 
             # -------------------------
@@ -256,20 +282,23 @@ class PromocodeListAPIView(BaseAPIView):
             # -------------------------
             now = timezone.now()
 
-            if status_filter == "active":
+            if status_filter in ["active", "true", "1"]:
                 queryset = queryset.filter(
                     isActive=True
                 ).filter(
-                    Q(started_at__isnull=True) |
-                    Q(started_at__lte=now)
+                    Q(started_at__isnull=True)
+                    | Q(started_at__lte=now)
                 ).filter(
-                    Q(ended_at__isnull=True) |
-                    Q(ended_at__gte=now)
+                    Q(ended_at__isnull=True)
+                    | Q(ended_at__gte=now)
                 )
 
-            elif status_filter == "inactive":
+            elif status_filter in ["inactive", "false", "0"]:
                 queryset = queryset.filter(
                     isActive=False
+                ).filter(
+                    Q(ended_at__isnull=True)
+                    | Q(ended_at__gte=now)
                 )
 
             elif status_filter == "expired":
@@ -281,14 +310,58 @@ class PromocodeListAPIView(BaseAPIView):
             # -------------------------
             # Promocode Type Filter
             # -------------------------
-            if type_filter == "percentage":
+            if type_filter in ["percentage", "discount"]:
                 queryset = queryset.filter(
                     promocodeType="discount"
                 )
 
-            elif type_filter == "fixed":
+            elif type_filter in ["fixed", "fix_price", "fixed_price", "fixprice"]:
                 queryset = queryset.filter(
                     promocodeType="fix_price"
+                )
+
+            # -------------------------
+            # Customer Type / Eligibility Filter
+            # -------------------------
+            if customer_type_filter in [
+                "first_purchase",
+                "first-purchase",
+                "firstpurchase",
+                "new",
+            ]:
+                queryset = queryset.filter(
+                    Q(customer_eligibility="first_purchase")
+                    | Q(description__icontains="[Eligibility: first_purchase]")
+                )
+
+            elif customer_type_filter in [
+                "repeat_customer",
+                "repeat-customer",
+                "repeatcustomer",
+                "repeat",
+                "returning",
+            ]:
+                queryset = queryset.filter(
+                    Q(customer_eligibility="repeat_customer")
+                    | Q(description__icontains="[Eligibility: repeat_customer]")
+                )
+
+            elif customer_type_filter in [
+                "all",
+                "all_customers",
+                "all-customers",
+                "general",
+            ]:
+                queryset = queryset.filter(
+                    Q(customer_eligibility="all")
+                    | (
+                        (
+                            Q(customer_eligibility__isnull=True)
+                            | Q(customer_eligibility="")
+                        )
+                        & ~Q(description__icontains="[Eligibility: first_purchase]")
+                        & ~Q(description__icontains="[Eligibility: repeat_customer]")
+                    )
                 )
 
             queryset = queryset.order_by("-id")
