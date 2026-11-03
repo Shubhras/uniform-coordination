@@ -115,9 +115,20 @@ const AddEditTemplateModal = ({
         message: "Part usage count must be greater than 0",
       }),
 
-    image: z.any().refine((val) => mode === "edit" || val instanceof File, {
-      message: "Image is required",
-    }),
+    image: z
+      .any()
+      .optional()
+      .refine(
+        (val) => {
+          if (val instanceof File) return true;
+          if (mode === "edit" && Boolean(initialData?.templateImage))
+            return true;
+          return false;
+        },
+        {
+          message: "Image is required",
+        },
+      ),
   });
 
   const {
@@ -263,6 +274,7 @@ const AddEditTemplateModal = ({
         // Stored as a list; edited here as one bullet per line.
         specifications: (initialData.specifications || []).join("\n"),
         partUsageCount: String(initialData.partUsageCount ?? 1),
+        image: initialData.templateImage || null,
       });
       setImageFile(null);
       setValidated(!!initialData.templateImage);
@@ -280,6 +292,7 @@ const AddEditTemplateModal = ({
         presetFabric: null,
         specifications: "",
         partUsageCount: "1",
+        image: null,
       });
     }
 
@@ -357,6 +370,11 @@ const AddEditTemplateModal = ({
     setError("");
 
     if (mode === "add" && !imageFile) {
+      setError("Template image is required");
+      return;
+    }
+
+    if (mode === "edit" && !imageFile && !initialData?.templateImage) {
       setError("Template image is required");
       return;
     }

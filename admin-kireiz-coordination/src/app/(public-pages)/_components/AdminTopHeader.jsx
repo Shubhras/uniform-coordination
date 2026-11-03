@@ -118,16 +118,14 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
               setNotifOpen(!notifOpen);
               setDropdownOpen(false);
             }}
-            className={`group relative transition-colors p-2 rounded-full ${
-              notifOpen ? "bg-white" : "bg-[#1C2C56] hover:bg-white"
-            }`}
+            className={`group relative transition-colors p-2 rounded-full ${notifOpen ? "bg-white" : "bg-[#1C2C56] hover:bg-white"
+              }`}
           >
             <FiBell
-              className={`transition-colors duration-200 ${
-                notifOpen
+              className={`transition-colors duration-200 ${notifOpen
                   ? "text-[#1C2C56]"
                   : "text-white group-hover:text-[#1C2C56]"
-              }`}
+                }`}
               size={20}
             />
             <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white" />
@@ -146,17 +144,15 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
               setDropdownOpen(!dropdownOpen);
               setNotifOpen(false);
             }}
-            className={`group flex items-center gap-2 md:gap-3 rounded-lg px-2 py-1.5 transition-all duration-200 ${
-              dropdownOpen ? "bg-white" : "hover:bg-white"
-            }`}
+            className={`group flex items-center gap-2 md:gap-3 rounded-lg px-2 py-1.5 transition-all duration-200 ${dropdownOpen ? "bg-white" : "hover:bg-white"
+              }`}
           >
             {/* Avatar */}
             <div
-              className={`w-9 h-9 rounded-full flex items-center justify-center overflow-hidden transition-colors duration-200 ${
-                dropdownOpen
+              className={`w-9 h-9 rounded-full flex items-center justify-center overflow-hidden transition-colors duration-200 ${dropdownOpen
                   ? "bg-[#1C2C56]"
                   : "bg-white group-hover:bg-[#E2E8F0]"
-              }`}
+                }`}
             >
               {session?.user?.image ? (
                 <Image
@@ -169,11 +165,10 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
               ) : (
                 <FiUser
                   size={18}
-                  className={`transition-colors duration-200 ${
-                    dropdownOpen
+                  className={`transition-colors duration-200 ${dropdownOpen
                       ? "text-white"
                       : "text-[#1C2C56] group-hover:text-[#1C2C56]"
-                  }`}
+                    }`}
                 />
               )}
             </div>
@@ -181,11 +176,10 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
             {/* Name */}
             <div className="hidden md:block text-left">
               <p
-                className={`text-sm font-semibold transition-colors duration-200 ${
-                  dropdownOpen
+                className={`text-sm font-semibold transition-colors duration-200 ${dropdownOpen
                     ? "text-[#1C2C56]"
                     : "text-white group-hover:text-[#1C2C56]"
-                }`}
+                  }`}
               >
                 {userName}
               </p>
@@ -193,11 +187,10 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
 
             <FiChevronDown
               size={16}
-              className={`hidden md:block transition-all duration-200 ${
-                dropdownOpen
+              className={`hidden md:block transition-all duration-200 ${dropdownOpen
                   ? "rotate-180 text-[#1C2C56]"
                   : "text-white group-hover:text-[#1C2C56]"
-              }`}
+                }`}
             />
           </button>
 

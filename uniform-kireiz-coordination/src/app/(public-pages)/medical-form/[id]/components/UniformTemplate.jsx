@@ -22,15 +22,22 @@ import { apiGetTemplateByCategory } from "@/services/CategoryService";
  *
  * @returns {JSX.Element} Uniform template showcase carousel section.
  */
-const UniformTemplate = () => {
+const UniformTemplate = ({ categoryName: propCategoryName = "" }) => {
     const params = useParams();
     const router = useRouter();
     const categoryId = params?.id;
 
     const [templates, setTemplates] = useState([]);
+    const [categoryName, setCategoryName] = useState(propCategoryName);
     const [loading, setLoading] = useState(true);
     const [index, setIndex] = useState(0);
     const [cardsPerView, setCardsPerView] = useState(4);
+
+    useEffect(() => {
+        if (propCategoryName) {
+            setCategoryName(propCategoryName);
+        }
+    }, [propCategoryName]);
 
     useEffect(() => {
         let cancelled = false;
@@ -42,7 +49,12 @@ const UniformTemplate = () => {
                 setIndex(0);
                 const res = await apiGetTemplateByCategory(categoryId);
                 if (cancelled) return;
-                if (res?.status) setTemplates(res.data || []);
+                if (res?.status) {
+                    setTemplates(res.data || []);
+                    if (res?.categoryName) {
+                        setCategoryName(res.categoryName);
+                    }
+                }
             } catch (err) {
                 console.error("Failed to load templates:", err);
             } finally {
@@ -104,6 +116,8 @@ const UniformTemplate = () => {
         router.push(`/dashboards/uniform-3d-design`,);
     };
 
+    const displayCategoryName = categoryName || propCategoryName || "Medical Uniform";
+
     return (
         <section className="w-full bg-white px-5 md:px-8 lg:px-12">
             <div className="mt-10">
@@ -112,14 +126,14 @@ const UniformTemplate = () => {
                 <div className="text-center mb-10">
                     <div className="inline-flex flex-col items-end">
                         <h2 className="text-[#1C2C56] md:text-3xl text-2xl font-semibold">
-                            Popular Medical Uniform Templates
+                            Popular{" "}
+                            <span className="text-[#1C4FA8]">
+                                {displayCategoryName}
+                            </span>{" "}
+                            Templates
                         </h2>
                         <div className="w-[180px] md:w-[270px] h-[3px] bg-[#87CEEB] mt-2" />
                     </div>
-                    <p className="text-[#6B7280] text-sm mt-4 max-w-xl mx-auto">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                        eiusmod tempor incididunt ut labore et
-                    </p>
                 </div>
 
                 {/* NAV */}
@@ -128,20 +142,18 @@ const UniformTemplate = () => {
                         <FiArrowLeft
                             onClick={!isPrevDisabled ? handlePrev : undefined}
                             size={25}
-                            className={`transition ${
-                                isPrevDisabled
-                                    ? "text-gray-300 cursor-not-allowed"
-                                    : "text-gray-600 hover:text-black cursor-pointer"
-                            }`}
+                            className={`transition ${isPrevDisabled
+                                ? "text-gray-300 cursor-not-allowed"
+                                : "text-gray-600 hover:text-black cursor-pointer"
+                                }`}
                         />
                         <FiArrowRight
                             onClick={!isNextDisabled ? handleNext : undefined}
                             size={25}
-                            className={`ml-8 transition ${
-                                isNextDisabled
-                                    ? "text-gray-300 cursor-not-allowed"
-                                    : "text-gray-600 hover:text-black cursor-pointer"
-                            }`}
+                            className={`ml-8 transition ${isNextDisabled
+                                ? "text-gray-300 cursor-not-allowed"
+                                : "text-gray-600 hover:text-black cursor-pointer"
+                                }`}
                         />
                     </div>
                 )}

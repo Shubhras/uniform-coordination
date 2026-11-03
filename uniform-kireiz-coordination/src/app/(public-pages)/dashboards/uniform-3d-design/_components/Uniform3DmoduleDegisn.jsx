@@ -298,6 +298,7 @@ const Uniform3DmoduleDegisn = () => {
   // const [redoStack, setRedoStack] = useState([]);
   // // const [mounted, setMounted] = useState(false)
   const [isSaving, setIsSaving] = useState(false);
+  const [imgSrc, setImgSrc] = useState('/img/uniform/uniform.png');
   const panelRef = useRef(null)
 
   useEffect(() => {
@@ -317,7 +318,11 @@ const Uniform3DmoduleDegisn = () => {
 
   function applyBaseColorToModel(hex) {
     uniformState.color = hex
-    uniformState.partColors[uniformState.active3dPart] = hex
+    const activeHalf = position === 'bottom' ? 'bottom' : 'top'
+    uniformState.partColors[activeHalf] = hex
+    if (uniformState.active3dPart) {
+      uniformState.partColors[uniformState.active3dPart] = hex
+    }
   }
 
   /** LEFT ICON SELECT */
@@ -334,6 +339,9 @@ const Uniform3DmoduleDegisn = () => {
     // uniformState.color = ""
     setActive3dPart(key);
     uniformState.active3dPart = key;
+    if (key === 'top' || key === 'bottom') {
+      setPosition(key);
+    }
   }
 
 
@@ -398,6 +406,11 @@ const Uniform3DmoduleDegisn = () => {
           return;
         }
         setSimProduct(product);
+        if (product.ProductImage) {
+          setImgSrc(product.ProductImage);
+        } else {
+          setImgSrc('/img/uniform/uniform.png');
+        }
 
         // Garment half comes from the product, not the shopper. "set" covers both, so default to top.
         if (product.type === "bottom") setPosition("bottom");
@@ -515,10 +528,10 @@ const Uniform3DmoduleDegisn = () => {
     // One swatch per admin colour, no deduping — two records can share a hex.
     const adminColors = simColors
       .filter((c) => (c.code || "").trim())
-      .map((c) => ({
-        key: `c${c.id}`,
+      .map((c, idx) => ({
+        key: c.id ? `c${c.id}` : (c._id ? `c${c._id}` : `c_${idx}`),
         code: (c.code || "").trim(),
-        name: c.name,
+        name: c.name || c.colorName || (c.code || "").trim(),
       }));
 
     if (adminColors.length) {
@@ -924,61 +937,86 @@ const Uniform3DmoduleDegisn = () => {
                 </button>
               </div>
               {panels[active].type === "colors" && (
-                // <div className="grid grid-cols-5 gap-3 relative">
-                <div className="grid grid-cols-4 gap-3 relative">
-                  {/* <button
-                    onClick={() => setShowColorPicker(true)}
-                    className="w-10 h-10 rounded-full"
-                  >
-                    <img
-                      src="/img/top-left-image/color-wheel.png"
-                      className="w-12"
-                    />
-                  </button> */}
-
-                  {panels[active].data.map((swatch) => {
-                    // By key, not by colour value: several admin rows can hold the same
-                    // hex, and comparing values ticked all of them together. Colour is
-                    // chosen per garment half, so the key is read for the active half.
-                    const selected = designJSON.colorKeys?.[position] === swatch.key;
-                    return (
+                <div className="space-y-3">
+                  {simProduct?.type === "set" && (
+                    <div className="flex gap-2 pb-1">
                       <button
-                        key={swatch.key}
+                        type="button"
                         onClick={() => {
-                          applyBaseColorToModel(swatch.code);
-                          setColor(swatch.code);
-
-                          // ✅ Only Top & Bottom colors allowed
-                          const jsonPart = uniformState.active3dPart;
-
-                          setDesignJSON((prev) => ({
-                            ...prev,
-                            colors: {
-                              ...prev.colors,
-                              [jsonPart]: swatch.code
-                            },
-                            colorKeys: {
-                              ...prev.colorKeys,
-                              [jsonPart]: swatch.key
-                            }
-                          }));
+                          setPosition("top");
+                          uniformState.active3dPart = "top";
                         }}
-                        title={swatch.name || swatch.code}
-                        className={`relative w-10 h-10 rounded-full shadow flex items-center justify-center transition ${selected
-                          ? "ring-2 ring-offset-2 ring-[#1C4FA8] border-0"
-                          : "border"
-                          }`}
-                        style={{ background: swatch.code }}
+                        className={`flex-1 py-1 text-xs font-semibold rounded-md border transition ${
+                          position === "top"
+                            ? "bg-[#1C4FA8] text-white border-[#1C4FA8] shadow-sm"
+                            : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
+                        }`}
                       >
-                        {selected && (
-                          <FiCheck
-                            size={18}
-                            className="text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]"
-                          />
-                        )}
+                        Top
                       </button>
-                    );
-                  })}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPosition("bottom");
+                          uniformState.active3dPart = "bottom";
+                        }}
+                        className={`flex-1 py-1 text-xs font-semibold rounded-md border transition ${
+                          position === "bottom"
+                            ? "bg-[#1C4FA8] text-white border-[#1C4FA8] shadow-sm"
+                            : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
+                        }`}
+                      >
+                        Bottom
+                      </button>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-4 gap-3 relative">
+                    {panels[active].data.map((swatch, idx) => {
+                      const activeHalf = position === "bottom" ? "bottom" : "top";
+                      const selected =
+                        designJSON.colorKeys?.[activeHalf] === swatch.key ||
+                        (!designJSON.colorKeys?.[activeHalf] &&
+                          designJSON.colors?.[activeHalf]?.toLowerCase() === swatch.code?.toLowerCase());
+
+                      return (
+                        <button
+                          key={swatch.key || idx}
+                          type="button"
+                          onClick={() => {
+                            applyBaseColorToModel(swatch.code);
+                            setColor(swatch.code);
+
+                            setDesignJSON((prev) => ({
+                              ...prev,
+                              colors: {
+                                ...prev.colors,
+                                [activeHalf]: swatch.code,
+                              },
+                              colorKeys: {
+                                ...prev.colorKeys,
+                                [activeHalf]: swatch.key,
+                              },
+                            }));
+                          }}
+                          title={swatch.name || swatch.code}
+                          className={`relative w-10 h-10 rounded-full shadow flex items-center justify-center transition cursor-pointer hover:scale-105 ${
+                            selected
+                              ? "ring-2 ring-offset-2 ring-[#1C4FA8] border-0"
+                              : "border border-gray-200"
+                          }`}
+                          style={{ background: swatch.code }}
+                        >
+                          {selected && (
+                            <FiCheck
+                              size={18}
+                              className="text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]"
+                            />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
 
@@ -986,8 +1024,20 @@ const Uniform3DmoduleDegisn = () => {
                 <ColorPickerPopup
                   value={color}
                   onChange={(newColor) => {
-                    setColor(newColor)
-                    applyBaseColorToModel(newColor)
+                    const activeHalf = position === "bottom" ? "bottom" : "top";
+                    setColor(newColor);
+                    applyBaseColorToModel(newColor);
+                    setDesignJSON((prev) => ({
+                      ...prev,
+                      colors: {
+                        ...prev.colors,
+                        [activeHalf]: newColor,
+                      },
+                      colorKeys: {
+                        ...prev.colorKeys,
+                        [activeHalf]: `custom_${newColor}`,
+                      },
+                    }));
                   }}
                   onClose={() => setShowColorPicker(false)}
                 />
@@ -1314,24 +1364,14 @@ const Uniform3DmoduleDegisn = () => {
 
         {/* CENTER MODEL VIEWER */}
         <div className="relative flex-1 flex flex-col items-center mt-0">
-          <div className="absolute top-30 w-[400px] h-[400px] rounded-full"></div>
-          {/* {mounted && (
-                        <model-viewer
-                            ref={mvRef}
-                            src={modelSrc}
-                            alt="3D Uniform Model"
-                            camera-controls
-                            auto-rotate={autoRotate}
-                            environment-image="neutral"
-                            disable-tap
-                            style={{
-                                height: '650px',
-                                background: 'transparent',
-                            }}
-                        />
-                    )} */}
+          <div
+            className="absolute top-28 w-[380px] h-[380px] rounded-full transition-colors duration-500 opacity-20 blur-3xl pointer-events-none"
+            style={{
+              backgroundColor:
+                designJSON.colors[position === "bottom" ? "bottom" : "top"] || color || "#1C4FA8",
+            }}
+          />
 
-          {/* <UniformCanvas /> */}
           {/* Product image (3D canvas is commented out). `unoptimized`: host isn't whitelisted in next.config. */}
           <div className="relative z-10 py-16">
             {/* Skeleton while loading, so the old fixed image doesn't flash on refresh. */}
@@ -1339,16 +1379,42 @@ const Uniform3DmoduleDegisn = () => {
               <div className="w-[450px] max-w-full h-[500px] rounded-2xl bg-[#F5F8FF] animate-pulse" />
             ) : (
               <Image
-                src={simProduct?.ProductImage || "/img/uniform/uniform.png"}
+                src={imgSrc || "/img/uniform/uniform.png"}
                 alt={simProduct?.productName || "Uniform"}
                 width={450}
                 height={800}
                 className="object-contain"
                 unoptimized
                 priority
+                onError={() => setImgSrc("/img/uniform/uniform.png")}
               />
             )}
           </div>
+
+          {(designJSON.colors.top || designJSON.colors.bottom) && (
+            <div className="flex items-center gap-4 bg-white/95 px-4 py-1.5 rounded-full shadow-sm border border-gray-100 text-xs text-gray-700 mb-2">
+              {designJSON.colors.top && (
+                <span className="flex items-center gap-1.5 font-medium">
+                  <span>Top:</span>
+                  <span
+                    className="w-3.5 h-3.5 rounded-full border border-gray-300 inline-block shadow-xs"
+                    style={{ backgroundColor: designJSON.colors.top }}
+                  />
+                  <span className="text-[11px] text-gray-500 uppercase">{designJSON.colors.top}</span>
+                </span>
+              )}
+              {designJSON.colors.bottom && (
+                <span className="flex items-center gap-1.5 font-medium">
+                  <span>Bottom:</span>
+                  <span
+                    className="w-3.5 h-3.5 rounded-full border border-gray-300 inline-block shadow-xs"
+                    style={{ backgroundColor: designJSON.colors.bottom }}
+                  />
+                  <span className="text-[11px] text-gray-500 uppercase">{designJSON.colors.bottom}</span>
+                </span>
+              )}
+            </div>
+          )}
 
           {/* <div className="absolute top-[-10] w-[360px] h-[360px] bg-[#BEE0FF] rounded-full"></div>
                     <div className="relative z-10">

@@ -87,7 +87,7 @@ const MedicalHome = () => {
                 setSortBy={setSortBy}
                 loading={loading}
             />
-            <UniformTemplate />
+            <UniformTemplate categoryName={categoryData?.categoryName} />
             <ProfessionalSection />
             <ChatbotSection />
             <FooterPage mode={mode} />

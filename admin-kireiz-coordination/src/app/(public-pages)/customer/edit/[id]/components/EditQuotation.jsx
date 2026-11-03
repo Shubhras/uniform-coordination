@@ -13,6 +13,26 @@ import {
 } from "@/services/B2BAccountService";
 import { apiGetSalesReps } from "@/services/SalesRepService";
 import { apiResendQuotation } from "@/services/QuotationHistoryService";
+import QuotationWorkflowProgression from "./QuotationWorkflowProgression";
+
+const calculateTotal = (subtotalVal, discountPercentVal) => {
+  if (
+    subtotalVal === "" ||
+    subtotalVal === null ||
+    subtotalVal === undefined
+  ) {
+    return "";
+  }
+  const sub = parseFloat(subtotalVal);
+  if (isNaN(sub) || sub < 0) {
+    return "";
+  }
+  const disc = parseFloat(discountPercentVal);
+  const validDisc = isNaN(disc) || disc < 0 ? 0 : disc;
+  const computedTotal = sub - (sub * validDisc) / 100;
+  const clampedTotal = Math.max(0, computedTotal);
+  return clampedTotal.toFixed(2);
+};
 
 const EditQuotation = () => {
   const t = useTranslations(
@@ -142,7 +162,10 @@ const EditQuotation = () => {
           valid_until: data.valid_until || "",
           subtotal: data.subtotal ?? "",
           discount_percent: data.discount_percent ?? "",
-          total: data.total ?? "",
+          total:
+            data.total !== null && data.total !== undefined && data.total !== ""
+              ? data.total
+              : calculateTotal(data.subtotal, data.discount_percent),
           sales_rep: data.sales_rep ?? "",
           quotation_id: data.quotation_id || "",
         });
@@ -245,14 +268,41 @@ const EditQuotation = () => {
         (value !== "" && String(value).includes("-")) ||
         Boolean(e.target.validity?.badInput);
 
+      const computedTotal = isNegative
+        ? ""
+        : calculateTotal(value, formData.discount_percent);
+
       setFormData((prev) => ({
         ...prev,
         [name]: value,
+        total: computedTotal,
       }));
 
       setErrors((prev) => ({
         ...prev,
         subtotal: isNegative ? t("validation.subtotalNegative") : "",
+      }));
+      return;
+    }
+
+    if (name === "discount_percent") {
+      const isNegative =
+        (value !== "" && Number(value) < 0) ||
+        (value !== "" && String(value).includes("-")) ||
+        Boolean(e.target.validity?.badInput);
+
+      const sanitizedValue = isNegative ? "" : value;
+      const computedTotal = calculateTotal(formData.subtotal, sanitizedValue);
+
+      setFormData((prev) => ({
+        ...prev,
+        [name]: sanitizedValue,
+        total: computedTotal,
+      }));
+
+      setErrors((prev) => ({
+        ...prev,
+        [name]: "",
       }));
       return;
     }
@@ -286,6 +336,12 @@ const EditQuotation = () => {
         ...prev,
         subtotal: t("validation.subtotalNegative"),
       }));
+    }
+  };
+
+  const handleNonNegativeKeyDown = (e) => {
+    if (e.key === "-" || e.key === "Subtract") {
+      e.preventDefault();
     }
   };
   const formatDateToISO = (dateStr) => {
@@ -404,6 +460,16 @@ const EditQuotation = () => {
         </div>
       </div>
 
+      <QuotationWorkflowProgression
+        status={formData.quotation_status}
+        onStatusChange={(newStatus) => {
+          setFormData((prev) => ({ ...prev, quotation_status: newStatus }));
+          if (errors.quotation_status) {
+            setErrors((prev) => ({ ...prev, quotation_status: "" }));
+          }
+        }}
+      />
+
       <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
         <h2 className="text-lg font-semibold text-[#1C2C56] mb-6">
           {t("companyInfoSection")}
@@ -457,11 +523,9 @@ const EditQuotation = () => {
               value={formData.email}
               onChange={handleChange}
               placeholder="example@domain.com"
-              className={`w-full rounded-xl border ${
-                errors.email ? "border-red-500" : "border-gray-300"
-              } px-4 py-3 outline-none focus:ring-2 ${
-                errors.email ? "focus:ring-red-500" : "focus:ring-[#1C2C56]"
-              }`}
+              className={`w-full rounded-xl border ${errors.email ? "border-red-500" : "border-gray-300"
+                } px-4 py-3 outline-none focus:ring-2 ${errors.email ? "focus:ring-red-500" : "focus:ring-[#1C2C56]"
+                }`}
             />
             {errors.email && (
               <p className="text-red-500 text-sm mt-1">{errors.email}</p>
@@ -541,13 +605,11 @@ const EditQuotation = () => {
               value={formData.size_quantity}
               onChange={handleChange}
               placeholder="e.g. M-10, L-20"
-              className={`w-full rounded-xl border ${
-                errors.size_quantity ? "border-red-500" : "border-gray-300"
-              } px-4 py-3 outline-none focus:ring-2 ${
-                errors.size_quantity
+              className={`w-full rounded-xl border ${errors.size_quantity ? "border-red-500" : "border-gray-300"
+                } px-4 py-3 outline-none focus:ring-2 ${errors.size_quantity
                   ? "focus:ring-red-500"
                   : "focus:ring-[#1C2C56]"
-              }`}
+                }`}
             />
             {errors.size_quantity && (
               <p className="text-red-500 text-sm mt-1">
@@ -642,20 +704,25 @@ const EditQuotation = () => {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               {t("subtotalLabel")}
             </label>
-            <input
-              type="number"
-              step="0.01"
-              min="0"
-              name="subtotal"
-              value={formData.subtotal}
-              onChange={handleChange}
-              onKeyDown={handleSubtotalKeyDown}
-              onPaste={handleSubtotalPaste}
-              placeholder="0.00"
-              className={`w-full rounded-xl border ${errors.subtotal ? "border-red-500" : "border-gray-300"
-                } px-4 py-3 outline-none focus:ring-2 ${errors.subtotal ? "focus:ring-red-500" : "focus:ring-[#1C2C56]"
-                }`}
-            />
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium pointer-events-none select-none">
+                $
+              </span>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                name="subtotal"
+                value={formData.subtotal}
+                onChange={handleChange}
+                onKeyDown={handleSubtotalKeyDown}
+                onPaste={handleSubtotalPaste}
+                placeholder="0.00"
+                className={`w-full rounded-xl border ${errors.subtotal ? "border-red-500" : "border-gray-300"
+                  } pl-8 pr-4 py-3 outline-none focus:ring-2 ${errors.subtotal ? "focus:ring-red-500" : "focus:ring-[#1C2C56]"
+                  }`}
+              />
+            </div>
             {errors.subtotal && (
               <p className="text-red-500 text-sm mt-1">{errors.subtotal}</p>
             )}
@@ -673,6 +740,7 @@ const EditQuotation = () => {
               name="discount_percent"
               value={formData.discount_percent}
               onChange={handleChange}
+              onKeyDown={handleNonNegativeKeyDown}
               placeholder="0"
               className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-[#1C2C56]"
             />
@@ -685,16 +753,21 @@ const EditQuotation = () => {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               {t("totalLabel")}
             </label>
-            <input
-              type="number"
-              step="0.01"
-              min="0"
-              name="total"
-              value={formData.total}
-              onChange={handleChange}
-              placeholder="0.00"
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-[#1C2C56]"
-            />
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium pointer-events-none select-none">
+                $
+              </span>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                name="total"
+                value={formData.total}
+                readOnly
+                placeholder="0.00"
+                className="w-full rounded-xl border border-gray-300 bg-gray-100 text-gray-600 pl-8 pr-4 py-3 outline-none cursor-not-allowed select-none"
+              />
+            </div>
             <p className="text-xs text-gray-500 mt-1">
               {t("totalHint")}
             </p>
