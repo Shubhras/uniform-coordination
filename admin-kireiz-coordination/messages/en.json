@@ -972,6 +972,10 @@
       "allCategories": "All categories",
       "empty": "No sizes yet",
       "emptyHint": "Add sizes so customers have a size run to choose from.",
+      "deleteDialog": {
+        "title": "Delete Size",
+        "message": "Are you sure you want to delete this size? This action cannot be undone."
+      },
       "addTitle": "Add Size",
       "editTitle": "Edit Size",
       "nameLabel": "Size",
@@ -1543,6 +1547,8 @@
       "editQuotationPage": {
         "pageTitle": "Edit Quotation",
         "pageSubtitle": "Update quotation information",
+        "workflowProgressionTitle": "QUOTATION WORKFLOW PROGRESSION",
+        "currentStage": "Current Stage:",
         "companyInfoSection": "Company Information",
         "companyNameLabel": "Company Name",
         "contactPersonLabel": "Contact Person",

@@ -13,7 +13,7 @@ import { apiGetQuotation } from "@/services/AuthProfileService";
 import { formatDate } from "@/utils/dateFormater";
 import Pagination from "@/components/ui/Pagination";
 
-const ITEMS_PER_PAGE = 6;
+const ITEMS_PER_PAGE = 10;
 
 const statusStyles = {
   approved: {
@@ -36,6 +36,11 @@ const statusStyles = {
     bg: "#1C4FA80F",
     label: "Pending",
   },
+  sent: {
+    text: "#4580ED",
+    bg: "#1C4FA80F",
+    label: "Sent",
+  },
   submitted: {
     text: "#4580ED",
     bg: "#1C4FA80F",
@@ -52,6 +57,7 @@ const statusFilterOptions = [
   { value: "", label: "All Status" },
   { value: "approved", label: "Approved" },
   { value: "pending", label: "Pending" },
+  { value: "sent", label: "Sent" },
   { value: "submitted", label: "Submitted" },
   { value: "received", label: "Received" },
   { value: "cancelled", label: "Cancelled" },
@@ -72,6 +78,7 @@ const getNormalizedStatus = (quotation) => {
   if (rawStatus.includes("cancel")) return "cancelled";
   if (rawStatus.includes("declin") || rawStatus.includes("reject"))
     return "declined";
+  if (rawStatus.includes("sent")) return "sent";
   if (rawStatus.includes("pend")) return "pending";
   if (rawStatus.includes("submit")) return "submitted";
   if (rawStatus.includes("receiv") || rawStatus.includes("review"))
@@ -166,7 +173,7 @@ const normalizeQuotation = (quotation, index) => {
       quotation?.size_quantity ||
       "-",
     statusKey,
-    statusLabel: statusStyles[statusKey].label,
+    statusLabel: statusStyles[statusKey]?.label || quotation?.quotation_status || "Pending",
     submittedOn:
       quotation?.created_at ||
       quotation?.submitted_at ||
@@ -317,7 +324,7 @@ const MyQuotations = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search by request id..."
-              className="h-11 w-full rounded-lg border border-[#003560] bg-white pl-10 pr-4 text-sm text-[#111827] outline-none placeholder:text-[#94A3B8]"
+              className="h-10 w-full rounded-lg border border-[#003560] bg-white pl-10 pr-4 text-sm text-[#111827] outline-none placeholder:text-[#94A3B8]"
             />
           </div>
 

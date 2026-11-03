@@ -12,6 +12,7 @@ import {
   apiDeleteAttributeOption,
 } from "@/services/AttributeOptionService";
 import AddEditSizeModal from "./AddEditSizeModal";
+import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 
 /*
  * The size run customers pick from in the simulation.
@@ -40,7 +41,11 @@ const SizeTab = () => {
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState(null);
-  const [deletingId, setDeletingId] = useState(null);
+
+  // Delete dialog
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [sizeToDelete, setSizeToDelete] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -93,13 +98,16 @@ const SizeTab = () => {
     load(currentPage);
   }, [load, currentPage, pageSize]);
 
-  const handleDelete = async (size) => {
-    if (!accessToken) return;
+  // Delete size
+  const handleDeleteConfirm = async () => {
+    if (!sizeToDelete || !accessToken) return;
     try {
-      setDeletingId(size.id);
-      const res = await apiDeleteAttributeOption(accessToken, size.id);
+      setDeleteLoading(true);
+      const res = await apiDeleteAttributeOption(accessToken, sizeToDelete.id);
       if (res?.status) {
         notify("Success", "success", t("deleted"));
+        setDeleteDialogOpen(false);
+        setSizeToDelete(null);
         load(currentPage);
       } else {
         notify(t("errorTitle"), "danger", res?.message || t("deleteFailed"));
@@ -108,7 +116,7 @@ const SizeTab = () => {
       console.error("Failed to delete size:", error);
       notify(t("errorTitle"), "danger", t("deleteFailed"));
     } finally {
-      setDeletingId(null);
+      setDeleteLoading(false);
     }
   };
 
@@ -199,8 +207,10 @@ const SizeTab = () => {
                       </button>
                       <button
                         type="button"
-                        onClick={() => handleDelete(size)}
-                        disabled={deletingId === size.id}
+                        onClick={() => {
+                          setSizeToDelete(size);
+                          setDeleteDialogOpen(true);
+                        }}
                         className="p-2 rounded-md bg-red-50 text-red-500 hover:bg-red-100 transition-colors"
                       >
                         <FiTrash2 size={14} />
@@ -235,6 +245,20 @@ const SizeTab = () => {
           setModalOpen(false);
           load(currentPage);
         }}
+      />
+
+      {/* Delete Confirmation */}
+      <DeleteConfirmDialog
+        isOpen={deleteDialogOpen}
+        onClose={() => {
+          setDeleteDialogOpen(false);
+          setSizeToDelete(null);
+        }}
+        onConfirm={handleDeleteConfirm}
+        title={t("deleteDialog.title")}
+        message={t("deleteDialog.message")}
+        itemName={sizeToDelete?.name}
+        loading={deleteLoading}
       />
     </div>
   );

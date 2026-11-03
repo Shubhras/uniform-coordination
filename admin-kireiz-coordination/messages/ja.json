@@ -972,6 +972,10 @@
       "allCategories": "すべてのカテゴリー",
       "empty": "サイズがまだありません",
       "emptyHint": "サイズを追加すると、顧客が選択できるようになります。",
+      "deleteDialog": {
+        "title": "サイズを削除",
+        "message": "このサイズを削除してもよろしいですか？この操作は元に戻せません。"
+      },
       "addTitle": "サイズを追加",
       "editTitle": "サイズを編集",
       "nameLabel": "サイズ",

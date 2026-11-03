@@ -32,6 +32,11 @@ const statusStyles = {
         bg: '#1C4FA80F',
         label: 'Pending',
     },
+    sent: {
+        text: '#4580ED',
+        bg: '#1C4FA80F',
+        label: 'Sent',
+    },
     submitted: {
         text: '#4580ED',
         bg: '#1C4FA80F',
@@ -56,8 +61,9 @@ const getNormalizedStatus = (quotation) => {
     if (rawStatus.includes('approv') || rawStatus.includes('accept') || rawStatus.includes('agree')) return 'approved'
     if (rawStatus.includes('cancel')) return 'cancelled'
     if (rawStatus.includes('declin') || rawStatus.includes('reject')) return 'declined'
+    if (rawStatus.includes('sent')) return 'sent'
     if (rawStatus.includes('pend')) return 'pending'
-    if (rawStatus.includes('submit') || rawStatus.includes('sent')) return 'submitted'
+    if (rawStatus.includes('submit')) return 'submitted'
     if (rawStatus.includes('receiv') || rawStatus.includes('review') || rawStatus.includes('request')) return 'received'
 
     return 'pending'
