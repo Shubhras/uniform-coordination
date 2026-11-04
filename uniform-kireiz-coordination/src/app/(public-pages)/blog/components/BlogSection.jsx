@@ -121,7 +121,7 @@ const BlogSection = () => {
                   alt={post.title || "Blog Image"}
                   width={500}
                   height={300}
-                  className="rounded-xl object-cover object-top w-full h-[200px]"
+                  className="rounded-xl object-cover object-center w-full h-[200px]"
                   unoptimized
                 />
               </div>

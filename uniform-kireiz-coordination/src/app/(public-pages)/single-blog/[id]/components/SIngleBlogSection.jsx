@@ -90,13 +90,13 @@ const SingleBlogSection = () => {
             <div className="w-full bg-[#F5F7FB] rounded-3xl p-3">
 
               {/* Image */}
-              <div className="mb-6">
+              <div className="mb-6 w-full overflow-hidden rounded-2xl bg-gray-100 flex items-center justify-center">
                 <Image
                   src={blogData.img}
                   alt={blogData.title}
-                  width={900}
-                  height={450}
-                  className="w-full lg:h-[600px] lg:object-fill object-contain rounded-2xl"
+                  width={1200}
+                  height={600}
+                  className="w-full h-[280px] sm:h-[360px] md:h-[420px] lg:h-[480px] object-cover object-center rounded-2xl"
                   unoptimized
                 />
               </div>
