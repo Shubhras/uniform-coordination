@@ -5,6 +5,7 @@ from .models import *  # adjust import if needed
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
 from datetime import datetime, date, timedelta
+from django.utils import timezone
 # from userhub.models import Notifications
 from uniformAdmin.serializers import ProductSerializer
 
@@ -116,14 +117,42 @@ class LoginSerializer(serializers.Serializer):
 
         user = users.first()
 
-     
+        now = timezone.now()
+        locked_until = getattr(user, 'locked_until', None)
+        if locked_until and locked_until > now:
+            remaining_seconds = int((locked_until - now).total_seconds())
+            remaining_minutes = max(1, (remaining_seconds + 59) // 60)
+            raise serializers.ValidationError(
+                f"Account is temporarily locked due to 5 consecutive failed login attempts. Please try again after {remaining_minutes} minute(s)."
+            )
+
         # Validate password manually because authenticate() won't work
         if not check_password(password, user.password):
-            raise serializers.ValidationError("Invalid email or password.")
+            current_attempts = getattr(user, 'failed_login_attempts', 0) or 0
+            attempts = current_attempts + 1
+            user.failed_login_attempts = attempts
+            if attempts >= 5:
+                user.locked_until = now + timezone.timedelta(minutes=15)
+                user.failed_login_attempts = 0
+                user.save(update_fields=['failed_login_attempts', 'locked_until'])
+                raise serializers.ValidationError(
+                    "Account temporarily locked due to 5 consecutive failed login attempts. Please try again in 15 minutes."
+                )
+            else:
+                user.save(update_fields=['failed_login_attempts'])
+                remaining = 5 - attempts
+                raise serializers.ValidationError(
+                    f"Invalid email or password. {remaining} attempt(s) remaining before account lockout."
+                )
 
         # Optional: check if active
         if not user.isActive:
             raise serializers.ValidationError("User account is disabled.")
+
+        if (getattr(user, 'failed_login_attempts', 0) or 0) > 0 or getattr(user, 'locked_until', None) is not None:
+            user.failed_login_attempts = 0
+            user.locked_until = None
+            user.save(update_fields=['failed_login_attempts', 'locked_until'])
 
         data["user"] = user
         return data
@@ -210,7 +239,8 @@ class CartItemSerializer(serializers.ModelSerializer):
 
     def get_product_image(self, obj):
         if obj.product:
-            return new_build_media_url(obj.product.ProductImage)
+            request = self.context.get("request") if hasattr(self, "context") and isinstance(self.context, dict) else None
+            return new_build_media_url(obj.product.ProductImage, request=request)
         return None
    
 #class CartSerializer(serializers.ModelSerializer):
@@ -708,8 +738,10 @@ class QuotationRequestSerializer(serializers.ModelSerializer):
             and obj.customupdatemodel.model_info
             and obj.customupdatemodel.model_info.product
         ):
+            request = self.context.get("request") if hasattr(self, "context") and isinstance(self.context, dict) else None
             return new_build_media_url(
-                obj.customupdatemodel.model_info.product.ProductImage
+                obj.customupdatemodel.model_info.product.ProductImage,
+                request=request
             )
         return None
 
@@ -743,7 +775,8 @@ class QuotationRequestSerializer(serializers.ModelSerializer):
 
     def get_signed_pdf_url(self, obj):
         if obj.signed_pdf:
-            return new_build_media_url(obj.signed_pdf)
+            request = self.context.get("request") if hasattr(self, "context") and isinstance(self.context, dict) else None
+            return new_build_media_url(obj.signed_pdf, request=request)
         return None
 
     def get_export_pdf_url(self, obj):
@@ -843,7 +876,8 @@ class CustomUpdateModelsSerializer(serializers.ModelSerializer):
 
     def get_ProductImage(self, obj):
         if obj.model_info and obj.model_info.product:
-            return new_build_media_url(obj.model_info.product.ProductImage)
+            request = self.context.get("request") if hasattr(self, "context") and isinstance(self.context, dict) else None
+            return new_build_media_url(obj.model_info.product.ProductImage, request=request)
         return None
 
     def get_json_file_url(self, obj):

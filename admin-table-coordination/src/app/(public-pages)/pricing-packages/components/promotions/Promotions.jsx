@@ -385,7 +385,7 @@ const Promotions = () => {
                         const elig = getCustomerEligibility(promotion);
                         return (
                           <span
-                            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${elig.badgeClass}`}
+                            className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${elig.badgeClass}`}
                           >
                             {elig.label}
                           </span>

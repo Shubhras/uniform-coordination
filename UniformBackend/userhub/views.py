@@ -241,14 +241,21 @@ class UserLoginAPIView(APIView):
 
         except serializers.ValidationError as ve:
             error_msg = ""
-            if "non_field_errors" in ve.detail:
-                error_msg = ve.detail["non_field_errors"][0]
+            if isinstance(ve.detail, dict):
+                if "non_field_errors" in ve.detail:
+                    first = ve.detail["non_field_errors"]
+                    error_msg = first[0] if isinstance(first, list) and first else str(first)
+                else:
+                    first = next(iter(ve.detail.values()))
+                    error_msg = first[0] if isinstance(first, list) and first else str(first)
+            elif isinstance(ve.detail, list) and ve.detail:
+                error_msg = ve.detail[0]
             else:
                 error_msg = str(ve.detail)
             return Response({
                 "status": False,
                 "statusCode": 400,
-                "message": f"Validation failed ; {error_msg}",
+                "message": str(error_msg),
             }, status=200)
 
         except Exception as exc:

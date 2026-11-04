@@ -46,79 +46,6 @@ class CustomPagination(PageNumberPagination):
     page_size_query_param = "page_size"
     max_page_size = 100
 
-# class SignupAPIView(APIView):
-#     permission_classes=[AllowAny]
-#     def post(self, request, *args, **kwargs):
-#         # request.data._mutable = True
-#         # request.data["userType"] = request.data.get("userType")
-#         serializer = UserSignupSerializer(data=request.data)
-
-#         try:
-#             if serializer.is_valid():
-#                 user = serializer.save()
-                
-#                  # EMAIL VERIFICATION 
-#                 uid = urlsafe_base64_encode(force_bytes(user.id))                
-#                 verify_link = request.build_absolute_uri(f"/api/v1/userhub/verify-email/{uid}/")
-
-
-#                 send_mail(
-#                     subject="Verify your email",
-#                     message=f"Click here to verify your email, it's you:\n{verify_link}",
-#                     from_email=settings.EMAIL_HOST_USER,
-#                     recipient_list=[user.email],
-#                     fail_silently=False
-#                 )
-
-#                 # Serialize full safe user response
-#                 response_data = UserResponseSerializer(
-#                     user,
-#                     context={'request': request}
-#                 ).data
-
-#                 # Convert profileImage to full URL
-#                 if user.profileImage:
-#                     response_data["profileImage"] = request.build_absolute_uri(user.profileImage.url)
-
-#                 return Response({
-#                     "status": True,
-#                     "statusCode": 201,
-#                     "message": "User created successfully.",
-#                     "data": response_data
-#                 }, status=status.HTTP_201_CREATED)
-
-#             else:
-
-#                 errors = serializer.errors
-#                 missing_fields = []
-
-#                 if isinstance(errors, dict):
-#                     for field, messages in errors.items():
-#                         if isinstance(messages, list) and messages:
-#                             # collect fields with "required" error
-#                             if "required" in messages[0].lower():
-#                                 missing_fields.append(field)
-
-#                 if missing_fields:
-#                     fields_str = ", ".join(missing_fields)
-#                     error_message = f"Validation failed; {fields_str} : This field is required."
-#                 else:
-#                     error_message = "Validation failed."
-                                            
-#                 return Response({
-#                     "status": False,
-#                     "statusCode": 400,
-#                     "message": error_message
-#                 }, status=status.HTTP_400_BAD_REQUEST)
-
-#         except Exception as exc:
-#             logger.exception("Signup error")
-#             return Response({
-#                 "status": False,
-#                 "statusCode": 500,
-#                     "message": "Server error while creating user.",
-#                 "error": str(exc)
-#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class SignupAPIView(APIView):
@@ -325,14 +252,21 @@ class UserLoginAPIView(APIView):
 
         except serializers.ValidationError as ve:
             error_msg = ""
-            if "non_field_errors" in ve.detail:
-                error_msg = ve.detail["non_field_errors"][0]
+            if isinstance(ve.detail, dict):
+                if "non_field_errors" in ve.detail:
+                    first = ve.detail["non_field_errors"]
+                    error_msg = first[0] if isinstance(first, list) and first else str(first)
+                else:
+                    first = next(iter(ve.detail.values()))
+                    error_msg = first[0] if isinstance(first, list) and first else str(first)
+            elif isinstance(ve.detail, list) and ve.detail:
+                error_msg = ve.detail[0]
             else:
                 error_msg = str(ve.detail)
             return Response({
                 "status": False,
                 "statusCode": 400,
-                "message": f"Validation failed ; {error_msg}",
+                "message": str(error_msg),
             }, status=200)
 
         except Exception as exc:

@@ -424,10 +424,10 @@ def get_file_url(file_field):
     return f"{settings.SITE_URL}{file_field.url}"  
 
 
-def new_build_media_url(file_field):
+def new_build_media_url(file_field, request=None):
     """
-    Returns absolute media URL for a FileField/ImageField
-    Works without request object
+    Returns absolute media URL for a FileField/ImageField.
+    Works with or without request object.
     """
     if not file_field:
         return None
@@ -436,21 +436,45 @@ def new_build_media_url(file_field):
     if str(name).startswith(("http://", "https://")):
         return str(name)
 
-    domain = getattr(settings, "SITE_DOMAIN", "") or ""
-    if "dxtspace.com" in domain:
-        domain = getattr(settings, "SITE_URL", "") or ""
-    if "dxtspace.com" in domain:
-        domain = ""
+    file_url = getattr(file_field, "url", None)
+    if not file_url:
+        media_url = getattr(settings, "MEDIA_URL", "/media/")
+        file_url = f"{media_url}{name}"
+
+    if request:
+        return request.build_absolute_uri(file_url)
+
+    domain = getattr(settings, "SITE_DOMAIN", "") or getattr(settings, "SITE_URL", "") or ""
     domain = domain.rstrip("/")
-    media_url = getattr(settings, "MEDIA_URL", "/media/")
-    return f"{domain}{media_url}{name}"  
+    if domain:
+        if file_url.startswith("/"):
+            return f"{domain}{file_url}"
+        return f"{domain}/{file_url}"
+
+    return file_url
+
 
 def build_media_url(request, file_field):
     if not file_field:
         return None
 
-    # Already an absolute URL (e.g. Unsplash)
-    if file_field.name.startswith(("http://", "https://")):
-        return file_field.name
+    name = getattr(file_field, "name", str(file_field))
+    if str(name).startswith(("http://", "https://")):
+        return str(name)
 
-    return f"{settings.SITE_URL}{file_field.url}"
+    file_url = getattr(file_field, "url", None)
+    if not file_url:
+        media_url = getattr(settings, "MEDIA_URL", "/media/")
+        file_url = f"{media_url}{name}"
+
+    if request:
+        return request.build_absolute_uri(file_url)
+
+    domain = getattr(settings, "SITE_URL", "") or getattr(settings, "SITE_DOMAIN", "") or ""
+    domain = domain.rstrip("/")
+    if domain:
+        if file_url.startswith("/"):
+            return f"{domain}{file_url}"
+        return f"{domain}/{file_url}"
+
+    return file_url

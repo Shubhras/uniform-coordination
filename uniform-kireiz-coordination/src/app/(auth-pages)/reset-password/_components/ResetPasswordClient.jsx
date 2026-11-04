@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import ResetPassword from '@/components/auth/ResetPassword'
-import { apiResetPassword } from '@/services/AuthService'
+import { apiResetPassword, apiValidateResetToken } from '@/services/AuthService'
 import { useRouter, useSearchParams } from 'next/navigation'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
@@ -17,11 +17,67 @@ const ResetPasswordClient = () => {
     const searchParams = useSearchParams()
     const userId = searchParams.get('user_id') || searchParams.get('userId')
     const token = searchParams.get('token')
-    const [initialMessage, setInitialMessage] = useState('')
+
+    const [isValidating, setIsValidating] = useState(true)
+    const [isTokenValid, setIsTokenValid] = useState(false)
+    const [tokenErrorMessage, setTokenErrorMessage] = useState('')
 
     useEffect(() => {
-        if (!userId || !token) {
-            setInitialMessage('Invalid or expired reset link. Please check your email or request a new reset link.')
+        let isMounted = true
+
+        const validateToken = async () => {
+            if (!userId || !token) {
+                if (isMounted) {
+                    setIsTokenValid(false)
+                    setTokenErrorMessage(
+                        'Invalid or expired reset link. Please check your email or request a new reset link.'
+                    )
+                    setIsValidating(false)
+                }
+                return
+            }
+
+            try {
+                setIsValidating(true)
+                const response = await apiValidateResetToken({
+                    user_id: userId,
+                    userId,
+                    token,
+                })
+
+                if (isMounted) {
+                    if (response?.status === true || response?.statusCode === 200) {
+                        setIsTokenValid(true)
+                        setTokenErrorMessage('')
+                    } else {
+                        setIsTokenValid(false)
+                        setTokenErrorMessage(
+                            response?.message ||
+                            'Invalid or expired reset link. Please request a new password reset.'
+                        )
+                    }
+                }
+            } catch (error) {
+                if (isMounted) {
+                    setIsTokenValid(false)
+                    setTokenErrorMessage(
+                        error?.response?.data?.message ||
+                        error?.response?.data?.error ||
+                        error?.message ||
+                        'Invalid or expired reset link. Please request a new password reset.'
+                    )
+                }
+            } finally {
+                if (isMounted) {
+                    setIsValidating(false)
+                }
+            }
+        }
+
+        validateToken()
+
+        return () => {
+            isMounted = false
         }
     }, [userId, token])
 
@@ -75,7 +131,9 @@ const ResetPasswordClient = () => {
 
     return (
         <ResetPassword
-            initialMessage={initialMessage}
+            isValidating={isValidating}
+            isTokenValid={isTokenValid}
+            tokenErrorMessage={tokenErrorMessage}
             onResetPasswordSubmit={handleResetPassword}
         />
     )
