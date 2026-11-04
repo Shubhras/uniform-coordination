@@ -69,7 +69,9 @@ const AddEditCatalogModal = ({
   const [imageError, setImageError] = useState("");
   const [validated, setValidated] = useState(false);
 
-  const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2 MB
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+  const MAX_WIDTH = 1000;
+  const MAX_HEIGHT = 1000;
 
   const catalogSchema = z.object({
     name: z.string().trim().min(1, tm("validation.nameRequired")),
@@ -197,41 +199,75 @@ const AddEditCatalogModal = ({
 
   /* ---------- FILE HANDLER ---------- */
   const handleFile = (file) => {
+    setImageError("");
+    setValidated(false);
     if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-      setImageError("Only image files are allowed");
-      setValidated(false);
+    if (!["image/png", "image/jpeg", "image/jpg"].includes(file.type)) {
+      setImageError("Only PNG, JPG, JPEG files are allowed.");
+      setImageFile(null);
+      setPreview(null);
+      setValue("image", null);
+      if (fileRef.current) {
+        fileRef.current.value = "";
+      }
       return;
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      setImageError(tm("validation.maxSize"));
+      setImageError("Image file size must be less than 5 MB.");
       setImageFile(null);
       setPreview(null);
-      setValidated(false);
-
-      setValue("image", null, {
-        shouldValidate: true,
-      });
-
+      setValue("image", null);
       if (fileRef.current) {
         fileRef.current.value = "";
       }
-
       return;
     }
 
-    setImageError("");
-    setImageFile(file);
-    setPreview(URL.createObjectURL(file));
-    setValidated(true);
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
 
-    setValue("image", file, {
-      shouldValidate: true,
-    });
+    img.onload = () => {
+      const width = img.naturalWidth || img.width;
+      const height = img.naturalHeight || img.height;
+      if (width > MAX_WIDTH || height > MAX_HEIGHT) {
+        setImageError(
+          `Image dimensions must not exceed ${MAX_WIDTH}×${MAX_HEIGHT}px (Current: ${width}×${height}px).`,
+        );
+        setImageFile(null);
+        setValue("image", null);
+        setPreview(null);
+        setValidated(false);
+        if (fileRef.current) {
+          fileRef.current.value = "";
+        }
+        URL.revokeObjectURL(objectUrl);
+        return;
+      }
 
-    trigger("image");
+      setImageFile(file);
+      setPreview(objectUrl);
+      setValidated(true);
+      setValue("image", file, {
+        shouldValidate: true,
+      });
+      trigger("image");
+    };
+
+    img.onerror = () => {
+      setImageError("Invalid image file.");
+      setImageFile(null);
+      setValue("image", null);
+      setPreview(null);
+      setValidated(false);
+      URL.revokeObjectURL(objectUrl);
+      if (fileRef.current) {
+        fileRef.current.value = "";
+      }
+    };
+
+    img.src = objectUrl;
   };
 
   /* ---------- SAVE ---------- */
@@ -396,13 +432,16 @@ const AddEditCatalogModal = ({
                 <p className="text-xs mt-2 text-[#64748B]">
                   {tm("maxDimension")}
                 </p>
+                <p className="text-xs mt-1 text-[#64748B]">
+                  Maximum file size: 5 MB
+                </p>
               </div>
 
               <input
                 type="file"
                 ref={fileRef}
                 className="hidden"
-                accept="image/*"
+                accept="image/png,image/jpeg,image/jpg"
                 onChange={(e) => handleFile(e.target.files[0])}
               />
             </div>

@@ -475,18 +475,18 @@ const Uniform3DmoduleDegisn = () => {
         const attrOptions = categoryId
           ? (optionsRes?.data?.attribute_options || {})
           : {
-              ...(globalOptionsRes?.data?.attribute_options || {}),
-              ...(optionsRes?.data?.attribute_options || {}),
-            };
+            ...(globalOptionsRes?.data?.attribute_options || {}),
+            ...(optionsRes?.data?.attribute_options || {}),
+          };
         setSimOptions(attrOptions);
 
         // 5. Parts: layers with artwork from simulation options plus product.parts
         const allProducts = categoryId
           ? (optionsRes?.data?.products || [])
           : [
-              ...(optionsRes?.data?.products || []),
-              ...(globalOptionsRes?.data?.products || []),
-            ];
+            ...(optionsRes?.data?.products || []),
+            ...(globalOptionsRes?.data?.products || []),
+          ];
         const row = allProducts.find((p) => String(p.id) === String(id));
         const layers = row?.layers || [];
 
@@ -843,7 +843,7 @@ const Uniform3DmoduleDegisn = () => {
   }
 
   return (
-    <section className="w-full mx-auto bg-white flex flex-col px-6 lg:px-4 py-4 gap-10 mt-11 ">
+    <section className="w-full bg-white flex flex-col px-4 sm:px-6 py-4 gap-6 mt-11">
       {/* Shows the applied template style and anything it couldn't preset. */}
       {template && (
         <div className="w-full border border-[#C7D7F5] bg-[#F5F8FF] rounded-xl px-4 py-3 flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -867,10 +867,10 @@ const Uniform3DmoduleDegisn = () => {
         </div>
       )}
 
-      <div className="flex gap-6">
-        <div className="w-[80px] flex flex-col items-center" >
-          {/* Left rail: one tool per attribute the admin enabled, in the admin's order. */}
-          <div className="flex flex-col gap-2 w-full">
+      <div className="flex flex-col md:flex-row gap-4 md:gap-6 relative w-full flex-1 min-w-0">
+        <div className="w-full md:w-[80px] flex-shrink-0 flex md:flex-col items-center">
+          {/* Left rail: on mobile horizontal row at TOP, on desktop (md+) vertical column on LEFT */}
+          <div className="flex md:flex-col gap-2 w-full overflow-x-auto md:overflow-visible py-1 px-1">
             {railKeys.map((key) => {
               const meta = RAIL_META[key];
               if (!meta) return null;
@@ -878,7 +878,7 @@ const Uniform3DmoduleDegisn = () => {
                 <button
                   key={key}
                   onClick={() => onIconClick(key)}
-                  className={`w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === key ? "ring-2 ring-blue-500" : ""
+                  className={`w-[64px] min-w-[64px] md:w-[70px] md:min-w-[70px] bg-white rounded-lg shadow-md p-1.5 flex flex-col justify-center items-center hover:shadow-xl transition ${active === key ? "ring-2 ring-blue-500" : ""
                     }`}
                 >
                   {meta.Svg ? (
@@ -892,35 +892,35 @@ const Uniform3DmoduleDegisn = () => {
             })}
 
             {simLoading && (
-              <div className="flex flex-col gap-2">
+              <div className="flex md:flex-col gap-2">
                 {[0, 1, 2].map((i) => (
                   <div
                     key={i}
-                    className="w-[70px] h-[70px] bg-gray-100 rounded-lg animate-pulse"
+                    className="w-[64px] min-w-[64px] h-[64px] md:w-[70px] md:h-[70px] bg-gray-100 rounded-lg animate-pulse"
                   />
                 ))}
               </div>
             )}
 
             {!simLoading && railKeys.length === 0 && (
-              <p className="w-[70px] text-[10px] leading-tight text-gray-500">
+              <p className="w-full md:w-[70px] text-[10px] leading-tight text-gray-500 text-center md:text-left">
                 No {position} options enabled for this category.
               </p>
             )}
 
             {/* Admin-enabled attributes with no matching tool — shown, not dropped silently. */}
             {!simLoading && unsupportedAttributes.length > 0 && (
-              <p className="w-[70px] text-[9px] leading-tight text-amber-700">
+              <p className="w-full md:w-[70px] text-[9px] leading-tight text-amber-700 text-center md:text-left">
                 No tool yet: {unsupportedAttributes.join(", ")}
               </p>
             )}
           </div>
         </div>
-        <div className="relative ">
+        <div className="relative">
           {panels[active] && (
             <div
               ref={panelRef}
-              className="absolute top-0 left-0 z-30 w-[285px] bg-white shadow-xl rounded-xl p-3 border border-gray-100">
+              className="absolute top-full md:top-0 left-0 md:left-2 z-30 w-[285px] max-w-[calc(100vw-32px)] bg-white shadow-xl rounded-xl p-3 border border-gray-100">
               <div className="flex items-center justify-between pb-2 mb-3 border-b border-gray-100">
                 <h5 className="font-semibold text-xs text-gray-700 tracking-wide uppercase">
                   {panels[active].title}
@@ -946,11 +946,10 @@ const Uniform3DmoduleDegisn = () => {
                           setPosition("top");
                           uniformState.active3dPart = "top";
                         }}
-                        className={`flex-1 py-1 text-xs font-semibold rounded-md border transition ${
-                          position === "top"
+                        className={`flex-1 py-1 text-xs font-semibold rounded-md border transition ${position === "top"
                             ? "bg-[#1C4FA8] text-white border-[#1C4FA8] shadow-sm"
                             : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
-                        }`}
+                          }`}
                       >
                         Top
                       </button>
@@ -960,11 +959,10 @@ const Uniform3DmoduleDegisn = () => {
                           setPosition("bottom");
                           uniformState.active3dPart = "bottom";
                         }}
-                        className={`flex-1 py-1 text-xs font-semibold rounded-md border transition ${
-                          position === "bottom"
+                        className={`flex-1 py-1 text-xs font-semibold rounded-md border transition ${position === "bottom"
                             ? "bg-[#1C4FA8] text-white border-[#1C4FA8] shadow-sm"
                             : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
-                        }`}
+                          }`}
                       >
                         Bottom
                       </button>
@@ -1000,11 +998,10 @@ const Uniform3DmoduleDegisn = () => {
                             }));
                           }}
                           title={swatch.name || swatch.code}
-                          className={`relative w-10 h-10 rounded-full shadow flex items-center justify-center transition cursor-pointer hover:scale-105 ${
-                            selected
+                          className={`relative w-10 h-10 rounded-full shadow flex items-center justify-center transition cursor-pointer hover:scale-105 ${selected
                               ? "ring-2 ring-offset-2 ring-[#1C4FA8] border-0"
                               : "border border-gray-200"
-                          }`}
+                            }`}
                           style={{ background: swatch.code }}
                         >
                           {selected && (
@@ -1363,7 +1360,7 @@ const Uniform3DmoduleDegisn = () => {
         </div>
 
         {/* CENTER MODEL VIEWER */}
-        <div className="relative flex-1 flex flex-col items-center mt-0">
+        <div className="relative flex-1 flex flex-col items-center mt-0 w-full min-w-0">
           <div
             className="absolute top-28 w-[380px] h-[380px] rounded-full transition-colors duration-500 opacity-20 blur-3xl pointer-events-none"
             style={{
@@ -1373,17 +1370,17 @@ const Uniform3DmoduleDegisn = () => {
           />
 
           {/* Product image (3D canvas is commented out). `unoptimized`: host isn't whitelisted in next.config. */}
-          <div className="relative z-10 py-16">
+          <div className="relative z-10 py-6 sm:py-10 md:py-12 flex justify-center items-center w-full max-w-[450px]">
             {/* Skeleton while loading, so the old fixed image doesn't flash on refresh. */}
             {simLoading ? (
-              <div className="w-[450px] max-w-full h-[500px] rounded-2xl bg-[#F5F8FF] animate-pulse" />
+              <div className="w-[300px] sm:w-[400px] md:w-[450px] max-w-full h-[380px] sm:h-[460px] md:h-[500px] rounded-2xl bg-[#F5F8FF] animate-pulse" />
             ) : (
               <Image
                 src={imgSrc || "/img/uniform/uniform.png"}
                 alt={simProduct?.productName || "Uniform"}
                 width={450}
                 height={800}
-                className="object-contain"
+                className="w-auto h-auto max-h-[380px] sm:max-h-[460px] md:max-h-[520px] max-w-full object-contain mx-auto"
                 unoptimized
                 priority
                 onError={() => setImgSrc("/img/uniform/uniform.png")}
@@ -1416,25 +1413,9 @@ const Uniform3DmoduleDegisn = () => {
             </div>
           )}
 
-          {/* <div className="absolute top-[-10] w-[360px] h-[360px] bg-[#BEE0FF] rounded-full"></div>
-                    <div className="relative z-10">
-                        <Image
-                            src="/img/uniform/uniform.png"
-                            alt="Uniform"
-                            width={350}
-                            height={500}
-                            className="object-contain"
-                            priority
-                        />
-                    </div> */}
           {/* BOTTOM TOOLBAR */}
-          {/* <div className="absolute bottom-[100px] flex"> */}
-          <div className="
-              flex
-              mt-6
-              mb-10
-            ">
-            <div className="z-20 mt-6 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.12)] rounded-2xl px-3 py-2 flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mt-4 sm:mt-6 mb-8 w-full max-w-full px-2">
+            <div className="z-20 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.12)] rounded-2xl px-3 py-2 flex items-center gap-2 sm:gap-3 md:gap-4 max-w-full overflow-x-auto whitespace-nowrap">
               <button className="p-1 rounded-md">
                 <img src="/img/top-left-image/cursor.png" className="w-5 h-5 invert" />
               </button>
@@ -1453,29 +1434,30 @@ const Uniform3DmoduleDegisn = () => {
               <button className="p-1" onClick={zoomIn}>
                 <span className="text-lg font-bold">+</span>
               </button>
-              <span className="text-sm font-semibold text-gray-700">
+              <span className="text-sm font-semibold text-gray-700 whitespace-nowrap">
                 {zoomPercent}%
               </span>
               <button className="p-1" onClick={zoomOut}>
                 <span className="text-lg font-bold">−</span>
               </button>
               <div className="w-px h-8 bg-gray-300"></div>
-              <button className="p-1 flex items-center gap-1" onClick={rotate90}>
+              <button className="p-1 flex items-center gap-1 whitespace-nowrap" onClick={rotate90}>
                 <img src="/img/top-left-image/rotate.png" className="w-5 h-5" />
                 <span className="text-sm text-gray-700">90°</span>
               </button>
               <div className="w-px h-8 bg-gray-300"></div>
-              <button className="p-1 flex items-center gap-1">
+              <button className="p-1 flex items-center gap-1 whitespace-nowrap">
                 <img src="/img/top-left-image/Group.png" className="w-5 h-5" />
                 <span className="text-sm text-gray-700">3D</span>
               </button>
             </div>
-            <div>
+            <div className="flex-shrink-0 w-full sm:w-auto flex justify-center">
               <Button
                 type="submit"
                 variant="solid"
                 loading={isSubmitting || isSaving}
-                className="w-full h-10 ml-10 mt-8 bg-[#1C4FA8] hover:bg-[#1C4FA8] text-white py-2" onClick={handleUniformDesignResult}
+                className="w-full sm:w-auto h-10 px-6 bg-[#1C4FA8] hover:bg-[#163f86] text-white py-2 rounded-xl whitespace-nowrap shadow-sm"
+                onClick={handleUniformDesignResult}
               >
                 Confirm Design
               </Button>

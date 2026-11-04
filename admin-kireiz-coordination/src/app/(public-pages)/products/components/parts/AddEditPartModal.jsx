@@ -240,23 +240,23 @@ const AddEditPartModal = ({
     if (mode === "edit" && initialData) {
       const catObj = initialData.category
         ? {
-            value: initialData.category.id || initialData.category,
-            label: initialData.category.categoryName || initialData.category,
-          }
+          value: initialData.category.id || initialData.category,
+          label: initialData.category.categoryName || initialData.category,
+        }
         : null;
 
       const subcatObj = initialData.subcategory
         ? {
-            value: initialData.subcategory.id || initialData.subcategory,
-            label: initialData.subcategory.name || initialData.subcategory,
-          }
+          value: initialData.subcategory.id || initialData.subcategory,
+          label: initialData.subcategory.name || initialData.subcategory,
+        }
         : null;
 
       const fabricObj = initialData.fabric
         ? {
-            value: initialData.fabric.id || initialData.fabric,
-            label: initialData.fabric.fabricName || initialData.fabric,
-          }
+          value: initialData.fabric.id || initialData.fabric,
+          label: initialData.fabric.fabricName || initialData.fabric,
+        }
         : null;
 
       reset({
@@ -296,8 +296,13 @@ const AddEditPartModal = ({
   }, [mode, initialData, isOpen, reset]);
 
   /* ---------- IMAGE HANDLERS ---------- */
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+  const MAX_WIDTH = 1000;
+  const MAX_HEIGHT = 1000;
+
   const processFile = (file) => {
     setImageError("");
+    setValidated(false);
     if (!file) return;
 
     if (!["image/png", "image/jpeg", "image/jpg"].includes(file.type)) {
@@ -305,6 +310,16 @@ const AddEditPartModal = ({
       setValue("image", null, {
         shouldValidate: true,
       });
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      setImageError("Image file size must be less than 5 MB.");
+      setValue("image", null, {
+        shouldValidate: true,
+      });
+      if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
 
@@ -312,6 +327,19 @@ const AddEditPartModal = ({
     const objectUrl = URL.createObjectURL(file);
 
     img.onload = () => {
+      if (img.width > MAX_WIDTH || img.height > MAX_HEIGHT) {
+        setImageError(
+          `Image dimensions must not exceed ${MAX_WIDTH}×${MAX_HEIGHT}px (Current: ${img.width}×${img.height}px).`,
+        );
+        setValue("image", null, {
+          shouldValidate: true,
+        });
+        setPreview(null);
+        URL.revokeObjectURL(objectUrl);
+        if (fileInputRef.current) fileInputRef.current.value = "";
+        return;
+      }
+
       setImageFile(file);
       setValue("image", file, {
         shouldValidate: true,
@@ -322,7 +350,11 @@ const AddEditPartModal = ({
 
     img.onerror = () => {
       setImageError("Invalid image file.");
+      setValue("image", null, {
+        shouldValidate: true,
+      });
       URL.revokeObjectURL(objectUrl);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     };
 
     img.src = objectUrl;
@@ -651,6 +683,9 @@ const AddEditPartModal = ({
                   </p>
                   <p className="text-xs mt-2 text-[#64748B]">
                     {tm("maxDimension")}
+                  </p>
+                  <p className="text-xs mt-1 text-[#64748B]">
+                    Maximum file size: 5 MB
                   </p>
                 </div>
 

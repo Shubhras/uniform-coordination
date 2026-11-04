@@ -62,22 +62,15 @@ const SingleBlogSection = () => {
         <div className="text-center lg:mb-7 md:mb-10">
           <div className="text-center mb-1">
             <div className="inline-flex flex-col items-end">
-              <h2 className="text-[#1C2C56] lg:text-4xl text-3xl font-semibold">
-                Blog
-              </h2>
+              <h1 className="text-2xl lg:text-3xl font-semibold text-[#1C2C56] leading-snug">
+                {blogData?.title || ""}
+              </h1>
               <div className="w-[40px] md:w-[40px] h-[3px] bg-[#87CEEB] mt-2" />
             </div>
           </div>
-          <p className="text-[#6B7280] text-sm mt-2 max-w-xl mx-auto">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          </p>
         </div>
 
-        <h2 className="text-center mb-3 lg:text-3xl text-3xl font-semibold text-[#1C2C56]">
-          Our Latest Blog Posts
-        </h2>
-
-          {/* Blog Content */}
+        {/* Blog Content */}
         {loading ? (
           <div className="flex justify-center items-center py-20">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C4FA8]"></div>
@@ -87,37 +80,42 @@ const SingleBlogSection = () => {
             Blog not found
           </div>
         ) : (
-            <div className="w-full bg-[#F5F7FB] rounded-3xl p-3">
+          <div className="w-full bg-[#F5F7FB] rounded-3xl p-4 sm:p-6 lg:p-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
 
-              {/* Image */}
-              <div className="mb-6 w-full overflow-hidden rounded-2xl bg-gray-100 flex items-center justify-center">
+              {/* Left Column: Image */}
+              <div className="w-full overflow-hidden rounded-2xl shadow-sm bg-white">
                 <Image
                   src={blogData.img}
                   alt={blogData.title}
-                  width={1200}
-                  height={600}
-                  className="w-full h-[280px] sm:h-[360px] md:h-[420px] lg:h-[480px] object-cover object-center rounded-2xl"
+                  width={900}
+                  height={900}
+                  className="w-full h-[320px] sm:h-[400px] lg:h-[480px] object-cover object-center rounded-2xl"
                   unoptimized
                 />
               </div>
 
-              {/* Title + Date */}
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-                <h1 className="text-2xl md:text-2xl font-semibold text-[#1C2C56]">
-                  {blogData.title}
-                </h1>
-                <p className="text-sm text-gray-500">
+              {/* Right Column: Title, Date & Description */}
+              <div className="flex flex-col">
+                <div className="flex flex-col gap-2 mb-4 pb-4">
+                  {/* <h1 className="text-2xl lg:text-3xl font-semibold text-[#1C2C56] leading-snug">
+                    {blogData.title}
+                  </h1> */}
+                </div>
+
+                {/* Description */}
+                <div
+                  className="text-gray-700 text-sm md:text-base leading-relaxed space-y-4 border-b border-gray-200 mb-3"
+                  dangerouslySetInnerHTML={{ __html: blogData.description }}
+                />
+                <p className="text-sm text-gray-500 font-medium">
                   {blogData.date}
                 </p>
               </div>
 
-              {/* Description */}
-              <div
-                className="text-gray-700 text-sm md:text-base leading-relaxed space-y-4"
-                dangerouslySetInnerHTML={{ __html: blogData.description }}
-              />
             </div>
-       )}
+          </div>
+        )}
 
       </div>
     </section>

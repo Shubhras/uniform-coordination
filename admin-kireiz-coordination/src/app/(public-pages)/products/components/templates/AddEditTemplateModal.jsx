@@ -310,15 +310,30 @@ const AddEditTemplateModal = ({
   ]);
 
   /* ---------- FILE HANDLERS ---------- */
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+  const MAX_WIDTH = 1000;
+  const MAX_HEIGHT = 1000;
+
   const handleFile = (file) => {
     setImageError("");
+    setValidated(false);
     if (!file) return;
 
     if (!["image/png", "image/jpeg", "image/jpg"].includes(file.type)) {
       setImageError("Only PNG, JPG, JPEG files are allowed.");
-      setValue("image", null, {
-        shouldValidate: true,
-      });
+      setImageFile(null);
+      setPreview(null);
+      setValue("image", null);
+      if (fileRef?.current) fileRef.current.value = "";
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      setImageError("Image file size must be less than 5 MB.");
+      setImageFile(null);
+      setPreview(null);
+      setValue("image", null);
+      if (fileRef?.current) fileRef.current.value = "";
       return;
     }
 
@@ -326,14 +341,14 @@ const AddEditTemplateModal = ({
     const objectUrl = URL.createObjectURL(file);
 
     img.onload = () => {
-      if (img.naturalWidth > 1000 || img.naturalHeight > 1000) {
+      const width = img.naturalWidth || img.width;
+      const height = img.naturalHeight || img.height;
+      if (width > MAX_WIDTH || height > MAX_HEIGHT) {
         setImageError(
-          `Image dimensions must not exceed 1000×1000px (Current: ${img.naturalWidth}×${img.naturalHeight}px).`,
+          `Image dimensions must not exceed ${MAX_WIDTH}×${MAX_HEIGHT}px (Current: ${width}×${height}px).`,
         );
         setImageFile(null);
-        setValue("image", null, {
-          shouldValidate: true,
-        });
+        setValue("image", null);
         setPreview(null);
         setValidated(false);
         if (fileRef?.current) {
@@ -353,7 +368,12 @@ const AddEditTemplateModal = ({
 
     img.onerror = () => {
       setImageError("Invalid image file.");
+      setImageFile(null);
+      setValue("image", null);
+      setPreview(null);
+      setValidated(false);
       URL.revokeObjectURL(objectUrl);
+      if (fileRef?.current) fileRef.current.value = "";
     };
 
     img.src = objectUrl;
@@ -750,8 +770,8 @@ const AddEditTemplateModal = ({
               </label>
 
               <FormItem
-                invalid={Boolean(errors.image || imageError)}
-                errorMessage={errors.image?.message || imageError}
+                invalid={Boolean(errors.image)}
+                errorMessage={errors.image?.message}
               >
                 <button
                   type="button"
@@ -761,6 +781,10 @@ const AddEditTemplateModal = ({
                   <FiUpload size={16} />
                   {tm("uploadImageButton")}
                 </button>
+
+                {imageError && (
+                  <p className="text-red-500 text-sm mt-1">{imageError}</p>
+                )}
 
                 {validated && (
                   <div className="mb-2 mt-2 flex items-center gap-2 text-sm text-green-600 font-medium">
@@ -788,6 +812,9 @@ const AddEditTemplateModal = ({
                   </p>
                   <p className="text-xs mt-2 text-[#64748B]">
                     {tm("maxDimension")}
+                  </p>
+                  <p className="text-xs mt-1 text-[#64748B]">
+                    Maximum file size: 5 MB
                   </p>
                 </div>
 

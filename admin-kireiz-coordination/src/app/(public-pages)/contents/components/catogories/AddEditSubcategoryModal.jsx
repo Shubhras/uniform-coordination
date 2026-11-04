@@ -66,6 +66,11 @@ const AddEditSubcategoryModal = ({
   // Save state
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [imageError, setImageError] = useState("");
+
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+  const MAX_WIDTH = 1000;
+  const MAX_HEIGHT = 1000;
 
   /* ---------- FETCH CATEGORIES ---------- */
   useEffect(() => {
@@ -80,8 +85,8 @@ const AddEditSubcategoryModal = ({
         const list = Array.isArray(response?.data)
           ? response.data
           : Array.isArray(response?.data?.results)
-          ? response.data.results
-          : [];
+            ? response.data.results
+            : [];
 
         const activeCategories = list.filter((c) => {
           if (c.isActive !== undefined && c.isActive !== null) {
@@ -150,6 +155,7 @@ const AddEditSubcategoryModal = ({
       }
     }
     setError("");
+    setImageError("");
   }, [mode, initialData, isOpen, defaultCategoryId]);
 
   // Resolve category label once options load
@@ -169,9 +175,61 @@ const AddEditSubcategoryModal = ({
 
   /* ---------- FILE HANDLER ---------- */
   const handleFile = (file) => {
+    setImageError("");
     if (!file) return;
-    setImageFile(file);
-    setPreview(URL.createObjectURL(file));
+
+    if (!["image/png", "image/jpeg", "image/jpg"].includes(file.type)) {
+      setImageError("Only PNG, JPG, JPEG files are allowed.");
+      setImageFile(null);
+      setPreview(null);
+      if (fileRef.current) fileRef.current.value = "";
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      setImageError("Image file size must be less than 5 MB.");
+      setImageFile(null);
+      setPreview(null);
+      if (fileRef.current) fileRef.current.value = "";
+      return;
+    }
+
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+
+    img.onload = () => {
+      const width = img.naturalWidth || img.width;
+      const height = img.naturalHeight || img.height;
+      if (width > MAX_WIDTH || height > MAX_HEIGHT) {
+        setImageError(
+          `Image dimensions must not exceed ${MAX_WIDTH}×${MAX_HEIGHT}px (Current: ${width}×${height}px).`,
+        );
+        setImageFile(null);
+        setPreview(null);
+        if (fileRef.current) fileRef.current.value = "";
+        URL.revokeObjectURL(objectUrl);
+        return;
+      }
+
+      setImageFile(file);
+      setPreview(objectUrl);
+    };
+
+    img.onerror = () => {
+      setImageError("Invalid image file.");
+      setImageFile(null);
+      setPreview(null);
+      URL.revokeObjectURL(objectUrl);
+      if (fileRef.current) fileRef.current.value = "";
+    };
+
+    img.src = objectUrl;
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files?.[0];
+    handleFile(file);
   };
 
   /* ---------- SAVE ---------- */
@@ -302,19 +360,52 @@ const AddEditSubcategoryModal = ({
             </label>
 
             <button
-              onClick={() => fileRef.current.click()}
+              type="button"
+              onClick={() => fileRef.current?.click()}
               className="mt-2 w-full bg-[#1C4FA8] text-white py-2 rounded-md text-sm flex items-center justify-center gap-2"
             >
               <FiUpload size={16} />
               {tm("uploadImageButton")}
             </button>
 
+            {imageError && (
+              <p className="text-red-500 text-sm mt-1">{imageError}</p>
+            )}
+
+            <div
+              onDrop={handleDrop}
+              onDragOver={(e) => e.preventDefault()}
+              className="mt-3 border-2 border-dashed rounded-md p-6 text-center text-sm text-[#486284] bg-[#D9D9D933]"
+            >
+              Drag & Drop your image file here
+              <br />
+              or{" "}
+              <span
+                className="text-[#1C2C56] underline cursor-pointer"
+                onClick={() => fileRef.current?.click()}
+              >
+                click to browse here
+              </span>
+              <p className="text-xs mt-2 text-[#64748B]">
+                PNG, JPG, JPEG files
+              </p>
+              <p className="text-xs mt-1 text-[#64748B]">
+                Maximum dimension 1000×1000px
+              </p>
+              <p className="text-xs mt-1 text-[#64748B]">
+                Maximum file size: 5 MB
+              </p>
+            </div>
+
             <input
               type="file"
               ref={fileRef}
               className="hidden"
-              accept="image/*"
-              onChange={(e) => handleFile(e.target.files[0])}
+              accept="image/png,image/jpeg,image/jpg"
+              onChange={(e) => {
+                handleFile(e.target.files[0]);
+                e.target.value = "";
+              }}
             />
           </div>
 

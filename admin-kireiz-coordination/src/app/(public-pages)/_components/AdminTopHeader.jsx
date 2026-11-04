@@ -123,8 +123,8 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
           >
             <FiBell
               className={`transition-colors duration-200 ${notifOpen
-                  ? "text-[#1C2C56]"
-                  : "text-white group-hover:text-[#1C2C56]"
+                ? "text-[#1C2C56]"
+                : "text-white group-hover:text-[#1C2C56]"
                 }`}
               size={20}
             />
@@ -150,8 +150,8 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
             {/* Avatar */}
             <div
               className={`w-9 h-9 rounded-full flex items-center justify-center overflow-hidden transition-colors duration-200 ${dropdownOpen
-                  ? "bg-[#1C2C56]"
-                  : "bg-white group-hover:bg-[#E2E8F0]"
+                ? "bg-[#1C2C56]"
+                : "bg-white group-hover:bg-[#E2E8F0]"
                 }`}
             >
               {session?.user?.image ? (
@@ -166,8 +166,8 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
                 <FiUser
                   size={18}
                   className={`transition-colors duration-200 ${dropdownOpen
-                      ? "text-white"
-                      : "text-[#1C2C56] group-hover:text-[#1C2C56]"
+                    ? "text-white"
+                    : "text-[#1C2C56] group-hover:text-[#1C2C56]"
                     }`}
                 />
               )}
@@ -177,8 +177,8 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
             <div className="hidden md:block text-left">
               <p
                 className={`text-sm font-semibold transition-colors duration-200 ${dropdownOpen
-                    ? "text-[#1C2C56]"
-                    : "text-white group-hover:text-[#1C2C56]"
+                  ? "text-[#1C2C56]"
+                  : "text-white group-hover:text-[#1C2C56]"
                   }`}
               >
                 {userName}
@@ -188,8 +188,8 @@ const AdminTopHeader = ({ sidebarCollapsed, onMobileMenuToggle }) => {
             <FiChevronDown
               size={16}
               className={`hidden md:block transition-all duration-200 ${dropdownOpen
-                  ? "rotate-180 text-[#1C2C56]"
-                  : "text-white group-hover:text-[#1C2C56]"
+                ? "rotate-180 text-[#1C2C56]"
+                : "text-white group-hover:text-[#1C2C56]"
                 }`}
             />
           </button>
