@@ -50,6 +50,20 @@ export async function apiForgotPassword(data) {
 }
 
 /**
+ * Validates whether the reset password token and user ID are valid and not expired.
+ * 
+ * @param {Object} params - Query parameters containing userId/user_id and token.
+ * @returns {Promise<Object>} API response confirming validity.
+ */
+export async function apiValidateResetToken(params) {
+  return ApiService.fetchDataWithAxios({
+    url: "/v1/space/userhub/reset-password/",
+    method: "get",
+    params,
+  });
+}
+
+/**
  * Resets user password using reset token and new password credentials.
  * 
  * @param {Object} data - Payload containing reset token and new password.
