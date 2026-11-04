@@ -89,10 +89,10 @@ const validateCredential = async (values) => {
             }
         }
 
-        return null
+        return { error: data.message || 'Invalid credentials' }
     } catch (error) {
         console.error('Login API error:', error)
-        return null
+        return { error: 'Failed to connect to authentication server' }
     }
 }
 

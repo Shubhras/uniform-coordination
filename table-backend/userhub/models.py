@@ -51,6 +51,8 @@ class Users(models.Model):
     push_notifications = models.BooleanField(default=True, null=True, blank=True)
     is_verify = models.BooleanField(default=False)
     is_currently_login = models.BooleanField(default=False)
+    failed_login_attempts = models.PositiveIntegerField(default=0)
+    locked_until = models.DateTimeField(null=True, blank=True)
 
     
     createdAt = models.DateTimeField(auto_now_add=True)

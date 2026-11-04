@@ -5,6 +5,7 @@ from .models import *  # adjust import if needed
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
 from datetime import datetime, date, timedelta
+from django.utils import timezone
 # from userhub.models import Notifications
 from uniformAdmin.serializers import ProductSerializer
 
@@ -116,14 +117,42 @@ class LoginSerializer(serializers.Serializer):
 
         user = users.first()
 
-     
+        now = timezone.now()
+        locked_until = getattr(user, 'locked_until', None)
+        if locked_until and locked_until > now:
+            remaining_seconds = int((locked_until - now).total_seconds())
+            remaining_minutes = max(1, (remaining_seconds + 59) // 60)
+            raise serializers.ValidationError(
+                f"Account is temporarily locked due to 5 consecutive failed login attempts. Please try again after {remaining_minutes} minute(s)."
+            )
+
         # Validate password manually because authenticate() won't work
         if not check_password(password, user.password):
-            raise serializers.ValidationError("Invalid email or password.")
+            current_attempts = getattr(user, 'failed_login_attempts', 0) or 0
+            attempts = current_attempts + 1
+            user.failed_login_attempts = attempts
+            if attempts >= 5:
+                user.locked_until = now + timezone.timedelta(minutes=15)
+                user.failed_login_attempts = 0
+                user.save(update_fields=['failed_login_attempts', 'locked_until'])
+                raise serializers.ValidationError(
+                    "Account temporarily locked due to 5 consecutive failed login attempts. Please try again in 15 minutes."
+                )
+            else:
+                user.save(update_fields=['failed_login_attempts'])
+                remaining = 5 - attempts
+                raise serializers.ValidationError(
+                    f"Invalid email or password. {remaining} attempt(s) remaining before account lockout."
+                )
 
         # Optional: check if active
         if not user.isActive:
             raise serializers.ValidationError("User account is disabled.")
+
+        if (getattr(user, 'failed_login_attempts', 0) or 0) > 0 or getattr(user, 'locked_until', None) is not None:
+            user.failed_login_attempts = 0
+            user.locked_until = None
+            user.save(update_fields=['failed_login_attempts', 'locked_until'])
 
         data["user"] = user
         return data
