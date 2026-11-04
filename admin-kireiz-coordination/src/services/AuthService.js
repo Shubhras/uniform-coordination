@@ -29,6 +29,17 @@ export async function apiForgotPassword(data) {
   });
 }
 
+export async function apiValidateResetToken(userId, token) {
+  const params = new URLSearchParams({
+    user_id: userId,
+    token: token,
+  });
+  return ApiService.fetchDataWithAxios({
+    url: `/v1/uniformAdmin/reset-password/?${params.toString()}`,
+    method: "get",
+  });
+}
+
 export async function apiResetPassword(data) {
   return ApiService.fetchDataWithAxios({
     url: "/v1/uniformAdmin/reset-password/",

@@ -38,6 +38,14 @@ export async function apiResetPassword(data) {
     })
 }
 
+export async function apiVerifyResetToken(params) {
+    const queryParams = new URLSearchParams(params).toString();
+    return ApiService.fetchDataWithAxios({
+        url: `/v1/space/uniformAdmin/reset-password/?${queryParams}`,
+        method: 'get',
+    })
+}
+
 export async function apiChangePassword(data, accessToken) {
   return ApiService.fetchDataWithAxios({
     url: "/v1/space/uniformAdmin/change-password/",
