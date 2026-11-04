@@ -46,7 +46,7 @@ const UniformLatestBlogPosts = ({ blogs = [], loading }) => {
                     alt={post.title}
                     width={500}
                     height={300}
-                    className="w-full h-[200px] object-cover object-top rounded-xl"
+                    className="w-full h-[200px] object-cover object-center rounded-xl"
                     unoptimized
                   />
                 </div>
