@@ -13,10 +13,10 @@ from userhub.models import *
 import json
 
 
-def build_media_url(file_field):
+def build_media_url(file_field, request=None):
     """
-    Returns absolute media URL for a FileField/ImageField
-    Works without request object
+    Returns absolute media URL for a FileField/ImageField.
+    Works with or without request object.
     """
     if not file_field:
         return None
@@ -25,14 +25,22 @@ def build_media_url(file_field):
     if str(name).startswith(("http://", "https://")):
         return str(name)
 
-    domain = getattr(settings, "SITE_DOMAIN", "") or ""
-    if "dxtspace.com" in domain:
-        domain = getattr(settings, "SITE_URL", "") or ""
-    if "dxtspace.com" in domain:
-        domain = ""
+    file_url = getattr(file_field, "url", None)
+    if not file_url:
+        media_url = getattr(settings, "MEDIA_URL", "/media/")
+        file_url = f"{media_url}{name}"
+
+    if request:
+        return request.build_absolute_uri(file_url)
+
+    domain = getattr(settings, "SITE_DOMAIN", "") or getattr(settings, "SITE_URL", "") or ""
     domain = domain.rstrip("/")
-    media_url = getattr(settings, "MEDIA_URL", "/media/")
-    return f"{domain}{media_url}{name}"
+    if domain:
+        if file_url.startswith("/"):
+            return f"{domain}{file_url}"
+        return f"{domain}/{file_url}"
+
+    return file_url
 
 
 # class AdminLoginSerializer(serializers.Serializer):
@@ -663,7 +671,8 @@ class AttributeOptionSerializer(serializers.ModelSerializer):
         return super().to_internal_value(data)
 
     def get_imageUrl(self, obj):
-        return new_build_media_url(obj.image)
+        request = self.context.get("request") if hasattr(self, "context") and isinstance(self.context, dict) else None
+        return new_build_media_url(obj.image, request=request)
 
     def validate(self, attrs):
         attribute = attrs.get("attribute") or getattr(self.instance, "attribute", None)
@@ -862,7 +871,8 @@ class BlogSerializer(serializers.ModelSerializer):
     # Return image URL
     # -----------------------------
     def get_image_url(self, obj):
-        return build_media_url(obj.image)
+        request = self.context.get("request") if hasattr(self, "context") and isinstance(self.context, dict) else None
+        return build_media_url(obj.image, request=request)
 
     # -----------------------------
     # Validate title
@@ -1535,7 +1545,8 @@ class ProductSerializer(serializers.ModelSerializer):
         return value
     
     def get_ProductImage(self, obj):
-        return new_build_media_url(obj.ProductImage)
+        request = self.context.get("request") if hasattr(self, "context") and isinstance(self.context, dict) else None
+        return new_build_media_url(obj.ProductImage, request=request)
     
     
     

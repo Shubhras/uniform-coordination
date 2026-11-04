@@ -210,7 +210,8 @@ class CartItemSerializer(serializers.ModelSerializer):
 
     def get_product_image(self, obj):
         if obj.product:
-            return new_build_media_url(obj.product.ProductImage)
+            request = self.context.get("request") if hasattr(self, "context") and isinstance(self.context, dict) else None
+            return new_build_media_url(obj.product.ProductImage, request=request)
         return None
    
 #class CartSerializer(serializers.ModelSerializer):
@@ -708,8 +709,10 @@ class QuotationRequestSerializer(serializers.ModelSerializer):
             and obj.customupdatemodel.model_info
             and obj.customupdatemodel.model_info.product
         ):
+            request = self.context.get("request") if hasattr(self, "context") and isinstance(self.context, dict) else None
             return new_build_media_url(
-                obj.customupdatemodel.model_info.product.ProductImage
+                obj.customupdatemodel.model_info.product.ProductImage,
+                request=request
             )
         return None
 
@@ -743,7 +746,8 @@ class QuotationRequestSerializer(serializers.ModelSerializer):
 
     def get_signed_pdf_url(self, obj):
         if obj.signed_pdf:
-            return new_build_media_url(obj.signed_pdf)
+            request = self.context.get("request") if hasattr(self, "context") and isinstance(self.context, dict) else None
+            return new_build_media_url(obj.signed_pdf, request=request)
         return None
 
     def get_export_pdf_url(self, obj):
@@ -843,7 +847,8 @@ class CustomUpdateModelsSerializer(serializers.ModelSerializer):
 
     def get_ProductImage(self, obj):
         if obj.model_info and obj.model_info.product:
-            return new_build_media_url(obj.model_info.product.ProductImage)
+            request = self.context.get("request") if hasattr(self, "context") and isinstance(self.context, dict) else None
+            return new_build_media_url(obj.model_info.product.ProductImage, request=request)
         return None
 
     def get_json_file_url(self, obj):
