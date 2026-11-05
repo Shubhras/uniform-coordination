@@ -358,6 +358,9 @@ class SaveUpdateRolePermissionView(APIView):
                 continue
 
             role = get_object_or_404(Role, id=role_id)
+            if role.role_name.lower() == "admin":
+                # Admin always retains full access across all menus and submenus
+                continue
 
             permissions = role_data.get("permissions", [])
 
@@ -446,6 +449,24 @@ def ensure_admin_menus():
         Menu.objects.filter(pk=menu.pk).update(
             slug=entry["slug"], route=entry["route"], order=entry["order"]
         )
+
+    # Ensure full permissions for admin role
+    try:
+        admin_roles = Role.objects.filter(role_name__iexact="admin")
+        for admin_role in admin_roles:
+            for menu in Menu.objects.filter(isDeleted=False, isActive=True):
+                RoleMenuPermission.objects.update_or_create(
+                    role=admin_role,
+                    menu=menu,
+                    defaults={
+                        "can_view": True,
+                        "can_create": True,
+                        "can_update": True,
+                        "can_delete": True,
+                    }
+                )
+    except Exception:
+        pass
 
     # Ensure default permissions for sales role so new sales reps have initial access
     try:

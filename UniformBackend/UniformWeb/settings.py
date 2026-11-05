@@ -185,8 +185,12 @@ MEDIA_ROOT = BASE_DIR / "media"
 #
 # Env-driven now, defaulting to production so deployed behaviour is unchanged. Set
 # SITE_DOMAIN and SITE_URL in .env for local work (e.g. http://localhost:8005).
-SITE_DOMAIN = config("SITE_DOMAIN", default="")
-SITE_URL = config("SITE_URL", default="")
+# SITE_DOMAIN = config("SITE_DOMAIN", default="")
+# SITE_URL = config("SITE_URL", default="")
+
+SITE_DOMAIN = config("SITE_DOMAIN", default="https://uniform.172.237.71.124.sslip.io")
+SITE_URL = config("SITE_URL", default="https://uniform.172.237.71.124.sslip.io")
+
 
 #large file/JSON upload (R.T)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 150 * 1024 * 1024
@@ -229,12 +233,19 @@ CORS_ALLOWED_ORIGINS = [
     "http://0.0.0.0:8000",
     "http://54.81.43.26",
 
-    # Linode server (nginx par port 80)
+    # Linode server HTTPS domains (sslip.io)
+    "https://uniform.172.237.71.124.sslip.io",
+    "https://table.172.237.71.124.sslip.io",
+    "https://admin.172.237.71.124.sslip.io",
+    "https://admintable.172.237.71.124.sslip.io",
+
+    # Linode server HTTP domains
     "http://172.237.71.124",
     "http://172.237.71.124:7000",
     "http://172.237.71.124:7001",
     "http://172.237.71.124:7002",
     "http://172.237.71.124:7003",
+    "http://uniform.172.237.71.124.sslip.io",
     "http://table.172.237.71.124.sslip.io",
     "http://admin.172.237.71.124.sslip.io",
     "http://admintable.172.237.71.124.sslip.io",
@@ -258,6 +269,7 @@ CSRF_TRUSTED_ORIGINS = [
     "https://table.dxtspace.com",
     "https://uniform-admin.dxtspace.com",
     "https://table-admin.dxtspace.com",
+    "https://*.172.237.71.124.sslip.io",
     "http://172.237.71.124",
     "http://*.172.237.71.124.sslip.io",
 ]

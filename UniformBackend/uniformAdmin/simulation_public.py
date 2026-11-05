@@ -357,8 +357,9 @@ class SimulationProductLayersAPIView(APIView):
             404: OpenApiResponse(description="Product not available for simulation"),
         },
     )
-    def get(self, request, pk):
-        product = simulatable_products().filter(pk=pk).first()
+    def get(self, request, product_id=None, pk=None):
+        pid = product_id if product_id is not None else pk
+        product = simulatable_products().filter(pk=pid).first()
         if not product:
             return Response({
                 "status": False,

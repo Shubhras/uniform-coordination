@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { FormItem, Form } from '@/components/ui/Form'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
@@ -87,6 +87,7 @@ const DeliveryRequestForm = () => {
     const [dialogTermsOpen, setDialogTermsOpen] = useState(false)
     const [dialoQuoteRequestOpen, setDialogQuoteRequestOpen] = useState(false)
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [design, setDesign] = useState(null)
     const params = useParams()
     const id = params?.id
     const {
@@ -138,6 +139,7 @@ const DeliveryRequestForm = () => {
             }
             if (cancelled) return
 
+            setDesign(design)
             const config = design?.config_json || {}
 
             reset((prev) => ({
@@ -155,6 +157,40 @@ const DeliveryRequestForm = () => {
             cancelled = true
         }
     }, [id, token, session?.user?.name, session?.user?.firstName, session?.user?.email, reset])
+
+    const config = design?.config_json || {}
+    const specs = useMemo(() => {
+        const rows = []
+        if (config.fabric) rows.push({ title: "Fabric", value: config.fabric })
+        const colors = config.colors || {}
+        if (typeof colors === "object") {
+            Object.entries(colors)
+                .filter(([, hex]) => hex && String(hex).trim())
+                .forEach(([half, hex]) =>
+                    rows.push({
+                        title: half === "bottom" ? "Bottom Colour" : "Top Colour",
+                        value: hex,
+                        swatch: hex,
+                    })
+                )
+        }
+        if (config.part) rows.push({ title: "Part", value: config.part })
+        const sizesData = config.sizes || config.size
+        if (sizesData && typeof sizesData === "object") {
+            const activeSizes = Object.entries(sizesData)
+                .filter(([, qty]) => Number(qty) > 0 || (qty && String(qty) !== "0"))
+                .map(([s, qty]) => `${s.toUpperCase()} (${qty})`)
+            if (activeSizes.length > 0) {
+                rows.push({ title: "Sizes", value: activeSizes.join(", ") })
+            }
+        }
+        Object.entries(config.options || {})
+            .filter(([, v]) => v && String(v).trim())
+            .forEach(([key, value]) =>
+                rows.push({ title: key.charAt(0).toUpperCase() + key.slice(1).replace("_", " "), value })
+            )
+        return rows
+    }, [config])
     /**
         * Handles form submission. Builds the payload, checks for a valid
         * session, calls the create quotation request API, and opens the
@@ -278,6 +314,35 @@ const DeliveryRequestForm = () => {
                         </div>
 
                         <h5 className="font-medium mb-3">Uniform Request Details</h5>
+
+                        {specs.length > 0 && (
+                            <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl p-4 mb-4">
+                                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2.5">
+                                    Customization Specifications
+                                </span>
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                    {specs.map((spec, idx) => (
+                                        <div
+                                            key={idx}
+                                            className="bg-white border border-gray-100 rounded-lg p-2.5 shadow-xs flex flex-col justify-center"
+                                        >
+                                            <span className="text-[11px] text-gray-400 font-medium">{spec.title}</span>
+                                            <div className="flex items-center gap-1.5 mt-0.5">
+                                                {spec.swatch && (
+                                                    <span
+                                                        className="w-3.5 h-3.5 rounded-full border border-black/10 inline-block shrink-0"
+                                                        style={{ backgroundColor: spec.swatch }}
+                                                    />
+                                                )}
+                                                <span className="text-xs font-semibold text-gray-800 truncate">
+                                                    {spec.value}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
 
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-3">
                             <FormItem

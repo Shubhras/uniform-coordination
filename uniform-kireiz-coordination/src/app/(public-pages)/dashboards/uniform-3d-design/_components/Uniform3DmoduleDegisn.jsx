@@ -608,8 +608,10 @@ const Uniform3DmoduleDegisn = () => {
       return [...new Set(fromAdmin)].filter((k) => panels[k]);
     }
 
-    // Default fallback: parts, color, size, fabric...
-    return ["parts", "color", "size", "fabric", "collar", "sleeves", "cap", "zipper", "cuff", "pants", "pocket", "aprons"]
+
+    // return ["parts", "color", "size", "fabric", "collar", "sleeves", "cap", "zipper", "cuff", "pants", "pocket", "aprons"]
+    // Default fallback: parts, color, size, fabric
+    return ["parts", "color", "size", "fabric"]
       .filter((k) => panels[k]);
   })();
 
