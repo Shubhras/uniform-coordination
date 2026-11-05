@@ -309,6 +309,12 @@ class SimulationOptionsAPIView(APIView):
                             # others a colour name. Only a hex can be painted, so the
                             # UI gets a separate field it can trust.
                             "swatch": _hex_or_none(f.color),
+                            "functional_type": f.functional_type or "",
+                            "weave": f.weave or "plain",
+                            "composition": f.composition or "",
+                            "weight": f.weight or "",
+                            "care_instructions": f.care_instructions or "",
+                            "texture_image": _absolute(request, f.texture_image),
                         }
                         for f in fabrics
                     ],
