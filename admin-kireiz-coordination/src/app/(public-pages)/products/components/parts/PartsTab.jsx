@@ -381,10 +381,17 @@ const PartsTab = () => {
                 </div>
 
                 <div className="p-3">
-                  <h3 className="text-sm font-semibold text-[#1C2C56]">
-                    {part.partName}
-                  </h3>
-                  <p className="text-xs text-[#486284] capitalize">
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="text-sm font-semibold text-[#1C2C56] truncate">
+                      {part.partName}
+                    </h3>
+                    {part.part_type && (
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-[#1C4FA8] border border-blue-200 capitalize shrink-0">
+                        {part.part_type.replace(/_/g, " ")}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-[#486284] capitalize mt-0.5">
                     {part.category?.categoryName} · z-index: {part.zIndex}
                   </p>
 
@@ -429,6 +436,7 @@ const PartsTab = () => {
               <tr>
                 <th className="text-left px-5 py-4 font-medium">{t("tableHeaders.preview")}</th>
                 <th className="text-left px-5 py-4 font-medium">{t("tableHeaders.partName")}</th>
+                <th className="text-left px-5 py-4 font-medium">Type</th>
                 <th className="text-left px-5 py-4 font-medium">{t("tableHeaders.category")}</th>
                 <th className="text-left px-5 py-4 font-medium">{t("tableHeaders.usage")}</th>
                 <th className="text-left px-5 py-4 font-medium">{t("tableHeaders.zIndex")}</th>
@@ -469,6 +477,16 @@ const PartsTab = () => {
 
                     <td className="px-4 py-3 text-[#1C2C56] font-medium">
                       {part.partName}
+                    </td>
+
+                    <td className="px-4 py-3">
+                      {part.part_type ? (
+                        <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-blue-50 text-[#1C4FA8] border border-blue-200 capitalize">
+                          {part.part_type.replace(/_/g, " ")}
+                        </span>
+                      ) : (
+                        <span className="text-[#94A3B8]">—</span>
+                      )}
                     </td>
 
                     <td className="px-4 py-3 text-[#486284] capitalize">

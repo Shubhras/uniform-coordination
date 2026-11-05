@@ -45,6 +45,22 @@ const getApiErrorMessage = (errorData, defaultMsg = "Failed to save part") => {
   return defaultMsg;
 };
 
+const PART_TYPE_OPTIONS = [
+  { value: "collar", label: "Collar" },
+  { value: "sleeve", label: "Sleeve" },
+  { value: "zipper", label: "Zipper" },
+  { value: "cuff", label: "Cuff" },
+  { value: "waist", label: "Waist" },
+  { value: "hem", label: "Hem" },
+  { value: "inner_mesh", label: "Inner Mesh" },
+  { value: "cap", label: "Cap" },
+  { value: "apron", label: "Apron" },
+  { value: "pocket", label: "Pocket" },
+  { value: "pant", label: "Pant" },
+  { value: "top", label: "Top" },
+  { value: "other", label: "Other" },
+];
+
 const AddEditPartModal = ({
   isOpen,
   onClose,
@@ -87,6 +103,7 @@ const AddEditPartModal = ({
     category: z.any().refine((val) => val !== null, {
       message: tm("validation.categoryRequired"),
     }),
+    part_type: z.any().optional().nullable(),
     fabric: z.any().refine((val) => val !== null, {
       message: "Fabric is required",
     }),
@@ -99,6 +116,7 @@ const AddEditPartModal = ({
         message: "z-Index cannot be negative",
       }),
     subcategory: z.any().optional(),
+    part_type: z.any().optional().nullable(),
     image:
       mode === "edit"
         ? z.any().optional().nullable()
@@ -121,6 +139,7 @@ const AddEditPartModal = ({
       category: null,
       subcategory: null,
       fabric: null,
+      part_type: null,
       zIndex: "1",
       image: null,
     },
@@ -276,10 +295,18 @@ const AddEditPartModal = ({
           }
         : null;
 
+      const partTypeObj = initialData.part_type
+        ? PART_TYPE_OPTIONS.find((o) => o.value === initialData.part_type) || {
+            value: initialData.part_type,
+            label: initialData.part_type,
+          }
+        : null;
+
       reset({
         partName: initialData.partName || "",
         category: catObj,
         subcategory: subcatObj,
+        part_type: partTypeObj,
         fabric: fabricObj,
         zIndex: String(initialData.zIndex ?? 1),
         image: initialData.partImage || null,
@@ -301,6 +328,7 @@ const AddEditPartModal = ({
         partName: "",
         category: null,
         subcategory: null,
+        part_type: null,
         fabric: null,
         zIndex: "1",
         image: null,
@@ -408,6 +436,10 @@ const AddEditPartModal = ({
 
       if (values.subcategory?.value) {
         formData.append("subcategory_id", values.subcategory.value);
+      }
+
+      if (values.part_type?.value || values.part_type) {
+        formData.append("part_type", values.part_type?.value || values.part_type);
       }
 
       if (values.fabric?.value) {
@@ -559,6 +591,34 @@ const AddEditPartModal = ({
                   />
                 </FormItem>
               </div>
+            </div>
+
+            {/* Part Type (e.g. Collar, Sleeve, Zipper, Cuff, Waist, Hem, Inner Mesh, Cap...) */}
+            <div>
+              <label className="text-[#1C2C56] text-base font-medium">
+                Part Type
+              </label>
+              <FormItem>
+                <Controller
+                  name="part_type"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      options={PART_TYPE_OPTIONS}
+                      value={field.value}
+                      onChange={field.onChange}
+                      styles={selectStyles}
+                      placeholder="Select Part Type (e.g. Collar, Sleeve, Zipper, Waist, Hem...)"
+                      isClearable
+                      menuPortalTarget={
+                        typeof document !== "undefined" ? document.body : null
+                      }
+                      menuPosition="fixed"
+                    />
+                  )}
+                />
+              </FormItem>
             </div>
 
             {/* Fabric */}
