@@ -80,7 +80,7 @@ export function getStoredAccessToken() {
                 memoryTokens.accessToken = local
                 return local
             }
-        } catch (e) {}
+        } catch (e) { }
 
         const cookieVal = getCookie(ACCESS_TOKEN_KEY)
         if (cookieVal) {
@@ -105,7 +105,7 @@ export function getStoredRefreshToken() {
                 memoryTokens.refreshToken = local
                 return local
             }
-        } catch (e) {}
+        } catch (e) { }
 
         const cookieVal = getCookie(REFRESH_TOKEN_KEY)
         if (cookieVal) {
@@ -132,7 +132,7 @@ export function clearStoredTokens() {
                 window.localStorage.removeItem(ACCESS_TOKEN_KEY)
                 window.localStorage.removeItem(REFRESH_TOKEN_KEY)
             }
-        } catch (e) {}
+        } catch (e) { }
 
         deleteCookie(ACCESS_TOKEN_KEY)
         deleteCookie(REFRESH_TOKEN_KEY)
@@ -275,7 +275,7 @@ export async function handleTokenRefresh() {
                             refreshToken: newRefreshToken,
                         },
                     }),
-                }).catch(() => {})
+                }).catch(() => { })
             }
         } catch (e) {
             // Silent catch

@@ -99,9 +99,12 @@ const AddEditPartModal = ({
         message: "z-Index cannot be negative",
       }),
     subcategory: z.any().optional(),
-    image: z.any().refine((val) => mode === "edit" || val instanceof File, {
-      message: tm("validation.imageRequired"),
-    }),
+    image:
+      mode === "edit"
+        ? z.any().optional().nullable()
+        : z.any().refine((val) => val instanceof File, {
+            message: tm("validation.imageRequired"),
+          }),
   });
 
   const {
@@ -154,10 +157,18 @@ const AddEditPartModal = ({
     const fetchCategories = async () => {
       try {
         setLoadingCategories(true);
-        const res = await apiGetCategoryList(accessToken, 1, 100, "", { isActive: "true" });
+        const res = await apiGetCategoryList(accessToken, 1, 100, "", {
+          isActive: "true",
+        });
         if (res?.status && res?.data) {
           const opts = res.data
-            .filter((c) => (c.isActive === true || c.isActive === "true" || c.is_active === true) && !c.isDeleted)
+            .filter(
+              (c) =>
+                (c.isActive === true ||
+                  c.isActive === "true" ||
+                  c.is_active === true) &&
+                !c.isDeleted,
+            )
             .map((c) => ({
               value: c.id,
               label: c.categoryName,
@@ -194,7 +205,13 @@ const AddEditPartModal = ({
         );
         if (res?.status && res?.data) {
           const opts = res.data
-            .filter((sc) => (sc.isActive === true || sc.isActive === "true" || sc.is_active === true) && !sc.isDeleted)
+            .filter(
+              (sc) =>
+                (sc.isActive === true ||
+                  sc.isActive === "true" ||
+                  sc.is_active === true) &&
+                !sc.isDeleted,
+            )
             .map((sc) => ({
               value: sc.id,
               label: sc.name,
@@ -240,23 +257,23 @@ const AddEditPartModal = ({
     if (mode === "edit" && initialData) {
       const catObj = initialData.category
         ? {
-          value: initialData.category.id || initialData.category,
-          label: initialData.category.categoryName || initialData.category,
-        }
+            value: initialData.category.id || initialData.category,
+            label: initialData.category.categoryName || initialData.category,
+          }
         : null;
 
       const subcatObj = initialData.subcategory
         ? {
-          value: initialData.subcategory.id || initialData.subcategory,
-          label: initialData.subcategory.name || initialData.subcategory,
-        }
+            value: initialData.subcategory.id || initialData.subcategory,
+            label: initialData.subcategory.name || initialData.subcategory,
+          }
         : null;
 
       const fabricObj = initialData.fabric
         ? {
-          value: initialData.fabric.id || initialData.fabric,
-          label: initialData.fabric.fabricName || initialData.fabric,
-        }
+            value: initialData.fabric.id || initialData.fabric,
+            label: initialData.fabric.fabricName || initialData.fabric,
+          }
         : null;
 
       reset({
@@ -265,6 +282,7 @@ const AddEditPartModal = ({
         subcategory: subcatObj,
         fabric: fabricObj,
         zIndex: String(initialData.zIndex ?? 1),
+        image: initialData.partImage || null,
       });
 
       if (initialData.partImage) {
@@ -285,6 +303,7 @@ const AddEditPartModal = ({
         subcategory: null,
         fabric: null,
         zIndex: "1",
+        image: null,
       });
       setImageFile(null);
       setPreview(null);

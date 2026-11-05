@@ -344,26 +344,6 @@ const EditCustomer = () => {
               <p className="text-red-500 text-xs mt-1">{errors.phone}</p>
             )}
           </div>
-
-          <div>
-            <label className="text-sm font-medium">{t("userTypeLabel")}</label>
-
-            <select
-              name="userType"
-              value={formData.userType}
-              onChange={handleChange}
-              className="w-full border rounded-lg px-3 py-2 mt-1"
-            >
-              <option value="">{t("selectPlaceholder")}</option>
-              <option value="uniform">{t("userTypeOptions.uniform")}</option>
-              <option value="vendor">{t("userTypeOptions.vendor")}</option>
-              <option value="admin">{t("userTypeOptions.admin")}</option>
-            </select>
-            {errors.userType && (
-              <p className="text-red-500 text-xs mt-1">{errors.userType}</p>
-            )}
-          </div>
-
           <div>
             <label className="text-sm font-medium">{t("genderLabel")}</label>
 
@@ -381,20 +361,6 @@ const EditCustomer = () => {
             {errors.gender && (
               <p className="text-red-500 text-xs mt-1">{errors.gender}</p>
             )}
-          </div>
-
-          <div>
-            <label className="text-sm font-medium">{t("languageLabel")}</label>
-
-            <select
-              name="language"
-              value={formData.language}
-              onChange={handleChange}
-              className="w-full border rounded-lg px-3 py-2 mt-1"
-            >
-              <option value="english">{t("languageOptions.english")}</option>
-              <option value="hindi">{t("languageOptions.hindi")}</option>
-            </select>
           </div>
         </div>
 

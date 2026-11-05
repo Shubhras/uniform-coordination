@@ -124,7 +124,20 @@ const getValidationSchema = (tm) =>
       })
       .refine((val) => Number(val) >= 0, {
         message: tm("validation.priceNegative"),
-      }),
+      })
+      .refine(
+        (val) => {
+          const parts = String(val).split(".");
+          const intPart = parts[0].replace(/[^0-9]/g, "").replace(/^0+/, "");
+          const decPart = (parts[1] || "").replace(/[^0-9]/g, "");
+          return intPart.length + decPart.length <= 10;
+        },
+        {
+          message:
+            tm("validation.priceMaxDigits") ||
+            "Ensure that there are no more than 10 digits in total.",
+        },
+      ),
 
     selectedParts: z.array(z.any()).min(1, tm("validation.partsRequired")),
 
@@ -194,6 +207,7 @@ const AddEditProductModal = ({
     reset,
     watch,
     setValue,
+    setError: setFormError,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(validationSchema),
@@ -213,10 +227,18 @@ const AddEditProductModal = ({
     const fetchCategories = async () => {
       setLoadingCategories(true);
       try {
-        const response = await apiGetCategoryList(accessToken, 1, 100, "", { isActive: "true" });
+        const response = await apiGetCategoryList(accessToken, 1, 100, "", {
+          isActive: "true",
+        });
         if (response?.status && response?.data) {
           const options = response.data
-            .filter((c) => (c.isActive === true || c.isActive === "true" || c.is_active === true) && !c.isDeleted)
+            .filter(
+              (c) =>
+                (c.isActive === true ||
+                  c.isActive === "true" ||
+                  c.is_active === true) &&
+                !c.isDeleted,
+            )
             .map((c) => ({
               value: c.id,
               label: c.categoryName,
@@ -276,7 +298,13 @@ const AddEditProductModal = ({
 
         if (response?.status && response?.data) {
           const options = response.data
-            .filter((item) => (item.isActive === true || item.isActive === "true" || item.is_active === true) && !item.isDeleted)
+            .filter(
+              (item) =>
+                (item.isActive === true ||
+                  item.isActive === "true" ||
+                  item.is_active === true) &&
+                !item.isDeleted,
+            )
             .map((item) => ({
               value: item.id,
               label: item.name,
@@ -460,9 +488,7 @@ const AddEditProductModal = ({
     };
 
     img.onerror = () => {
-      setImageError(
-        tm("validation.invalidImageFile") || "Invalid image file.",
-      );
+      setImageError(tm("validation.invalidImageFile") || "Invalid image file.");
       setImageFile(null);
       setPreview(null);
       setImageValidated(false);
@@ -547,6 +573,13 @@ const AddEditProductModal = ({
       }
 
       if (response && response.status === false) {
+        if (response.error && typeof response.error === "object") {
+          Object.keys(response.error).forEach((key) => {
+            const msgs = response.error[key];
+            const msg = Array.isArray(msgs) ? msgs[0] : msgs;
+            setFormError(key, { type: "server", message: msg });
+          });
+        }
         setError(response.message || tm("saveFailed"));
         return;
       }
@@ -567,6 +600,13 @@ const AddEditProductModal = ({
     } catch (err) {
       console.error("Save failed:", err);
       const data = err?.response?.data || err;
+      if (data?.error && typeof data.error === "object") {
+        Object.keys(data.error).forEach((key) => {
+          const msgs = data.error[key];
+          const msg = Array.isArray(msgs) ? msgs[0] : msgs;
+          setFormError(key, { type: "server", message: msg });
+        });
+      }
       const errorMsg = getApiErrorMessage(data, tm("saveFailed"));
       setError(errorMsg);
       toast.push(

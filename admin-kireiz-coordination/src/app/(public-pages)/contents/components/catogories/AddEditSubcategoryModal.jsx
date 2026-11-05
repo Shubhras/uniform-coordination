@@ -377,23 +377,23 @@ const AddEditSubcategoryModal = ({
               onDragOver={(e) => e.preventDefault()}
               className="mt-3 border-2 border-dashed rounded-md p-6 text-center text-sm text-[#486284] bg-[#D9D9D933]"
             >
-              Drag & Drop your image file here
+              {tm("dragDropText")}
               <br />
-              or{" "}
+              {tm("orText")}{" "}
               <span
                 className="text-[#1C2C56] underline cursor-pointer"
                 onClick={() => fileRef.current?.click()}
               >
-                click to browse here
+                {tm("clickToBrowse")}
               </span>
               <p className="text-xs mt-2 text-[#64748B]">
-                PNG, JPG, JPEG files
+                {tm("allowedFormats")}
               </p>
               <p className="text-xs mt-1 text-[#64748B]">
-                Maximum dimension 1000×1000px
+                {tm("maxDimension")}
               </p>
               <p className="text-xs mt-1 text-[#64748B]">
-                Maximum file size: 5 MB
+                {tm("maxFileSize")}
               </p>
             </div>
 
@@ -422,7 +422,7 @@ const AddEditSubcategoryModal = ({
           {/* Status */}
           <div>
             <label className="text-base font-medium text-[#1C2C56]">
-              Status
+              {tm("statusLabel")}
             </label>
             <div className="flex items-center gap-3 mt-2">
               <button
@@ -435,7 +435,7 @@ const AddEditSubcategoryModal = ({
                 />
               </button>
               <span className="text-sm text-[#1C2C56]">
-                {active ? "Active" : "Inactive"}
+                {active ? tm("statusActive") : tm("statusInactive")}
               </span>
             </div>
           </div>

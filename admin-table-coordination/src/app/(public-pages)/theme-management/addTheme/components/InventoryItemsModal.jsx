@@ -10,13 +10,27 @@ import { apiGetCategoryList } from "@/services/CategoryService";
 import { apiGetFabricList } from "@/services/FabricService";
 import { useTranslations } from "next-intl";
 
-export default function InventoryItemsModal({ isOpen, onClose, onAdd }) {
+const EMPTY_ARRAY = [];
+
+export default function InventoryItemsModal({
+  isOpen,
+  onClose,
+  onAdd,
+  initialSelected = EMPTY_ARRAY,
+  sectionTitle = "",
+}) {
   const t = useTranslations("themeManagement.addtheme");
   const inventoryT = useTranslations("inventoryManagement.inventoryLists");
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
   const [selected, setSelected] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setSelected(initialSelected || EMPTY_ARRAY);
+    }
+  }, [isOpen]);
 
   const [inventoryData, setInventoryData] = useState([]);
 
@@ -174,10 +188,14 @@ export default function InventoryItemsModal({ isOpen, onClose, onAdd }) {
 
   const handleSelect = (item) => {
     setSelected((prev) => {
-      const exists = prev.some((i) => i.id === item.id);
+      const exists = prev.some(
+        (i) => (i?.product_details?.id || i?.id) === item.id,
+      );
 
       if (exists) {
-        return prev.filter((i) => i.id !== item.id);
+        return prev.filter(
+          (i) => (i?.product_details?.id || i?.id) !== item.id,
+        );
       }
 
       return [...prev, item];
@@ -196,7 +214,7 @@ export default function InventoryItemsModal({ isOpen, onClose, onAdd }) {
             </h2>
 
             <p className="text-sm text-[#8D8178] mt-1">
-              {t("tableSetup")} · {t("selectItems")}
+              {sectionTitle || t("tableSetup")} · {t("selectItems")}
             </p>
           </div>
 
@@ -271,25 +289,25 @@ export default function InventoryItemsModal({ isOpen, onClose, onAdd }) {
               </div>
             ) : inventoryData.length > 0 ? (
               inventoryData.map((item) => {
-                const active = selected.some((i) => i.id === item.id);
+                const active = selected.some(
+                  (i) => (i?.product_details?.id || i?.id) === item.id,
+                );
 
                 return (
                   <div
                     key={item.id}
                     onClick={() => handleSelect(item)}
-                    className={`flex items-center justify-between rounded-2xl border px-4 py-3 cursor-pointer transition ${
-                      active
-                        ? "border-[#C56E42] bg-[#FFF5EF]"
-                        : "border-[#EFE7E1] hover:border-[#D8C1B3]"
-                    }`}
+                    className={`flex items-center justify-between rounded-2xl border px-4 py-3 cursor-pointer transition ${active
+                      ? "border-[#C56E42] bg-[#FFF5EF]"
+                      : "border-[#EFE7E1] hover:border-[#D8C1B3]"
+                      }`}
                   >
                     <div className="flex items-center gap-4">
                       <div
-                        className={`w-5 h-5 rounded-full border flex items-center justify-center ${
-                          active
-                            ? "border-[#A0522D] bg-[#A0522D]"
-                            : "border-gray-300"
-                        }`}
+                        className={`w-5 h-5 rounded-full border flex items-center justify-center ${active
+                          ? "border-[#A0522D] bg-[#A0522D]"
+                          : "border-gray-300"
+                          }`}
                       >
                         {active && (
                           <FiCheckCircle size={12} className="text-white" />

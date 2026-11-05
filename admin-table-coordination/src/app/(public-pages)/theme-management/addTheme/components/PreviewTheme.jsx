@@ -187,9 +187,8 @@ const PreviewTheme = ({ themeData, setThemeData, onBack }) => {
                   key={index}
                   type="button"
                   onClick={() => setActiveImage(index)}
-                  className={`w-2.5 h-2.5 rounded-full transition ${
-                    activeImage === index ? "bg-white w-6" : "bg-white/50"
-                  }`}
+                  className={`w-2.5 h-2.5 rounded-full transition ${activeImage === index ? "bg-white w-6" : "bg-white/50"
+                    }`}
                 />
               ))}
             </div>
@@ -245,7 +244,7 @@ const PreviewTheme = ({ themeData, setThemeData, onBack }) => {
                     </div>
                   ) : (
                     themeData.theme_items[section.key].map((item) => (
-                      <div key={item.id} className="flex items-center gap-3">
+                      <div key={item.id} className="flex items-center gap-3 py-3">
                         <img
                           src={
                             item.ProductImage ||

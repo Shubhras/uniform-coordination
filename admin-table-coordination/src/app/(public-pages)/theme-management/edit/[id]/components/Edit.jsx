@@ -246,29 +246,35 @@ const Edit = () => {
     setCoverImages((prev) => prev.filter((img) => img.id !== id));
   };
 
-  const handleAddItem = (product) => {
+  const handleAddItem = (selectedProducts) => {
+    const productsArray = Array.isArray(selectedProducts)
+      ? selectedProducts
+      : [selectedProducts];
+
     setSections((prev) =>
       prev.map((section) => {
         if (section.id !== selectedSectionId) return section;
 
-        // Duplicate product check
-        const exists = section.items.some(
-          (item) => item.product_details?.id === product.id,
-        );
+        const updatedItems = productsArray.map((product) => {
+          const prodId = product.product_details?.id || product.id;
+          const existingItem = section.items.find(
+            (item) => (item.product_details?.id || item.id) === prodId,
+          );
 
-        if (exists) {
-          return section;
-        }
+          if (existingItem) {
+            return existingItem;
+          }
 
-        const newItem = {
-          id: `new-${product.id}-${Date.now()}`,
-          product_details: product,
-        };
+          return {
+            id: `new-${prodId}-${Date.now()}-${Math.random()}`,
+            product_details: product.product_details || product,
+          };
+        });
 
         return {
           ...section,
-          items: [...section.items, newItem],
-          count: section.items.length + 1,
+          items: updatedItems,
+          count: updatedItems.length,
         };
       }),
     );
@@ -793,6 +799,12 @@ const Edit = () => {
         isOpen={showInventoryModal}
         onClose={() => setShowInventoryModal(false)}
         onAdd={handleAddItem}
+        initialSelected={
+          sections.find((s) => s.id === selectedSectionId)?.items || []
+        }
+        sectionTitle={
+          sections.find((s) => s.id === selectedSectionId)?.title || ""
+        }
       />
     </>
   );
