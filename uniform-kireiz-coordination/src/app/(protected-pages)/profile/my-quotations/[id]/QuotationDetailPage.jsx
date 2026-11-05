@@ -131,36 +131,56 @@ const getRequestedItems = (quotation) => {
         quotation?.line_items
 
     if (Array.isArray(source) && source.length) {
-        return source.map((item, index) => ({
-            id: item?.id || `item-${index}`,
-            uniform_name:
-                item?.uniform_name || item?.name || item?.product_name || 'Medical Scrub Set',
-            category: item?.category || item?.item_type || 'Medical',
-            quantity: item?.quantity || item?.qty || '-',
-        }))
+        return source.map((item, index) => {
+            const sizesObj = item?.sizes || item?.configuration?.sizes || {}
+            const calculatedQty =
+                Object.values(sizesObj).length > 0
+                    ? Object.values(sizesObj).reduce((sum, val) => sum + (Number(val) || 0), 0)
+                    : item?.quantity || item?.qty || '-'
+
+            return {
+                ...item,
+                id: item?.id || item?.product_id || `item-${index}`,
+                uniform_name:
+                    item?.uniform_name || item?.product_name || item?.item_type || item?.name || 'Medical Scrub Set',
+                product_name:
+                    item?.product_name || item?.uniform_name || item?.item_type || item?.name || 'Medical Scrub Set',
+                category:
+                    item?.product_category_name || item?.category || item?.item_type || 'Medical',
+                quantity: calculatedQty,
+            }
+        })
     }
 
     if (
         quotation?.product_name ||
         quotation?.item_type ||
         quotation?.product_category_name ||
-        quotation?.size_quantity
+        quotation?.size_quantity ||
+        quotation?.product_image ||
+        quotation?.sizes ||
+        quotation?.configuration
     ) {
+        const sizesObj = quotation?.sizes || quotation?.configuration?.sizes || {}
+        const calculatedQty =
+            Object.values(sizesObj).length > 0
+                ? Object.values(sizesObj).reduce((sum, val) => sum + (Number(val) || 0), 0)
+                : quotation?.size_quantity || quotation?.quantity || quotation?.qty || '-'
+
         return [
             {
+                ...quotation,
                 id: quotation?.product_id || quotation?.uuids || quotation?.quotation_id || 'item-0',
                 uniform_name:
+                    quotation?.product_name || quotation?.item_type || 'Medical Scrub Set',
+                product_name:
                     quotation?.product_name || quotation?.item_type || 'Medical Scrub Set',
                 category:
                     quotation?.product_category_name ||
                     quotation?.product_subcategory_name ||
                     quotation?.material ||
                     'Medical',
-                quantity:
-                    quotation?.size_quantity ||
-                    quotation?.quantity ||
-                    quotation?.qty ||
-                    '-',
+                quantity: calculatedQty,
             },
         ]
     }
@@ -239,6 +259,7 @@ const normalizeQuotation = (quotation) => {
     }
 
     return {
+        ...quotation,
         id: quotation?.id || quotation?.quotation_id || quotation?.quotationNo || '',
         quotationId:
             quotation?.uuid ||

@@ -21,6 +21,9 @@ import {
     FiCalendar,
     FiDollarSign,
     FiCopy,
+    FiPackage,
+    FiLayers,
+    FiTag,
 } from 'react-icons/fi'
 import { formatDate } from '@/utils/dateFormater'
 import ComposeEmailModal from '@/components/shared/ComposeEmailModal'
@@ -184,9 +187,8 @@ const StatusProgressionStepper = ({ quotation }) => {
                                 {/* Connecting line for tablet & desktop */}
                                 {idx < stages.length - 1 && (
                                     <div
-                                        className={`hidden sm:block absolute top-5 left-[50%] w-full h-[3px] -z-0 transition-colors ${
-                                            idx < currentStageIndex ? 'bg-[#003560]' : 'bg-[#E2E8F0]'
-                                        }`}
+                                        className={`hidden sm:block absolute top-5 left-[50%] w-full h-[3px] -z-0 transition-colors ${idx < currentStageIndex ? 'bg-[#003560]' : 'bg-[#E2E8F0]'
+                                            }`}
                                     />
                                 )}
 
@@ -214,13 +216,12 @@ const StatusProgressionStepper = ({ quotation }) => {
                                 {/* Current Status Tag */}
                                 {isCurrent && (
                                     <span
-                                        className={`mt-1.5 inline-block rounded-full px-2 py-0.5 text-[10px] font-medium ${
-                                            isDeclined
-                                                ? 'bg-[#FEF2F2] text-[#B91C1C]'
-                                                : isAgreed
+                                        className={`mt-1.5 inline-block rounded-full px-2 py-0.5 text-[10px] font-medium ${isDeclined
+                                            ? 'bg-[#FEF2F2] text-[#B91C1C]'
+                                            : isAgreed
                                                 ? 'bg-[#ECFDF5] text-[#047857]'
                                                 : 'bg-[#EFF6FF] text-[#1D4ED8]'
-                                        }`}
+                                            }`}
                                     >
                                         Active
                                     </span>
@@ -486,8 +487,8 @@ const AttachmentsSection = ({
                                     onView
                                         ? onView(doc)
                                         : doc.file_url
-                                        ? window.open(doc.file_url, '_blank')
-                                        : onDownload(doc)
+                                            ? window.open(doc.file_url, '_blank')
+                                            : onDownload(doc)
                                 }
                                 className="inline-flex items-center gap-1.5 rounded-lg border border-[#D1D5DB] bg-white px-3 py-1.5 text-xs font-medium text-[#374151] hover:bg-[#F9FAFB] hover:text-[#111827] transition-colors"
                             >
@@ -634,56 +635,302 @@ const QuotationDetailContent = ({
                 </section>
             </div>
 
-            {/* Requested Items Table */}
-            <section className="overflow-hidden rounded-2xl border border-[#EDF2F7] bg-white shadow-xs">
-                <div className="flex items-center justify-between border-b border-[#EDF2F7] px-4 py-4 md:px-5">
-                    <h3 className="text-[16px] font-semibold text-[#111827]">Requested Items & Sizing</h3>
-                    {quotation.attachments?.length > 0 && (
-                        <button
-                            type="button"
-                            className="inline-flex items-center gap-2 text-sm font-semibold text-[#003560] hover:underline disabled:opacity-70"
-                            onClick={() => onDownload(quotation.attachments[0])}
-                            disabled={downloadLoading}
-                        >
-                            {downloadLoading ? <Spinner size={15} /> : <FiDownload size={15} />}
-                            <span>Download Quotation PDF</span>
-                        </button>
-                    )}
-                </div>
+            {/* Requested Items & Sizing (Card Layout, No Table) */}
+            {(() => {
+                const itemsList =
+                    Array.isArray(quotation?.items) && quotation.items.length > 0
+                        ? quotation.items
+                        : quotation?.product_name || quotation?.item_type
+                            ? [quotation]
+                            : []
 
-                <div className="overflow-x-auto">
-                    <table className="min-w-full">
-                        <thead className="bg-[#FBFDFF]">
-                            <tr className="border-b border-[#E9EEF5]">
-                                <th className="px-4 py-3.5 text-left text-[11px] font-semibold uppercase tracking-[0.03em] text-[#003560]">
-                                    Uniform / Item Name
-                                </th>
-                                <th className="px-4 py-3.5 text-left text-[11px] font-semibold uppercase tracking-[0.03em] text-[#003560]">
-                                    Category
-                                </th>
-                                <th className="px-4 py-3.5 text-left text-[11px] font-semibold uppercase tracking-[0.03em] text-[#003560]">
-                                    Quantity / Sizing
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {quotation.items.map((item) => (
-                                <tr key={item.id} className="border-b border-[#EEF2F7] last:border-b-0">
-                                    <td className="px-4 py-4 text-sm font-medium text-[#111827]">
-                                        {item.uniform_name}
-                                    </td>
-                                    <td className="px-4 py-4">
-                                        <span className="inline-flex rounded-full bg-[#EEF4FF] px-2.5 py-1 text-[11px] font-medium text-[#003560]">
-                                            {item.category}
-                                        </span>
-                                    </td>
-                                    <td className="px-4 py-4 text-sm text-[#4B5563]">{item.quantity}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </section>
+                return (
+                    <section className="overflow-hidden rounded-2xl border border-[#EDF2F7] bg-white shadow-xs">
+                        <div className="flex items-center justify-between border-b border-[#EDF2F7] px-4 py-4 md:px-5">
+                            <div className="flex items-center gap-2">
+                                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#EEF4FF] text-[#003560]">
+                                    <FiPackage size={16} />
+                                </span>
+                                <h3 className="text-[16px] font-semibold text-[#111827]">
+                                    Requested Items & Customization Details
+                                </h3>
+                            </div>
+                            <span className="rounded-full bg-[#EEF4FF] px-2.5 py-0.5 text-xs font-semibold text-[#003560]">
+                                {itemsList.length} {itemsList.length === 1 ? 'Item' : 'Items'}
+                            </span>
+                        </div>
+
+                        {itemsList.length === 0 ? (
+                            <div className="p-8 text-center text-sm text-[#64748B]">
+                                No requested items found for this quotation.
+                            </div>
+                        ) : (
+                            <div className="space-y-4 p-4 md:p-6">
+                                {itemsList.map((item, index) => {
+                                    const productName =
+                                        item.product_name ||
+                                        item.uniform_name ||
+                                        item.item_type ||
+                                        quotation?.product_name ||
+                                        quotation?.item_type ||
+                                        'Uniform Item'
+                                    const itemType = item.item_type || quotation?.item_type || ''
+                                    const productImage =
+                                        item.product_image ||
+                                        item.image ||
+                                        quotation?.product_image ||
+                                        ''
+                                    const productType =
+                                        item.product_type || quotation?.product_type || 'uniform'
+                                    const categoryName =
+                                        item.product_category_name ||
+                                        item.category ||
+                                        quotation?.product_category_name ||
+                                        ''
+                                    const subcategoryName =
+                                        item.product_subcategory_name ||
+                                        quotation?.product_subcategory_name ||
+                                        ''
+                                    const material = item.material || quotation?.material || ''
+                                    const fabric =
+                                        item.fabric || quotation?.fabric || material || ''
+                                    const part =
+                                        item.part ||
+                                        item.configuration?.part ||
+                                        quotation?.part ||
+                                        quotation?.configuration?.part ||
+                                        ''
+                                    const colorsObj =
+                                        item.colors ||
+                                        item.configuration?.colors ||
+                                        quotation?.colors ||
+                                        quotation?.configuration?.colors ||
+                                        {}
+                                    const colorKeysObj =
+                                        item.configuration?.color_keys ||
+                                        quotation?.configuration?.color_keys ||
+                                        {}
+                                    const sizesObj =
+                                        item.sizes ||
+                                        item.configuration?.sizes ||
+                                        quotation?.sizes ||
+                                        quotation?.configuration?.sizes ||
+                                        {}
+                                    const optionsObj =
+                                        item.options ||
+                                        item.configuration?.options ||
+                                        quotation?.options ||
+                                        quotation?.configuration?.options ||
+                                        {}
+                                    const productId = item.product_id || quotation?.product_id || ''
+
+                                    const totalQty =
+                                        Object.values(sizesObj).length > 0
+                                            ? Object.values(sizesObj).reduce(
+                                                (sum, q) => sum + (Number(q) || 0),
+                                                0,
+                                            )
+                                            : item.quantity ||
+                                            item.qty ||
+                                            quotation?.size_quantity ||
+                                            quotation?.quantity ||
+                                            '-'
+
+                                    return (
+                                        <div
+                                            key={item.id || productId || `item-${index}`}
+                                            className="rounded-xl border border-[#E2E8F0] bg-[#F8FAFC]/60 p-4 transition-all hover:border-[#CBD5E1] hover:bg-white hover:shadow-xs md:p-5"
+                                        >
+                                            {/* Top Row: Product Image + Details + Total Quantity */}
+                                            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                                                <div className="flex flex-col items-start gap-4 sm:flex-row">
+                                                    {productImage ? (
+                                                        <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl border border-[#E2E8F0] bg-white p-2 shadow-xs md:h-28 md:w-28">
+                                                            <img
+                                                                src={productImage}
+                                                                alt={productName}
+                                                                className="h-full w-full object-contain"
+                                                                onError={(e) => {
+                                                                    e.currentTarget.style.display = 'none'
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    ) : null}
+
+                                                    <div>
+                                                        <div className="flex flex-wrap items-center gap-2">
+                                                            <h4 className="text-base font-bold text-[#111827] md:text-lg">
+                                                                {productName}
+                                                            </h4>
+
+                                                        </div>
+
+                                                        {itemType && itemType !== productName ? (
+                                                            <p className="mt-0.5 text-xs text-[#64748B]">
+                                                                Type:{' '}
+                                                                <span className="font-medium text-[#334155]">
+                                                                    {itemType}
+                                                                </span>
+                                                            </p>
+                                                        ) : null}
+
+                                                        {/* Categories & Product ID */}
+                                                        <div className="mt-2.5 flex flex-wrap items-center gap-2">
+                                                            {categoryName ? (
+                                                                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E0F2FE] px-3 py-1 text-xs font-medium text-[#0369A1]">
+                                                                    <span className="h-1.5 w-1.5 rounded-full bg-[#0284C7]" />
+                                                                    {categoryName}
+                                                                </span>
+                                                            ) : null}
+                                                            {subcategoryName ? (
+                                                                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F1F5F9] px-2.5 py-1 text-xs font-medium text-[#475569]">
+                                                                    {subcategoryName}
+                                                                </span>
+                                                            ) : null}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Total Quantity Card */}
+                                                <div className="shrink-0 self-start rounded-xl border border-[#E2E8F0] bg-white px-4 py-2.5 text-left shadow-xs sm:self-auto sm:text-right">
+                                                    <p className="text-[10px] font-semibold uppercase tracking-wider text-[#64748B]">
+                                                        Total Quantity
+                                                    </p>
+                                                    <p className="text-lg font-bold text-[#003560]">
+                                                        {totalQty}{' '}
+                                                        <span className="text-xs font-normal text-[#64748B]">
+                                                            pcs
+                                                        </span>
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            {/* Divider */}
+                                            <div className="my-4 border-t border-[#E2E8F0]" />
+
+                                            {/* Specifications Grid */}
+                                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:gap-4 lg:grid-cols-4">
+                                                {/* Fabric & Material */}
+                                                <div className="rounded-lg border border-[#EDF2F7] bg-white p-3 shadow-xs">
+                                                    <p className="text-[11px] font-semibold uppercase tracking-wider text-[#64748B]">
+                                                        Fabric & Material
+                                                    </p>
+                                                    <div className="mt-1.5 space-y-0.5">
+                                                        <p className="text-sm font-semibold capitalize text-[#111827]">
+                                                            {fabric || material || 'Standard'}
+                                                        </p>
+                                                        {material && fabric && material !== fabric ? (
+                                                            <p className="text-xs text-[#64748B]">
+                                                                Material:{' '}
+                                                                <span className="font-medium capitalize text-[#334155]">
+                                                                    {material}
+                                                                </span>
+                                                            </p>
+                                                        ) : null}
+                                                    </div>
+                                                </div>
+
+                                                {/* Part / Cut */}
+                                                <div className="rounded-lg border border-[#EDF2F7] bg-white p-3 shadow-xs">
+                                                    <p className="text-[11px] font-semibold uppercase tracking-wider text-[#64748B]">
+                                                        Part / Cut
+                                                    </p>
+                                                    <div className="mt-1.5">
+                                                        <span className="inline-flex rounded-md bg-[#F1F5F9] px-2.5 py-1 text-xs font-semibold uppercase text-[#1E293B]">
+                                                            {part ? `Part: ${part.toUpperCase()}` : 'Standard'}
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                {/* Colors */}
+                                                <div className="rounded-lg border border-[#EDF2F7] bg-white p-3 shadow-xs">
+                                                    <p className="text-[11px] font-semibold uppercase tracking-wider text-[#64748B]">
+                                                        Selected Colors
+                                                    </p>
+                                                    <div className="mt-1.5 flex flex-wrap gap-2">
+                                                        {Object.keys(colorsObj).length > 0 ? (
+                                                            Object.entries(colorsObj).map(([colorKey, colorHex]) => (
+                                                                <div
+                                                                    key={colorKey}
+                                                                    className="inline-flex items-center gap-1.5 rounded-full border border-[#E2E8F0] bg-[#F8FAFC] px-2.5 py-1 text-xs"
+                                                                >
+                                                                    <span
+                                                                        className="h-3.5 w-3.5 shrink-0 rounded-full border border-black/15 shadow-xs"
+                                                                        style={{ backgroundColor: colorHex }}
+                                                                    />
+                                                                    <span className="font-semibold capitalize text-[#334155]">
+                                                                        {colorKey}:
+                                                                    </span>
+                                                                    <span className="font-mono text-[11px] text-[#64748B]">
+                                                                        {colorHex}
+                                                                    </span>
+                                                                    {colorKeysObj[colorKey] ? (
+                                                                        <span className="text-[10px] text-[#94A3B8]">
+                                                                            ({colorKeysObj[colorKey]})
+                                                                        </span>
+                                                                    ) : null}
+                                                                </div>
+                                                            ))
+                                                        ) : (
+                                                            <span className="text-xs text-[#94A3B8]">Default</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                {/* Sizes Breakdown */}
+                                                <div className="rounded-lg border border-[#EDF2F7] bg-white p-3 shadow-xs">
+                                                    <p className="text-[11px] font-semibold uppercase tracking-wider text-[#64748B]">
+                                                        Sizes Breakdown
+                                                    </p>
+                                                    <div className="mt-1.5 flex flex-wrap gap-1.5">
+                                                        {Object.keys(sizesObj).length > 0 ? (
+                                                            Object.entries(sizesObj).map(([sizeName, qty]) => (
+                                                                <span
+                                                                    key={sizeName}
+                                                                    className="inline-flex items-center gap-1 rounded-md border border-[#DCE7F8] bg-[#EEF4FF] px-2.5 py-1 text-xs font-semibold text-[#003560]"
+                                                                >
+                                                                    <span>Size {sizeName}:</span>
+                                                                    <span className="font-bold text-[#003560]">
+                                                                        {qty} pcs
+                                                                    </span>
+                                                                </span>
+                                                            ))
+                                                        ) : (
+                                                            <span className="text-xs text-[#94A3B8]">
+                                                                {totalQty} pcs
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Additional Options (if present) */}
+                                            {optionsObj && Object.keys(optionsObj).length > 0 ? (
+                                                <div className="mt-3 rounded-lg border border-[#EDF2F7] bg-white p-3">
+                                                    <p className="text-[11px] font-semibold uppercase tracking-wider text-[#64748B]">
+                                                        Options & Parameters
+                                                    </p>
+                                                    <div className="mt-1 flex flex-wrap gap-2">
+                                                        {Object.entries(optionsObj).map(([optKey, optVal]) => (
+                                                            <span
+                                                                key={optKey}
+                                                                className="inline-flex items-center gap-1 rounded bg-[#F1F5F9] px-2 py-0.5 text-xs text-[#334155]"
+                                                            >
+                                                                <span className="font-medium capitalize">{optKey}:</span>
+                                                                <span>{String(optVal)}</span>
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            ) : null}
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        )}
+                    </section>
+                )
+            })()}
         </div>
     )
 }

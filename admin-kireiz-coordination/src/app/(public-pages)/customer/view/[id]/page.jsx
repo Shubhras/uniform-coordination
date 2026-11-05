@@ -9,7 +9,9 @@ import { apiQuotationDetails } from "@/services/B2BAccountService";
 import Spinner from "@/components/ui/Spinner";
 
 const ViewQuotation = () => {
-  const t = useTranslations("customerSalesRep.quotationHistory.viewQuotationPage");
+  const t = useTranslations(
+    "customerSalesRep.quotationHistory.viewQuotationPage",
+  );
   const router = useRouter();
   const { id } = useParams();
   const { session } = useCurrentSession();
@@ -77,7 +79,9 @@ const ViewQuotation = () => {
         <>
           {/* Company Information */}
           <div className="bg-white border border-gray-200 rounded-2xl p-4 mb-6">
-            <h3 className="text-[16px] font-semibold mb-5">{t("companyInfoSection")}</h3>
+            <h3 className="text-[16px] font-semibold mb-5">
+              {t("companyInfoSection")}
+            </h3>
 
             <div className="grid lg:grid-cols-3 gap-8">
               <div>
@@ -87,7 +91,9 @@ const ViewQuotation = () => {
                   </div>
 
                   <div>
-                    <p className="text-[14px] text-[#374151]">{t("companyLabel")}</p>
+                    <p className="text-[14px] text-[#374151]">
+                      {t("companyLabel")}
+                    </p>
 
                     <h4 className="font-semibold mt-1">
                       {quotation?.company_name || "-"}
@@ -96,7 +102,9 @@ const ViewQuotation = () => {
                 </div>
 
                 <div className="mt-6">
-                  <p className="text-[14px] text-[#374151]">{t("phoneNumberLabel")}</p>
+                  <p className="text-[14px] text-[#374151]">
+                    {t("phoneNumberLabel")}
+                  </p>
 
                   <p className="mt-1">{quotation?.phone_number || "-"}</p>
                 </div>
@@ -104,7 +112,9 @@ const ViewQuotation = () => {
 
               <div>
                 <div>
-                  <p className="text-[14px] text-[#374151]">{t("contactPersonLabel")}</p>
+                  <p className="text-[14px] text-[#374151]">
+                    {t("contactPersonLabel")}
+                  </p>
 
                   <h4 className="font-semibold mt-1">
                     {quotation?.contact_person || "-"}
@@ -112,7 +122,9 @@ const ViewQuotation = () => {
                 </div>
 
                 <div className="mt-6">
-                  <p className="text-[14px] text-[#374151]">{t("companyAddressLabel")}</p>
+                  <p className="text-[14px] text-[#374151]">
+                    {t("companyAddressLabel")}
+                  </p>
 
                   <p className="mt-1 leading-6">
                     Sakura Grand Hotel Co.
@@ -128,7 +140,9 @@ const ViewQuotation = () => {
 
               <div>
                 <div>
-                  <p className="text-[14px] text-[#374151]">{t("businessEmailLabel")}</p>
+                  <p className="text-[14px] text-[#374151]">
+                    {t("businessEmailLabel")}
+                  </p>
 
                   <p className="mt-1">{quotation?.email || "-"}</p>
                 </div>
@@ -165,27 +179,39 @@ const ViewQuotation = () => {
 
             <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-6">
               <div>
-                <p className="text-[14px] text-[#374151]">{t("quoteIdLabel")}</p>
-                <p className="mt-1 font-medium">{quotation?.quotation_id || "-"}</p>
+                <p className="text-[14px] text-[#374151]">
+                  {t("quoteIdLabel")}
+                </p>
+                <p className="mt-1 font-medium">
+                  {quotation?.quotation_id || "-"}
+                </p>
               </div>
 
               <div>
-                <p className="text-[14px] text-[#374151]">{t("itemTypeLabel")}</p>
+                <p className="text-[14px] text-[#374151]">
+                  {t("itemTypeLabel")}
+                </p>
                 <p className="mt-1">{quotation?.item_type || "-"}</p>
               </div>
 
               <div>
-                <p className="text-[14px] text-[#374151]">{t("materialLabel")}</p>
+                <p className="text-[14px] text-[#374151]">
+                  {t("materialLabel")}
+                </p>
                 <p className="mt-1">{quotation?.material || "-"}</p>
               </div>
 
               <div>
-                <p className="text-[14px] text-[#374151]">{t("sizeQuantityLabel")}</p>
+                <p className="text-[14px] text-[#374151]">
+                  {t("sizeQuantityLabel")}
+                </p>
                 <p className="mt-1">{quotation?.size_quantity || "-"}</p>
               </div>
 
               <div>
-                <p className="text-[14px] text-[#374151]">{t("deliveryDateLabel")}</p>
+                <p className="text-[14px] text-[#374151]">
+                  {t("deliveryDateLabel")}
+                </p>
                 <p className="mt-1">
                   {quotation?.delivery_date
                     ? new Date(quotation.delivery_date).toLocaleDateString()
@@ -202,12 +228,16 @@ const ViewQuotation = () => {
                     : "bg-red-100 text-red-700"
                     }`}
                 >
-                  {quotation?.isActive ? t("activeStatus") : t("inactiveStatus")}
+                  {quotation?.isActive
+                    ? t("activeStatus")
+                    : t("inactiveStatus")}
                 </span>
               </div>
 
               <div>
-                <p className="text-[14px] text-[#374151]">{t("termsAcceptedLabel")}</p>
+                <p className="text-[14px] text-[#374151]">
+                  {t("termsAcceptedLabel")}
+                </p>
 
                 <span
                   className={`inline-flex mt-2 px-3 py-1 rounded-full text-xs font-semibold ${quotation?.agreed_to_terms
@@ -220,7 +250,9 @@ const ViewQuotation = () => {
               </div>
 
               <div>
-                <p className="text-[14px] text-[#374151]">{t("createdOnLabel")}</p>
+                <p className="text-[14px] text-[#374151]">
+                  {t("createdOnLabel")}
+                </p>
                 <p className="mt-1">
                   {quotation?.created_at
                     ? new Date(quotation.created_at).toLocaleString()
@@ -229,7 +261,9 @@ const ViewQuotation = () => {
               </div>
 
               <div>
-                <p className="text-[14px] text-[#374151]">{t("updatedOnLabel")}</p>
+                <p className="text-[14px] text-[#374151]">
+                  {t("updatedOnLabel")}
+                </p>
                 <p className="mt-1">
                   {quotation?.updated_at
                     ? new Date(quotation.updated_at).toLocaleString()
@@ -238,6 +272,164 @@ const ViewQuotation = () => {
               </div>
             </div>
           </div>
+
+          {/* Fabric & Color Details */}
+          <div className="bg-white border border-gray-200 rounded-2xl p-4 mb-6">
+            <h3 className="text-[16px] font-semibold mb-5">
+              {t("fabricAndColorSection")}
+            </h3>
+
+            <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-6">
+              {/* Product Info (if available) */}
+              {quotation?.product_name && (
+                <div className="flex items-center gap-4 md:col-span-2 lg:col-span-3 pb-4 border-b border-gray-100">
+                  {quotation?.product_image && (
+                    <img
+                      src={quotation.product_image}
+                      alt={quotation.product_name}
+                      className="w-16 h-16 object-cover rounded-xl border border-gray-200"
+                    />
+                  )}
+                  <div>
+
+                    <h4 className="font-semibold text-base text-[#1C2C56] mt-0.5">
+                      {quotation.product_name}
+                    </h4>
+                    {(quotation?.product_category_name ||
+                      quotation?.product_subcategory_name) && (
+                        <p className="text-xs text-[#64748B] mt-0.5">
+                          {[
+                            quotation.product_category_name,
+                            quotation.product_subcategory_name,
+                          ]
+                            .filter(Boolean)
+                            .join(" • ")}
+                        </p>
+                      )}
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <p className="text-[14px] text-[#374151]">{t("fabricLabel")}</p>
+                <p className="mt-1 font-medium capitalize">
+                  {quotation?.fabric || quotation?.material || "-"}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-[14px] text-[#374151]">{t("partLabel")}</p>
+                <p className="mt-1 font-medium">{quotation?.part || "-"}</p>
+              </div>
+
+              <div>
+                <p className="text-[14px] text-[#374151]">
+                  {t("sizeQuantityLabel")}
+                </p>
+                <p className="mt-1 font-medium">
+                  {quotation?.size_quantity ||
+                    (quotation?.sizes
+                      ? Object.entries(quotation.sizes)
+                        .map(([s, q]) => `${s}: ${q}`)
+                        .join(", ")
+                      : "-")}
+                </p>
+              </div>
+
+              {/* Colors */}
+              <div className="md:col-span-2 lg:col-span-3">
+                <p className="text-[14px] text-[#374151] mb-2">
+                  {t("colorsLabel")}
+                </p>
+                {quotation?.colors &&
+                  typeof quotation.colors === "object" &&
+                  Object.keys(quotation.colors).length > 0 ? (
+                  <div className="flex flex-wrap gap-3">
+                    {Object.entries(quotation.colors).map(
+                      ([partKey, colorVal]) => (
+                        <div
+                          key={partKey}
+                          className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl border border-gray-200 bg-[#F9FAFB]"
+                        >
+                          <span
+                            className="w-4 h-4 rounded-full border border-gray-300 shadow-sm shrink-0"
+                            style={{ backgroundColor: colorVal || "#ccc" }}
+                          />
+                          <span className="text-xs font-semibold capitalize text-[#1C2C56]">
+                            {partKey}:
+                          </span>
+                          <span className="text-xs font-mono text-gray-500">
+                            {colorVal || "-"}
+                          </span>
+                        </div>
+                      ),
+                    )}
+                  </div>
+                ) : (
+                  <p className="mt-1 font-medium text-gray-500">-</p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Price Details */}
+          <div className="bg-white border border-gray-200 rounded-2xl p-4 mb-6">
+            <h3 className="text-[16px] font-semibold mb-5">
+              {t("priceDetailsSection")}
+            </h3>
+
+            <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-6">
+              <div>
+                <p className="text-[14px] text-[#374151]">
+                  {t("subtotalLabel")}
+                </p>
+                <p className="mt-1 text-lg font-semibold text-[#1C2C56]">
+                  {quotation?.subtotal
+                    ? `$${Number(quotation.subtotal).toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}`
+                    : "-"}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-[14px] text-[#374151]">
+                  {t("discountPercentLabel")}
+                </p>
+                <p className="mt-1 text-lg font-semibold text-green-600">
+                  {quotation?.discount_percent
+                    ? `${Number(quotation.discount_percent).toFixed(2)}%`
+                    : "0.00%"}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-[14px] text-[#374151]">{t("totalLabel")}</p>
+                <p className="mt-1 text-xl font-bold text-[#1C4FA8]">
+                  {quotation?.total
+                    ? `$${Number(quotation.total).toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}`
+                    : "-"}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Additional Notes */}
+          {quotation?.additional_note && (
+            <div className="bg-white border border-gray-200 rounded-2xl p-4 mb-6">
+              <h3 className="text-[16px] font-semibold mb-3">
+                {t("additionalNoteSection")}
+              </h3>
+              <p className="text-sm text-gray-700 whitespace-pre-line leading-relaxed">
+                {quotation.additional_note}
+              </p>
+            </div>
+          )}
+
         </>
       )}
     </div>

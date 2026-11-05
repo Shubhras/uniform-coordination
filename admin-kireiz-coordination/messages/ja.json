@@ -1646,6 +1646,18 @@
         "no": "いいえ",
         "createdOnLabel": "作成日時",
         "updatedOnLabel": "更新日時",
+        "fabricAndColorSection": "生地・カラー詳細",
+        "productNameLabel": "商品",
+        "fabricLabel": "生地",
+        "partLabel": "パーツ",
+        "colorsLabel": "カラー",
+        "priceDetailsSection": "価格詳細",
+        "subtotalLabel": "小計",
+        "discountPercentLabel": "割引",
+        "totalLabel": "合計",
+        "validUntilLabel": "有効期限",
+        "salesRepresentativeLabel": "営業担当者",
+        "additionalNoteSection": "備考",
         "loading": "見積詳細を読み込み中...",
         "notFound": "見積詳細が見つかりません"
       }

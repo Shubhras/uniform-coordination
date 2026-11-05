@@ -416,7 +416,8 @@ const Uniform3DmoduleDegisn = () => {
         if (product.type === "bottom") setPosition("bottom");
         else setPosition("top");
 
-        const categoryId = product.category?.id;
+        const queryCategoryId = searchParams.get('category_id') || searchParams.get('category');
+        const categoryId = queryCategoryId || product.category?.id;
         const categoryName = product.category?.categoryName || "";
 
         // Fetch category-specific options, admin simulation structure for all categories, and global options
@@ -516,7 +517,7 @@ const Uniform3DmoduleDegisn = () => {
     return () => {
       cancelled = true;
     };
-  }, [id]);
+  }, [id, searchParams]);
 
   // Color, Fabric, Size and Parts come from admin data
   const panels = (() => {
@@ -605,7 +606,17 @@ const Uniform3DmoduleDegisn = () => {
 
     // Admin-configured category: show in admin-specified order!
     if (fromAdmin.length) {
-      return [...new Set(fromAdmin)].filter((k) => panels[k]);
+      const keys = [...new Set(fromAdmin)].filter((k) => panels[k]);
+      // Color is always shown by default
+      if (!keys.includes("color") && panels.color) {
+        const partsIdx = keys.indexOf("parts");
+        if (partsIdx !== -1) {
+          keys.splice(partsIdx + 1, 0, "color");
+        } else {
+          keys.unshift("color");
+        }
+      }
+      return keys;
     }
 
 
@@ -846,23 +857,17 @@ const Uniform3DmoduleDegisn = () => {
 
   return (
     <section className="w-full bg-white flex flex-col px-4 sm:px-6 py-4 gap-6 mt-11">
-      {/* Shows the applied template style and anything it couldn't preset. */}
+      {/* Shows the applied template style */}
       {template && (
-        <div className="w-full border border-[#C7D7F5] bg-[#F5F8FF] rounded-xl px-4 py-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+        <div className="w-full border border-[#C7D7F5] bg-[#F5F8FF] rounded-xl px-4 py-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
           <span className="text-sm font-medium text-[#1C2C56]">
             Using template: {template.templateName}
           </span>
 
-          {presetSkipped.length > 0 && (
-            <span className="text-xs text-amber-700">
-              Not available on this uniform: {presetSkipped.join(", ")}
-            </span>
-          )}
-
           <button
             type="button"
             onClick={() => router.push(`/dashboards/uniform-3d-design/${id}`)}
-            className="ml-auto text-xs text-[#1C4FA8] underline"
+            className="text-xs text-[#1C4FA8] underline"
           >
             Clear template
           </button>
@@ -907,13 +912,6 @@ const Uniform3DmoduleDegisn = () => {
             {!simLoading && railKeys.length === 0 && (
               <p className="w-full md:w-[70px] text-[10px] leading-tight text-gray-500 text-center md:text-left">
                 No {position} options enabled for this category.
-              </p>
-            )}
-
-            {/* Admin-enabled attributes with no matching tool — shown, not dropped silently. */}
-            {!simLoading && unsupportedAttributes.length > 0 && (
-              <p className="w-full md:w-[70px] text-[9px] leading-tight text-amber-700 text-center md:text-left">
-                No tool yet: {unsupportedAttributes.join(", ")}
               </p>
             )}
           </div>

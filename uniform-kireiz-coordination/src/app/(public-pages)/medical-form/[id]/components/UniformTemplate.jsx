@@ -105,15 +105,11 @@ const UniformTemplate = ({ categoryName: propCategoryName = "" }) => {
     const showArrows = templates.length > cardsPerView;
 
     /**
-     * Applies the template: the shopper next picks which uniform in this category to put
-     * the style on. A template is a style, not a garment, so it does not name a product
-     * itself — every product in the category can carry it.
+     * Navigates to 3D uniform design page 8 with the template's category_id and template ID.
      */
     const useTemplate = (item) => {
-        // router.push(
-        //     `/dashboards/uniform-3d-design?category=${categoryId}&template=${item.id}`,
-        // );
-        router.push(`/dashboards/uniform-3d-design`,);
+        const catId = item?.category || 11;
+        router.push(`/dashboards/uniform-3d-design/8?category_id=${catId}&template=${item.id}`);
     };
 
     const displayCategoryName = categoryName || propCategoryName || "Medical Uniform";

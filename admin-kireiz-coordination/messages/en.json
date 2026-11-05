@@ -1650,6 +1650,18 @@
         "no": "No",
         "createdOnLabel": "Created On",
         "updatedOnLabel": "Updated On",
+        "fabricAndColorSection": "Fabric & Color Details",
+        "productNameLabel": "Product",
+        "fabricLabel": "Fabric",
+        "partLabel": "Part",
+        "colorsLabel": "Colors",
+        "priceDetailsSection": "Price Details",
+        "subtotalLabel": "Subtotal",
+        "discountPercentLabel": "Discount",
+        "totalLabel": "Total",
+        "validUntilLabel": "Valid Until",
+        "salesRepresentativeLabel": "Sales Representative",
+        "additionalNoteSection": "Additional Note",
         "loading": "Loading quotation details...",
         "notFound": "Quotation details not found"
       }
