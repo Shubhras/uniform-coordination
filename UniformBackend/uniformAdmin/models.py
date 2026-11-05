@@ -248,6 +248,12 @@ class Fabric(models.Model):
     pricePerUnit = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     category = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True, blank=True, related_name="fabric_category")
     subcategory = models.ForeignKey('SubCategory', on_delete=models.SET_NULL, null=True, blank=True, related_name="fabric_subcategory")
+    functional_type = models.CharField(max_length=100, blank=True, null=True, default='')
+    weave = models.CharField(max_length=50, blank=True, null=True, default='plain')
+    composition = models.CharField(max_length=150, blank=True, null=True, default='')
+    weight = models.CharField(max_length=50, blank=True, null=True, default='')
+    care_instructions = models.CharField(max_length=255, blank=True, null=True, default='')
+    texture_image = models.ImageField(upload_to='fabric_textures/', blank=True, null=True)
     isActive = models.BooleanField(default=True)
     isDeleted = models.BooleanField(default=False)    
     created_at = models.DateTimeField(auto_now_add=True)
@@ -263,6 +269,22 @@ class Parts(models.Model):
         ('uniform', 'Uniform'),
         ('table', 'Table'),
     ]
+
+    PART_COMPONENT_TYPE_CHOICES = [
+        ('collar', 'Collar'),
+        ('sleeve', 'Sleeve'),
+        ('zipper', 'Zipper'),
+        ('cuff', 'Cuff'),
+        ('waist', 'Waist'),
+        ('hem', 'Hem'),
+        ('inner_mesh', 'Inner Mesh'),
+        ('cap', 'Cap'),
+        ('apron', 'Apron'),
+        ('pocket', 'Pocket'),
+        ('pant', 'Pant'),
+        ('top', 'Top'),
+        ('other', 'Other'),
+    ]
     
     # partName = models.CharField(max_length=150, unique=True)
     partName = models.CharField(max_length=150)
@@ -270,6 +292,13 @@ class Parts(models.Model):
     category = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True, blank=True, related_name="parts_category")
     subcategory = models.ForeignKey('SubCategory', on_delete=models.SET_NULL, null=True, blank=True, related_name="parts_subcategory")
     partType = models.CharField(max_length=20,choices=PART_TYPE_CHOICES,default='uniform')
+    part_type = models.CharField(
+        max_length=50,
+        choices=PART_COMPONENT_TYPE_CHOICES,
+        blank=True,
+        null=True,
+        default=''
+    )
     fabric = models.ForeignKey(Fabric, on_delete=models.CASCADE)
     pricePerUnit = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     usageTemmpCount = models.IntegerField(default=0)

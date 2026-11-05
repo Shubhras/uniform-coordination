@@ -100,9 +100,13 @@ class PartsDuplicateView(APIView):
                 category=original.category,
                 subcategory=original.subcategory,
                 partType=original.partType,
+                part_type=original.part_type,
                 fabric=original.fabric,
                 theme=original.theme,
                 zIndex=original.zIndex,
+                offsetX=original.offsetX,
+                offsetY=original.offsetY,
+                pricePerUnit=original.pricePerUnit,
                 isActive=True,
                 isDeleted=False,
             )
@@ -133,6 +137,7 @@ class PartsDuplicateView(APIView):
                     "category": duplicate.category_id,
                     "subcategory": duplicate.subcategory_id,
                     "partType": duplicate.partType,
+                    "part_type": duplicate.part_type,
                     "fabric": duplicate.fabric_id,
                     "theme": duplicate.theme_id,
                     "zIndex": duplicate.zIndex,
@@ -150,13 +155,25 @@ class PartsDuplicateView(APIView):
 @extend_schema(
     tags=["Parts"],
     summary="List all Parts API",
-    description="Public API to fetch paginated list of parts with optional search.",
+    description="Public API to fetch paginated list of parts with optional search and filters.",
     parameters=[
         OpenApiParameter(
             name="search",
-            description="Search by part name, category, or fabric name",
+            description="Search by part name, part type, category, or fabric name",
             required=False,
             type=str,
+        ),
+        OpenApiParameter(
+            name="part_type",
+            description="Filter by part component type (e.g. collar, sleeve, zipper, cuff, waist, hem, inner_mesh, cap)",
+            required=False,
+            type=str,
+        ),
+        OpenApiParameter(
+            name="category_id",
+            description="Filter by category ID",
+            required=False,
+            type=int,
         ),
         OpenApiParameter(
             name="page",
@@ -185,6 +202,7 @@ class PartsListView(APIView):
         try:
             search_query = request.query_params.get("search", "").strip()
             category_id = request.query_params.get("category_id")
+            part_type_filter = request.query_params.get("part_type", "").strip()
 
             parts = Parts.objects.filter(isDeleted=False)
 
@@ -192,10 +210,15 @@ class PartsListView(APIView):
             if category_id:
                 parts = parts.filter(category_id=category_id)
 
+            # Filter by part_type
+            if part_type_filter:
+                parts = parts.filter(part_type__iexact=part_type_filter)
+
             # Search
             if search_query:
                 parts = parts.filter(
                     Q(partName__icontains=search_query) |
+                    Q(part_type__icontains=search_query) |
                     Q(category__categoryName__icontains=search_query) |
                     Q(subcategory__name__icontains=search_query) |
                     Q(fabric__fabricName__icontains=search_query)

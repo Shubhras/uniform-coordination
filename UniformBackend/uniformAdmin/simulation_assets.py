@@ -141,6 +141,7 @@ def serialize_layer(part, request=None):
     return {
         "id": part.id,
         "name": part.partName,
+        "part_type": getattr(part, "part_type", "") or "",
         "image": image_url,
         "has_image": bool(image_url),
         "z_index": part.zIndex,

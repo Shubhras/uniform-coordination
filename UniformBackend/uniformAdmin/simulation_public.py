@@ -89,6 +89,8 @@ def serialize_layer(part, request=None):
     return {
         "id": part.id,
         "name": part.partName,
+        "part_name": part.partName,
+        "part_type": getattr(part, "part_type", "") or "",
         "category_id": part.category_id,
         "image": _absolute(request, part.partImage),
         "z_index": part.zIndex,
@@ -96,6 +98,7 @@ def serialize_layer(part, request=None):
         "offset_y": part.offsetY,
         "fabric_id": part.fabric_id,
         "fabric": part.fabric.fabricName if part.fabric_id else None,
+        "price_per_unit": str(part.pricePerUnit) if part.pricePerUnit is not None else None,
     }
 
 
@@ -291,6 +294,37 @@ class SimulationOptionsAPIView(APIView):
                     "image": _absolute(request, opt.image),
                 })
 
+            # Parts catalog for this category / uniform simulation with part_type and specs
+            parts_qs = Parts.objects.filter(
+                isDeleted=False, isActive=True, partType=UNIFORM_TYPE
+            )
+            if category:
+                parts_qs = parts_qs.filter(category_id=category.id)
+            elif category_id or category_name:
+                parts_qs = parts_qs.none()
+            parts_qs = parts_qs.select_related("category", "subcategory", "fabric").order_by("zIndex", "id")
+
+            parts_list = [
+                {
+                    "id": p.id,
+                    "name": p.partName,
+                    "part_name": p.partName,
+                    "part_type": p.part_type or "",
+                    "category_id": p.category_id,
+                    "category": p.category.categoryName if p.category_id else None,
+                    "subcategory_id": p.subcategory_id,
+                    "subcategory": p.subcategory.name if p.subcategory_id else None,
+                    "fabric_id": p.fabric_id,
+                    "fabric": p.fabric.fabricName if p.fabric_id else None,
+                    "image": _absolute(request, p.partImage),
+                    "price_per_unit": str(p.pricePerUnit) if p.pricePerUnit is not None else None,
+                    "z_index": p.zIndex,
+                    "offset_x": p.offsetX,
+                    "offset_y": p.offsetY,
+                }
+                for p in parts_qs
+            ]
+
             return Response({
                 "status": True,
                 "statusCode": 200,
@@ -299,6 +333,7 @@ class SimulationOptionsAPIView(APIView):
                     "products": product_rows,
                     "attributes": attributes,
                     "attribute_options": attribute_options,
+                    "parts": parts_list,
                     "fabrics": [
                         {
                             "id": f.id,
@@ -309,6 +344,12 @@ class SimulationOptionsAPIView(APIView):
                             # others a colour name. Only a hex can be painted, so the
                             # UI gets a separate field it can trust.
                             "swatch": _hex_or_none(f.color),
+                            "functional_type": f.functional_type or "",
+                            "weave": f.weave or "plain",
+                            "composition": f.composition or "",
+                            "weight": f.weight or "",
+                            "care_instructions": f.care_instructions or "",
+                            "texture_image": _absolute(request, f.texture_image),
                         }
                         for f in fabrics
                     ],

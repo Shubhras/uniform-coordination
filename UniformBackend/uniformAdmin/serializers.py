@@ -354,17 +354,26 @@ class PartsSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at", "updated_at", "usageTemmpCount"]
 
     def validate(self, data):
-        part_type = data.get("partType")
+        catalog_type = data.get("partType")
         theme = data.get("theme")
 
+        # Handle case where user passes component type (collar, sleeve, etc.) as partType
+        if catalog_type and catalog_type not in ["uniform", "table"]:
+            data["part_type"] = catalog_type.lower()
+            data["partType"] = "uniform"
+            catalog_type = "uniform"
+
+        if data.get("part_type"):
+            data["part_type"] = str(data["part_type"]).strip().lower()
+
         # TABLE → theme required
-        if part_type == "table" and not theme:
+        if catalog_type == "table" and not theme:
             raise serializers.ValidationError({
                 "theme": "Please Select themes for Table."
             })
 
         # UNIFORM → theme NOT allowed
-        if part_type == "uniform" and theme:
+        if catalog_type == "uniform" and theme:
             raise serializers.ValidationError({
                 "theme": "Theme is not allowed for uniform."
             })
@@ -1419,7 +1428,7 @@ class PartsMiniSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Parts
-        fields = ["id", "partName", "category", "subcategory"]
+        fields = ["id", "partName", "category", "subcategory", "part_type"]
 
 class ProductSerializer(serializers.ModelSerializer):
     isActive = serializers.BooleanField(required=False, default=True)
