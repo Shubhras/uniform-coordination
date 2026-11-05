@@ -18,6 +18,7 @@ urlpatterns = [
     path("verify-user/", VerifyUserAPIView.as_view(), name="verify-user"),
     path('favourite/toggle/', ToggleProductFavouriteAPIView.as_view(), name='toggle-product-favourite'),
     path('theme/favourite/toggle/', ToggleThemeFavouriteAPIView.as_view(), name='toggle-theme-favourite'),
+    path('favourite/list/', CombinedFavouriteListAPIView.as_view(), name='combined-favourite-list'),
 
 
     #<-------------------Model_Info------------------------------->

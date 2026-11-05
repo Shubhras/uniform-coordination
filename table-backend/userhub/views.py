@@ -24,7 +24,7 @@ from rest_framework.permissions import AllowAny
 from django.utils import timezone
 from django.db.models import Prefetch
 from rest_framework.authentication import BaseAuthentication
-from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse
+from drf_spectacular.utils import extend_schema,OpenApiExample,OpenApiResponse,OpenApiParameter
 from drf_spectacular.types import OpenApiTypes
 from django.utils.http import urlsafe_base64_decode
 from uniformAdmin.signal import *
@@ -3305,6 +3305,148 @@ class ToggleThemeFavouriteAPIView(APIView):
                 "is_favourite": fav.is_like
             }
         }, status=status.HTTP_200_OK)
+
+
+class CombinedFavouriteListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [RealCustomUserJWTAuthentication]
+
+    @extend_schema(
+        summary="List User Favourites (Products & Themes)",
+        description=(
+            "Returns combined or filtered favourites (products and/or themes) for the authenticated user. "
+            "Supports search (by product name, theme title, description, or category), category filtering, "
+            "type filtering ('all', 'product', 'theme'), and pagination."
+        ),
+        parameters=[
+            OpenApiParameter(name="type", description="Filter by type: 'all', 'product', or 'theme'", required=False, type=str, default="all"),
+            OpenApiParameter(name="search", description="Search by product name, theme title, description, or category name", required=False, type=str),
+            OpenApiParameter(name="category_id", description="Filter by category ID", required=False, type=int),
+            OpenApiParameter(name="page", description="Page number (default: 1)", required=False, type=int, default=1),
+            OpenApiParameter(name="page_size", description="Number of results per page (max 100, default: 10)", required=False, type=int, default=10),
+        ],
+        tags=["UserHub Favourites"]
+    )
+    def get(self, request):
+        user = request.user
+        if not isinstance(user, Users):
+            found_user = Users.objects.filter(
+                Q(email=getattr(user, "email", None)) | Q(id=getattr(user, "id", None))
+            ).first()
+            if found_user:
+                user = found_user
+
+        # By default 'all' data aayega. Agar filter me product/theme pass kiya toh wo filter hoga.
+        fav_type = request.query_params.get("type", "").strip().lower()
+        if fav_type not in ["product", "theme"]:
+            fav_type = "all"
+        search = request.query_params.get("search", "").strip()
+        category_id = request.query_params.get("category_id")
+
+        combined_items = []
+
+        # 3. Fetch Product Favourites
+        if fav_type in ["all", "product"]:
+            pf_qs = Favourite.objects.filter(
+                user=user,
+                is_like=True,
+                isDeleted=False,
+                isActive=True,
+                product__isDeleted=False,
+                product__isActive=True
+            ).select_related("product", "product__category", "product__subcategory")
+
+            if category_id:
+                pf_qs = pf_qs.filter(product__category_id=category_id)
+
+            if search:
+                pf_qs = pf_qs.filter(
+                    Q(product__productName__icontains=search) |
+                    Q(product__description__icontains=search) |
+                    Q(product__category__categoryName__icontains=search)
+                )
+
+            for fav in pf_qs:
+                combined_items.append({
+                    "favourite_id": fav.id,
+                    "id": fav.product.id,
+                    "name": fav.product.productName,
+                    "type": "product",
+                    "description": fav.product.description or "",
+                    "image": new_build_media_url(fav.product.ProductImage) if fav.product.ProductImage else None,
+                    "is_favourite": True,
+                    "_sort_timestamp": fav.created_at or now(),
+                })
+
+        # 4. Fetch Theme Favourites
+        if fav_type in ["all", "theme"]:
+            tf_qs = ThemeFavourite.objects.filter(
+                user=user,
+                is_like=True,
+                isDeleted=False,
+                isActive=True,
+                theme__isDeleted=False,
+                theme__is_active=True
+            ).select_related("theme", "theme__category")
+
+            if category_id:
+                tf_qs = tf_qs.filter(theme__category_id=category_id)
+
+            if search:
+                tf_qs = tf_qs.filter(
+                    Q(theme__title__icontains=search) |
+                    Q(theme__description__icontains=search) |
+                    Q(theme__category__categoryName__icontains=search)
+                )
+
+            for tfav in tf_qs:
+                combined_items.append({
+                    "favourite_id": tfav.id,
+                    "id": tfav.theme.id,
+                    "name": tfav.theme.title,
+                    "type": "theme",
+                    "description": tfav.theme.description or "",
+                    "image": new_build_media_url(tfav.theme.image) if tfav.theme.image else None,
+                    "is_favourite": True,
+                    "_sort_timestamp": tfav.created_at or now(),
+                })
+
+        # 5. Sort combined results by created_at descending (latest first)
+        combined_items.sort(key=lambda x: x["_sort_timestamp"], reverse=True)
+
+        for item in combined_items:
+            item.pop("_sort_timestamp", None)
+
+        # 6. Handle empty results
+        if not combined_items:
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "No favourites found for this user",
+                "data": []
+            }, status=status.HTTP_200_OK)
+
+        # 7. Paginate results
+        paginator = CustomPagination()
+        paginated_items = paginator.paginate_queryset(combined_items, request)
+
+        return Response({
+            "status": True,
+            "statusCode": 200,
+            "message": "Favourites fetched successfully.",
+            "data": paginated_items,
+            "pagination": {
+                "current_page": paginator.page.number,
+                "page_size": paginator.get_page_size(request),
+                "total_pages": paginator.page.paginator.num_pages,
+                "total_records": paginator.page.paginator.count,
+                "has_next": paginator.page.has_next(),
+                "has_previous": paginator.page.has_previous(),
+                "next_page": paginator.page.next_page_number() if paginator.page.has_next() else None,
+                "previous_page": paginator.page.previous_page_number() if paginator.page.has_previous() else None,
+            }
+        }, status=status.HTTP_200_OK)
+
 
 
 class ReorderOrderAPIView(APIView):

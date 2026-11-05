@@ -665,6 +665,49 @@ class FavouriteSerializer(serializers.ModelSerializer):
         fields = ["id", "product", "product_type", "is_like"]
 
 
+class FavouriteProductItemSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source="productName", read_only=True)
+    type = serializers.CharField(default="product", read_only=True)
+    image = serializers.SerializerMethodField()
+    is_favourite = serializers.BooleanField(default=True)
+
+    class Meta:
+        model = Product
+        fields = [
+            "id",
+            "name",
+            "type",
+            "description",
+            "image",
+            "is_favourite",
+        ]
+
+    def get_image(self, obj):
+        return new_build_media_url(obj.ProductImage) if obj.ProductImage else None
+
+
+class FavouriteThemeItemSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source="title", read_only=True)
+    type = serializers.CharField(default="theme", read_only=True)
+    image = serializers.SerializerMethodField()
+    is_favourite = serializers.BooleanField(default=True)
+
+    class Meta:
+        model = TableTheme
+        fields = [
+            "id",
+            "name",
+            "type",
+            "description",
+            "image",
+            "is_favourite",
+        ]
+
+    def get_image(self, obj):
+        return new_build_media_url(obj.image) if obj.image else None
+
+
+
 
 
 class ProductOrderListSerializer(serializers.ModelSerializer):
