@@ -1265,7 +1265,7 @@ const Uniform3DmoduleDegisn = () => {
                                   {displayedOptions.map((opt) => {
                                     const isSelected =
                                       selectedOptions[selectedCat.name]?.[
-                                        attrName
+                                      attrName
                                       ] === opt.name;
                                     return (
                                       <button
@@ -1335,7 +1335,7 @@ const Uniform3DmoduleDegisn = () => {
                                   {displayedOptions.map((opt) => {
                                     const isSelected =
                                       selectedOptions[selectedCat.name]?.[
-                                        attrName
+                                      attrName
                                       ] === opt.name;
                                     return (
                                       <button
@@ -1495,11 +1495,10 @@ const Uniform3DmoduleDegisn = () => {
             <button
               type="button"
               onClick={() => setFullView(false)}
-              className={`w-full flex items-center justify-center font-bold gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 rounded-lg text-xs sm:text-sm transition-all whitespace-nowrap ${
-                !fullView
-                  ? "bg-[#A0522D] hover:bg-[#A0522D]/90 shadow text-white"
-                  : "bg-transparent text-gray-700 hover:bg-gray-100"
-              }`}
+              className={`w-full flex items-center justify-center font-bold gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 rounded-lg text-xs sm:text-sm transition-all whitespace-nowrap ${!fullView
+                ? "bg-[#A0522D] hover:bg-[#A0522D]/90 shadow text-white"
+                : "bg-transparent text-gray-700 hover:bg-gray-100"
+                }`}
             >
               <TbTable className="text-base sm:text-lg shrink-0" />
               <span>Single Table</span>
@@ -1509,11 +1508,10 @@ const Uniform3DmoduleDegisn = () => {
             <button
               type="button"
               onClick={() => setFullView(true)}
-              className={`w-full flex items-center justify-center font-bold gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 rounded-lg text-xs sm:text-sm transition-all whitespace-nowrap ${
-                fullView
-                  ? "bg-[#A0522D] hover:bg-[#A0522D]/90 text-white shadow"
-                  : "bg-transparent text-gray-700 hover:bg-gray-100"
-              }`}
+              className={`w-full flex items-center justify-center font-bold gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 rounded-lg text-xs sm:text-sm transition-all whitespace-nowrap ${fullView
+                ? "bg-[#A0522D] hover:bg-[#A0522D]/90 text-white shadow"
+                : "bg-transparent text-gray-700 hover:bg-gray-100"
+                }`}
             >
               <RiTable2 className="text-base sm:text-lg shrink-0" />
               <span>Full Venue</span>
@@ -1521,8 +1519,9 @@ const Uniform3DmoduleDegisn = () => {
           </div>
 
           <div
-            className="relative z-10 overflow-hidden 
-                h-[280px] xs:h-[340px] sm:h-[420px] md:h-[500px] lg:h-[560px] xl:h-[620px] w-full flex items-center justify-center p-2"
+            className={`relative z-10 overflow-hidden 
+                h-[280px] xs:h-[340px] sm:h-[420px] md:h-[500px] lg:h-[560px] xl:h-[620px] w-full flex items-center justify-center transition-all duration-300 ${fullView ? "p-0" : "p-2"
+              }`}
           >
             {isThemeMode ? (
               fullView ? (
@@ -1535,7 +1534,7 @@ const Uniform3DmoduleDegisn = () => {
                   alt={selectedTheme.title || "Venue Preview"}
                   width={700}
                   height={500}
-                  className="max-w-full max-h-full w-auto h-auto object-contain select-none"
+                  className="max-w-full max-h-full w-auto h-auto object-contain select-none scale-110 sm:scale-115 md:scale-120 transition-transform duration-300 ease-in-out"
                   priority
                   unoptimized
                 />
@@ -1549,7 +1548,7 @@ const Uniform3DmoduleDegisn = () => {
                   alt={selectedTheme.title || "Table Preview"}
                   width={500}
                   height={500}
-                  className="max-w-full max-h-full w-auto h-auto object-contain select-none"
+                  className="max-w-full max-h-full w-auto h-auto object-contain select-none scale-100 transition-transform duration-300 ease-in-out"
                   priority
                   unoptimized
                 />
@@ -1565,7 +1564,7 @@ const Uniform3DmoduleDegisn = () => {
                   }
                   width={700}
                   height={500}
-                  className="max-w-full max-h-full w-auto h-auto object-contain select-none"
+                  className="max-w-full max-h-full w-auto h-auto object-contain select-none scale-110 sm:scale-115 md:scale-120 transition-transform duration-300 ease-in-out"
                   priority
                   unoptimized
                 />
@@ -1579,7 +1578,7 @@ const Uniform3DmoduleDegisn = () => {
                   }
                   width={500}
                   height={500}
-                  className="max-w-full max-h-full w-auto h-auto object-contain select-none"
+                  className="max-w-full max-h-full w-auto h-auto object-contain select-none scale-100 transition-transform duration-300 ease-in-out"
                   priority
                   unoptimized
                 />
