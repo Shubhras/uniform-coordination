@@ -2168,38 +2168,67 @@ class AdminDashAPIView(APIView):
             # Active Alerts — computed live, then filtered by this admin's read-state
             active_alerts = filter_read_alerts(compute_active_alerts(), request.user)
 
-            # Fetch Recent Orders of Today
-            today_orders_qs = Order.objects.filter(created_at__date=today_dt.date(), is_deleted=False).select_related('customer', 'user').order_by('-created_at')
-            today_orders_count = today_orders_qs.count()
+            # Fetch Recent Quotations of Today (fallback to Order if QuotationRequest is unused)
+            today_quotes_qs = QuotationRequest.objects.filter(
+                created_at__date=today_dt.date(),
+                isDeleted=False
+            ).order_by('-created_at')
+            today_quotes_count = today_quotes_qs.count()
 
-            if today_orders_count == 0:
-                display_orders_qs = Order.objects.filter(is_deleted=False).select_related('customer', 'user').order_by('-created_at')[:5]
+            if today_quotes_count > 0 or QuotationRequest.objects.filter(isDeleted=False).exists():
+                today_orders_count = today_quotes_count
+                if today_quotes_count == 0:
+                    display_quotes_qs = QuotationRequest.objects.filter(isDeleted=False).order_by('-created_at')[:5]
+                else:
+                    display_quotes_qs = today_quotes_qs[:10]
+
+                recent_orders_list = []
+                for quo in display_quotes_qs:
+                    cust_name = quo.contact_person or quo.company_name or "Customer"
+                    recent_orders_list.append({
+                        "id": str(quo.uuids),
+                        "order_id": quo.quotation_id or str(quo.uuids)[:8],
+                        "customer_name": cust_name,
+                        "customer_email": quo.email or "",
+                        "total_amount": str(quo.total if quo.total is not None else (quo.subtotal or "0.00")),
+                        "currency": "USD",
+                        "status": quo.quotation_status or "pending",
+                        "is_paid": quo.quotation_status in ["approved", "accepted", "completed"],
+                        "created_at": quo.created_at.strftime("%Y-%m-%d %H:%M:%S") if quo.created_at else "",
+                        "formatted_date": quo.created_at.strftime("%b %d, %Y %I:%M %p") if quo.created_at else ""
+                    })
             else:
-                display_orders_qs = today_orders_qs[:10]
+                today_orders_qs = Order.objects.filter(created_at__date=today_dt.date(), is_deleted=False).select_related('customer', 'user').order_by('-created_at')
+                today_orders_count = today_orders_qs.count()
 
-            recent_orders_list = []
-            for ord_item in display_orders_qs:
-                cust_name = ""
-                cust_email = ""
-                if getattr(ord_item, 'customer', None):
-                    cust_name = getattr(ord_item.customer, 'full_name', '') or getattr(ord_item.customer, 'name', '') or f"{getattr(ord_item.customer, 'first_name', '')} {getattr(ord_item.customer, 'last_name', '')}".strip()
-                    cust_email = getattr(ord_item.customer, 'email', '') or ""
-                elif getattr(ord_item, 'user', None):
-                    cust_name = getattr(ord_item.user, 'name', '') or f"{getattr(ord_item.user, 'first_name', '')} {getattr(ord_item.user, 'last_name', '')}".strip()
-                    cust_email = getattr(ord_item.user, 'email', '') or ""
+                if today_orders_count == 0:
+                    display_orders_qs = Order.objects.filter(is_deleted=False).select_related('customer', 'user').order_by('-created_at')[:5]
+                else:
+                    display_orders_qs = today_orders_qs[:10]
 
-                recent_orders_list.append({
-                    "id": ord_item.id,
-                    "order_id": ord_item.order_id,
-                    "customer_name": cust_name or "Customer",
-                    "customer_email": cust_email,
-                    "total_amount": str(ord_item.total_amount or "0.00"),
-                    "currency": ord_item.currency or "USD",
-                    "status": ord_item.status or "pending",
-                    "is_paid": ord_item.is_paid,
-                    "created_at": ord_item.created_at.strftime("%Y-%m-%d %H:%M:%S") if ord_item.created_at else "",
-                    "formatted_date": ord_item.created_at.strftime("%b %d, %Y %I:%M %p") if ord_item.created_at else ""
-                })
+                recent_orders_list = []
+                for ord_item in display_orders_qs:
+                    cust_name = ""
+                    cust_email = ""
+                    if getattr(ord_item, 'customer', None):
+                        cust_name = getattr(ord_item.customer, 'full_name', '') or getattr(ord_item.customer, 'name', '') or f"{getattr(ord_item.customer, 'first_name', '')} {getattr(ord_item.customer, 'last_name', '')}".strip()
+                        cust_email = getattr(ord_item.customer, 'email', '') or ""
+                    elif getattr(ord_item, 'user', None):
+                        cust_name = getattr(ord_item.user, 'name', '') or f"{getattr(ord_item.user, 'first_name', '')} {getattr(ord_item.user, 'last_name', '')}".strip()
+                        cust_email = getattr(ord_item.user, 'email', '') or ""
+
+                    recent_orders_list.append({
+                        "id": ord_item.id,
+                        "order_id": ord_item.order_id,
+                        "customer_name": cust_name or "Customer",
+                        "customer_email": cust_email,
+                        "total_amount": str(ord_item.total_amount or "0.00"),
+                        "currency": ord_item.currency or "USD",
+                        "status": ord_item.status or "pending",
+                        "is_paid": ord_item.is_paid,
+                        "created_at": ord_item.created_at.strftime("%Y-%m-%d %H:%M:%S") if ord_item.created_at else "",
+                        "formatted_date": ord_item.created_at.strftime("%b %d, %Y %I:%M %p") if ord_item.created_at else ""
+                    })
 
             # Pending Sales Representative Actions — computed live from assigned pending quotations
             pending_sales_rep_action = {}

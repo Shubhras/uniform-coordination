@@ -100,8 +100,11 @@ const QuoteRequestPopup = ({ isOpen, onClose, quoteData }) => {
                         <ul className="text-xs sm:text-sm text-gray-700 space-y-1">
                             <li>• Request ID: {quotation_id}</li>
                             <li>• Submitted on: {formattedDate}</li>
-                            <li>• Service/Product: (Auto-fill from form)</li>
-                            <li>• Quantity/Requirements: (Auto-fill)</li>
+                            <li>• Service/Product: {quoteData.product_name || quoteData.item_type || 'Custom Uniform'}</li>
+                            <li>• Quantity/Requirements: {quoteData.size_quantity || 'N/A'}</li>
+                            {quoteData.fabric && <li>• Fabric: {quoteData.fabric}</li>}
+                            {quoteData.part && <li>• Part: {quoteData.part}</li>}
+                            {quoteData.colors?.top && <li>• Top Colour: {quoteData.colors.top}</li>}
                             <li>• Preferred Contact: {email || 'N/A'}</li>
                         </ul>
                     </div>

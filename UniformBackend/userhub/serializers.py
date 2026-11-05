@@ -528,6 +528,7 @@ class CustomUpdateModelQuotationSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'model_info',
+            'config_json',
             'design_specifications',  
             'isActive',
             'created_at',
@@ -574,6 +575,14 @@ class QuotationRequestSerializer(serializers.ModelSerializer):
     product_subcategory_id = serializers.SerializerMethodField()
     product_subcategory_name = serializers.SerializerMethodField()
 
+    # Customization & Configuration Details
+    fabric = serializers.SerializerMethodField()
+    colors = serializers.SerializerMethodField()
+    part = serializers.SerializerMethodField()
+    options = serializers.SerializerMethodField()
+    sizes = serializers.SerializerMethodField()
+    configuration = serializers.SerializerMethodField()
+
     # Quotation Tracking Features (FU-032, FU-033, FU-034)
     sales_rep_details = serializers.SerializerMethodField()
     sales_rep_name = serializers.SerializerMethodField()
@@ -619,6 +628,12 @@ class QuotationRequestSerializer(serializers.ModelSerializer):
             "product_subcategory_id",
             "product_subcategory_name",
             "material",
+            "fabric",
+            "colors",
+            "part",
+            "options",
+            "sizes",
+            "configuration",
             "size_quantity",
             "delivery_date",
             "additional_note",
@@ -833,6 +848,51 @@ class QuotationRequestSerializer(serializers.ModelSerializer):
             })
 
         return attachments
+
+    def _get_config(self, obj):
+        if getattr(obj, "customupdatemodel", None) and obj.customupdatemodel.config_json:
+            return obj.customupdatemodel.config_json
+        return {}
+
+    def get_fabric(self, obj):
+        config = self._get_config(obj)
+        return obj.material or config.get("fabric") or ""
+
+    def get_colors(self, obj):
+        config = self._get_config(obj)
+        colors = config.get("colors") or {}
+        if isinstance(colors, dict):
+            return {k: v for k, v in colors.items() if v and str(v).strip()}
+        return {}
+
+    def get_part(self, obj):
+        config = self._get_config(obj)
+        return config.get("part") or ""
+
+    def get_options(self, obj):
+        config = self._get_config(obj)
+        options = config.get("options") or {}
+        if isinstance(options, dict):
+            return {k: v for k, v in options.items() if v and str(v).strip()}
+        return {}
+
+    def get_sizes(self, obj):
+        config = self._get_config(obj)
+        sizes = config.get("sizes") or {}
+        if isinstance(sizes, dict):
+            return {k: v for k, v in sizes.items() if (isinstance(v, (int, float, str)) and str(v) not in ("", "0"))}
+        return sizes
+
+    def get_configuration(self, obj):
+        config = self._get_config(obj)
+        if not config:
+            return {}
+        cleaned = dict(config)
+        if "options" in cleaned and isinstance(cleaned["options"], dict):
+            cleaned["options"] = {k: v for k, v in cleaned["options"].items() if v and str(v).strip()}
+        if "colors" in cleaned and isinstance(cleaned["colors"], dict):
+            cleaned["colors"] = {k: v for k, v in cleaned["colors"].items() if v and str(v).strip()}
+        return cleaned
 
 
 

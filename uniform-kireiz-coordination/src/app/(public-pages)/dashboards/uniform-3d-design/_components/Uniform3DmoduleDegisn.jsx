@@ -475,18 +475,18 @@ const Uniform3DmoduleDegisn = () => {
         const attrOptions = categoryId
           ? (optionsRes?.data?.attribute_options || {})
           : {
-              ...(globalOptionsRes?.data?.attribute_options || {}),
-              ...(optionsRes?.data?.attribute_options || {}),
-            };
+            ...(globalOptionsRes?.data?.attribute_options || {}),
+            ...(optionsRes?.data?.attribute_options || {}),
+          };
         setSimOptions(attrOptions);
 
         // 5. Parts: layers with artwork from simulation options plus product.parts
         const allProducts = categoryId
           ? (optionsRes?.data?.products || [])
           : [
-              ...(optionsRes?.data?.products || []),
-              ...(globalOptionsRes?.data?.products || []),
-            ];
+            ...(optionsRes?.data?.products || []),
+            ...(globalOptionsRes?.data?.products || []),
+          ];
         const row = allProducts.find((p) => String(p.id) === String(id));
         const layers = row?.layers || [];
 
@@ -608,8 +608,10 @@ const Uniform3DmoduleDegisn = () => {
       return [...new Set(fromAdmin)].filter((k) => panels[k]);
     }
 
-    // Default fallback: parts, color, size, fabric...
-    return ["parts", "color", "size", "fabric", "collar", "sleeves", "cap", "zipper", "cuff", "pants", "pocket", "aprons"]
+
+    // return ["parts", "color", "size", "fabric", "collar", "sleeves", "cap", "zipper", "cuff", "pants", "pocket", "aprons"]
+    // Default fallback: parts, color, size, fabric
+    return ["parts", "color", "size", "fabric"]
       .filter((k) => panels[k]);
   })();
 
@@ -946,11 +948,10 @@ const Uniform3DmoduleDegisn = () => {
                           setPosition("top");
                           uniformState.active3dPart = "top";
                         }}
-                        className={`flex-1 py-1 text-xs font-semibold rounded-md border transition ${
-                          position === "top"
+                        className={`flex-1 py-1 text-xs font-semibold rounded-md border transition ${position === "top"
                             ? "bg-[#1C4FA8] text-white border-[#1C4FA8] shadow-sm"
                             : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
-                        }`}
+                          }`}
                       >
                         Top
                       </button>
@@ -960,11 +961,10 @@ const Uniform3DmoduleDegisn = () => {
                           setPosition("bottom");
                           uniformState.active3dPart = "bottom";
                         }}
-                        className={`flex-1 py-1 text-xs font-semibold rounded-md border transition ${
-                          position === "bottom"
+                        className={`flex-1 py-1 text-xs font-semibold rounded-md border transition ${position === "bottom"
                             ? "bg-[#1C4FA8] text-white border-[#1C4FA8] shadow-sm"
                             : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
-                        }`}
+                          }`}
                       >
                         Bottom
                       </button>
@@ -1000,11 +1000,10 @@ const Uniform3DmoduleDegisn = () => {
                             }));
                           }}
                           title={swatch.name || swatch.code}
-                          className={`relative w-10 h-10 rounded-full shadow flex items-center justify-center transition cursor-pointer hover:scale-105 ${
-                            selected
+                          className={`relative w-10 h-10 rounded-full shadow flex items-center justify-center transition cursor-pointer hover:scale-105 ${selected
                               ? "ring-2 ring-offset-2 ring-[#1C4FA8] border-0"
                               : "border border-gray-200"
-                          }`}
+                            }`}
                           style={{ background: swatch.code }}
                         >
                           {selected && (

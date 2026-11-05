@@ -296,9 +296,8 @@ def generate_customization_pdf(obj, user):
         [
             ["Product Name", product.productName],
             ["Product Type", product.productType],
-            ["Price", f"{product.price}"],
         ],
-        colWidths=[250, 250]
+        colWidths=[150, 330]
     )
     product_table.setStyle(TableStyle([
         ("GRID", (0, 0), (-1, -1), 0.3, colors.grey),
@@ -307,9 +306,66 @@ def generate_customization_pdf(obj, user):
         ("BACKGROUND", (0, 0), (-1, -1), colors.whitesmoke),
         ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
         ("TOPPADDING", (0, 0), (-1, -1), 8),
+        ("LEFTPADDING", (0, 0), (-1, -1), 8),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 8),
     ]))
 
     elements.append(product_table)
+
+    # DESIGN SPECIFICATIONS / CUSTOMIZATION DETAILS
+    config = obj.config_json or {}
+    specs_data = []
+
+    if config.get("fabric"):
+        specs_data.append(["Fabric", str(config["fabric"])])
+
+    colors_data = config.get("colors") or {}
+    if isinstance(colors_data, dict):
+        for half, hex_code in colors_data.items():
+            if hex_code and str(hex_code).strip():
+                label = "Top Colour" if half == "top" else ("Bottom Colour" if half == "bottom" else f"{half.capitalize()} Colour")
+                specs_data.append([label, str(hex_code)])
+
+    if config.get("part"):
+        specs_data.append(["Part", str(config["part"])])
+
+    sizes_data = config.get("sizes") or config.get("size")
+    if sizes_data:
+        if isinstance(sizes_data, dict):
+            size_strs = [
+                f"{s} (Qty: {qty})" if (isinstance(qty, (int, float, str)) and str(qty) not in ("", "0", "1")) else (f"{s} (Qty: 1)" if str(qty) == "1" else s)
+                for s, qty in sizes_data.items()
+                if (isinstance(qty, (int, float, str)) and str(qty) not in ("", "0"))
+            ]
+            if size_strs:
+                specs_data.append(["Sizes", ", ".join(size_strs)])
+        elif isinstance(sizes_data, list):
+            specs_data.append(["Sizes", ", ".join(str(s) for s in sizes_data)])
+        elif str(sizes_data).strip():
+            specs_data.append(["Sizes", str(sizes_data)])
+
+    # Custom options — only include non-empty values
+    options = config.get("options") or {}
+    if isinstance(options, dict):
+        for opt_key, opt_val in options.items():
+            if opt_val and str(opt_val).strip():
+                label = opt_key.replace("_", " ").capitalize()
+                specs_data.append([label, str(opt_val)])
+
+    if specs_data:
+        elements.append(Paragraph("Design Specifications", section_style))
+        specs_table = Table(specs_data, colWidths=[150, 330])
+        specs_table.setStyle(TableStyle([
+            ("GRID", (0, 0), (-1, -1), 0.3, colors.grey),
+            ("FONT", (0, 0), (0, -1), "Helvetica-Bold"),
+            ("FONTSIZE", (0, 0), (-1, -1), 10),
+            ("BACKGROUND", (0, 0), (-1, -1), colors.whitesmoke),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+            ("TOPPADDING", (0, 0), (-1, -1), 8),
+            ("LEFTPADDING", (0, 0), (-1, -1), 8),
+            ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+        ]))
+        elements.append(specs_table)
 
     
     # FOOTER
@@ -484,33 +540,67 @@ def generate_quotation_pdf(quotation, request):
     # Quotation Details Section
     elements.append(Paragraph("Quotation Details", section_style))
 
+    config = {}
+    if getattr(quotation, "customupdatemodel", None) and quotation.customupdatemodel.config_json:
+        config = quotation.customupdatemodel.config_json
+
     data = [
-        ["Quotation ID", quotation.quotation_id],
-        ["Company Name", quotation.company_name],
-        ["Email", quotation.email],
-        ["Phone Number",quotation.phone_number],
-        ["Item Type",quotation.item_type],
-        ["Material",quotation.material],
-        ["Size Quantity",quotation.size_quantity],
-        ["delivery_date",quotation.delivery_date],
+        ["Quotation ID", str(quotation.quotation_id or "")],
+        ["Company Name", str(quotation.company_name or "")],
+        ["Contact Person", str(quotation.contact_person or "")],
+        ["Email", str(quotation.email or "")],
+        ["Phone Number", str(quotation.phone_number or "")],
+        ["Item Type", str(quotation.item_type or "")],
+        ["Fabric", str(quotation.material or config.get("fabric") or "")],
+        ["Size Quantity", str(quotation.size_quantity or "")],
+        ["Delivery Date", str(quotation.delivery_date) if quotation.delivery_date else ""],
     ]
+
+    # Include Color if chosen
+    colors_data = config.get("colors") or {}
+    if isinstance(colors_data, dict):
+        active_colors = [
+            f"{half.capitalize()}: {hex_code}"
+            for half, hex_code in colors_data.items()
+            if hex_code and str(hex_code).strip()
+        ]
+        if active_colors:
+            data.append(["Color", ", ".join(active_colors)])
+
+    # Include Part if chosen
+    if config.get("part"):
+        data.append(["Part", str(config["part"])])
+
+    # Include non-empty custom options
+    options = config.get("options") or {}
+    if isinstance(options, dict):
+        for opt_key, opt_val in options.items():
+            if opt_val and str(opt_val).strip():
+                label = opt_key.replace("_", " ").capitalize()
+                data.append([label, str(opt_val)])
+
+    if quotation.additional_note:
+        data.append(["Additional Note", str(quotation.additional_note)])
+
     table = Table(data, colWidths=[160, 320])
     table.setStyle(TableStyle([
         ("BACKGROUND", (0, 0), (-1, 0), colors.whitesmoke),
         ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
         ("FONT", (0, 0), (0, -1), "Helvetica-Bold"),
         ("FONT", (1, 0), (1, -1), "Helvetica"),
-        ("FONTSIZE", (0, 0), (-1, -1), 11),
+        ("FONTSIZE", (0, 0), (-1, -1), 10),
         ("ALIGN", (0, 0), (0, -1), "LEFT"),
         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
-        ("TOPPADDING", (0, 0), (-1, -1), 8),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+        ("TOPPADDING", (0, 0), (-1, -1), 6),
+        ("LEFTPADDING", (0, 0), (-1, -1), 8),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 8),
     ]))
 
     elements.append(table)
 
     # Footer
-    elements.append(Spacer(1, 550))  
+    elements.append(Spacer(1, 25))  
     elements.append(
         Paragraph(
             f"Generated on: {datetime.now().strftime('%d %b %Y, %I:%M %p')}",
