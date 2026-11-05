@@ -5,6 +5,8 @@ import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { apiGetSimulationOptions } from '@/services/SimulationService'
 import { apiGetTemplateById } from '@/services/CategoryService'
+import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
+import Pagination from '@/components/ui/Pagination'
 
 /*
  * Landing screen for /dashboards/uniform-3d-design with no product in the URL.
@@ -29,8 +31,17 @@ const SimulationProductPicker = () => {
   const [products, setProducts] = useState([])
   const [template, setTemplate] = useState(null)
   const [category, setCategory] = useState('')
+  const [page, setPage] = useState(0)
+  const [currentPage, setCurrentPage] = useState(1)
   const [loading, setLoading] = useState(true)
   const [failed, setFailed] = useState(false)
+
+  const PRODUCTS_PER_PAGE = 8
+
+  // Reset to first page when category or products change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [category, products])
 
   useEffect(() => {
     let cancelled = false
@@ -103,6 +114,11 @@ const SimulationProductPicker = () => {
     ? products.filter((p) => p.category === category)
     : products
 
+  const paginatedProducts = useMemo(() => {
+    const start = (currentPage - 1) * PRODUCTS_PER_PAGE
+    return visible.slice(start, start + PRODUCTS_PER_PAGE)
+  }, [visible, currentPage])
+
   const open = (id) =>
     router.push(
       templateId
@@ -154,33 +170,100 @@ const SimulationProductPicker = () => {
           </div>
         )}
 
-        {categories.length > 1 && (
-          <div className="flex flex-wrap justify-center gap-2 mt-6">
-            <button
-              type="button"
-              onClick={() => setCategory('')}
-              className={`px-4 py-1.5 rounded-full text-sm border transition ${!category
-                ? 'bg-[#1C4FA8] text-white border-[#1C4FA8]'
-                : 'border-[#CBD5E1] text-[#486284] hover:border-[#1C4FA8]'
-                }`}
-            >
-              All
-            </button>
-            {categories.map((c) => (
-              <button
-                key={c.name}
-                type="button"
-                onClick={() => setCategory(c.name)}
-                className={`px-4 py-1.5 rounded-full text-sm border transition ${category === c.name
-                  ? 'bg-[#1C4FA8] text-white border-[#1C4FA8]'
-                  : 'border-[#CBD5E1] text-[#486284] hover:border-[#1C4FA8]'
+        {categories.length > 0 && (() => {
+          // Page 0: "All" + 3 categories = 4 buttons
+          // Page 1+: next 4 categories = 4 buttons
+          const totalPages =
+            categories.length <= 3
+              ? 1
+              : 1 + Math.ceil((categories.length - 3) / 4)
+
+          const getVisibleCategories = () => {
+            if (page === 0) {
+              return categories.slice(0, 3)
+            }
+            const start = 3 + (page - 1) * 4
+            return categories.slice(start, start + 4)
+          }
+
+          const visibleCategories = getVisibleCategories()
+          const showArrows = totalPages > 1
+
+          const handlePrevPage = () => {
+            setPage((prev) => Math.max(0, prev - 1))
+          }
+
+          const handleNextPage = () => {
+            setPage((prev) => Math.min(totalPages - 1, prev + 1))
+          }
+
+          return (
+            <div className="relative w-full max-w-4xl mx-auto mt-6 flex items-center justify-center px-12">
+              {showArrows && (
+                <button
+                  type="button"
+                  onClick={handlePrevPage}
+                  disabled={page === 0}
+                  className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#CBD5E1] bg-white text-[#1C2C56] transition hover:bg-[#F1F5F9] hover:border-[#1C4FA8] ${
+                    page === 0
+                      ? 'opacity-30 cursor-not-allowed'
+                      : 'cursor-pointer hover:shadow-xs'
                   }`}
-              >
-                {c.name} ({c.count})
-              </button>
-            ))}
-          </div>
-        )}
+                  aria-label="Previous categories"
+                >
+                  <FiChevronLeft size={18} />
+                </button>
+              )}
+
+              <div className="flex items-center justify-center gap-2 overflow-x-auto py-1 max-w-full">
+                {page === 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setCategory('')}
+                    className={`shrink-0 px-4 py-1.5 rounded-full text-sm border whitespace-nowrap transition ${
+                      !category
+                        ? 'bg-[#1C4FA8] text-white border-[#1C4FA8]'
+                        : 'border-[#CBD5E1] text-[#486284] hover:border-[#1C4FA8]'
+                    }`}
+                  >
+                    All
+                  </button>
+                )}
+
+                {visibleCategories.map((c) => (
+                  <button
+                    key={c.name}
+                    type="button"
+                    onClick={() => setCategory(c.name)}
+                    className={`shrink-0 px-4 py-1.5 rounded-full text-sm border whitespace-nowrap transition ${
+                      category === c.name
+                        ? 'bg-[#1C4FA8] text-white border-[#1C4FA8]'
+                        : 'border-[#CBD5E1] text-[#486284] hover:border-[#1C4FA8]'
+                    }`}
+                  >
+                    {c.name} ({c.count})
+                  </button>
+                ))}
+              </div>
+
+              {showArrows && (
+                <button
+                  type="button"
+                  onClick={handleNextPage}
+                  disabled={page >= totalPages - 1}
+                  className={`absolute right-0 top-1/2 -translate-y-1/2 z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#CBD5E1] bg-white text-[#1C2C56] transition hover:bg-[#F1F5F9] hover:border-[#1C4FA8] ${
+                    page >= totalPages - 1
+                      ? 'opacity-30 cursor-not-allowed'
+                      : 'cursor-pointer hover:shadow-xs'
+                  }`}
+                  aria-label="Next categories"
+                >
+                  <FiChevronRight size={18} />
+                </button>
+              )}
+            </div>
+          )
+        })()}
 
         {loading && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-8">
@@ -211,42 +294,53 @@ const SimulationProductPicker = () => {
         )}
 
         {!loading && !failed && visible.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-8">
-            {visible.map((p) => (
-              <div
-                key={p.id}
-                className="bg-white border border-[#1C2C56] rounded-2xl p-4 flex flex-col justify-between"
-              >
-                <div className="relative w-full h-[200px] flex items-center justify-center mb-4">
-                  <Image
-                    src={p.image || '/img/uniform/uniform.png'}
-                    alt={p.name}
-                    fill
-                    className="object-contain p-2"
-                    unoptimized
-                  />
-                </div>
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-8">
+              {paginatedProducts.map((p) => (
+                <div
+                  key={p.id}
+                  className="bg-white border border-[#1C2C56] rounded-2xl p-4 flex flex-col justify-between"
+                >
+                  <div className="relative w-full h-[200px] flex items-center justify-center mb-4">
+                    <Image
+                      src={p.image || '/img/uniform/uniform.png'}
+                      alt={p.name}
+                      fill
+                      className="object-contain p-2"
+                      unoptimized
+                    />
+                  </div>
 
-                <div className="flex flex-col gap-2">
-                  <h4 className="text-[#1C2C56] font-medium truncate" title={p.name}>
-                    {p.name}
-                  </h4>
-                  <p className="text-xs text-[#6B7280] truncate">
-                    {p.category || '—'}
-                    {p.subcategory ? ` • ${p.subcategory}` : ''}
-                  </p>
+                  <div className="flex flex-col gap-2">
+                    <h4 className="text-[#1C2C56] font-medium truncate" title={p.name}>
+                      {p.name}
+                    </h4>
+                    <p className="text-xs text-[#6B7280] truncate">
+                      {p.category || '—'}
+                      {p.subcategory ? ` • ${p.subcategory}` : ''}
+                    </p>
 
-                  <button
-                    type="button"
-                    onClick={() => open(p.id)}
-                    className="bg-[#1C4FA8] text-white text-sm py-2 rounded-md mt-1"
-                  >
-                    Customize
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => open(p.id)}
+                      className="bg-[#1C4FA8] text-white text-sm py-2 rounded-md mt-1"
+                    >
+                      Customize
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+
+            <div className="mt-8">
+              <Pagination
+                currentPage={currentPage}
+                pageSize={PRODUCTS_PER_PAGE}
+                total={visible.length}
+                onChange={(page) => setCurrentPage(page)}
+              />
+            </div>
+          </>
         )}
       </div>
     </section>

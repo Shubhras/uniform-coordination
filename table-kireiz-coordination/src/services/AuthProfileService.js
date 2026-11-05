@@ -185,3 +185,35 @@ export async function apiToggleThemeFavourite(token, themeId) {
         },
     })
 }
+
+/**
+ * Fetches user's favorite products and themes list.
+ * 
+ * @param {string} token - User authentication Bearer token.
+ * @param {Object} [params={}] - Optional query parameters.
+ * @returns {Promise<Object>} API response with favourites list.
+ */
+export async function apiGetFavouritesList(token, params = {}) {
+    try {
+        return await ApiService.fetchDataWithAxios({
+            url: '/v1/space/userhub/favourite/list/',
+            method: 'get',
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            params,
+        })
+    } catch (err) {
+        if (err?.response?.status === 404) {
+            return await ApiService.fetchDataWithAxios({
+                url: '/v1/space/userhub/favourite/',
+                method: 'get',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+                params,
+            })
+        }
+        throw err
+    }
+}
