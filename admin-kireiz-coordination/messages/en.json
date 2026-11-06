@@ -673,6 +673,7 @@
       "reset": "Reset",
       "successTitle": "Success",
       "tableHeaders": {
+        "preview": "Preview",
         "fabricName": "Fabric Name",
         "color": "Color",
         "material": "Material",
@@ -808,11 +809,14 @@
         "cancel": "Cancel",
         "save": "Save",
         "update": "Update",
+        "partType": "Part Type",
+        "partTypePlaceholder": "Select Part Type",
         "saveFailed": "Failed to save part. Please try again.",
         "validation": {
           "nameRequired": "Part name is required",
           "categoryRequired": "Category is required",
-          "imageRequired": "Image is required"
+          "imageRequired": "Image is required",
+          "partTypeRequired": "Part type is required"
         },
         "imageValidated": "Image validated successfully",
         "saveSuccess": "Saved successfully"

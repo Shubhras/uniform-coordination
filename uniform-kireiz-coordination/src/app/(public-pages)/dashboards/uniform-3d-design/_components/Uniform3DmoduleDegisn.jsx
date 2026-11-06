@@ -21,6 +21,23 @@ import Notification from '@/components/ui/Notification'
 import toast from '@/components/ui/toast'
 import { REDIRECT_URL_KEY } from '@/constants/app.constant'
 
+const PART_TYPE_OPTIONS = [
+  { value: "all", label: "All" },
+  { value: "collar", label: "Collar" },
+  { value: "sleeve", label: "Sleeve" },
+  { value: "zipper", label: "Zipper" },
+  { value: "cuff", label: "Cuff" },
+  { value: "waist", label: "Waist" },
+  { value: "hem", label: "Hem" },
+  { value: "inner_mesh", label: "Inner Mesh" },
+  { value: "cap", label: "Cap" },
+  { value: "apron", label: "Apron" },
+  { value: "pocket", label: "Pocket" },
+  { value: "pant", label: "Pant" },
+  { value: "top", label: "Top" },
+  { value: "other", label: "Other" },
+];
+
 const PANELS = {
   color: {
     title: "Color",
@@ -300,6 +317,7 @@ const Uniform3DmoduleDegisn = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [imgSrc, setImgSrc] = useState('/img/uniform/uniform.png');
   const [fabricFilter, setFabricFilter] = useState('All');
+  const [partFilter, setPartFilter] = useState('all');
   const panelRef = useRef(null)
 
   useEffect(() => {
@@ -491,7 +509,7 @@ const Uniform3DmoduleDegisn = () => {
           };
         setSimOptions(attrOptions);
 
-        // 5. Parts: layers with artwork from simulation options plus product.parts
+        // 5. Parts: from simulation options api (optionsRes.data.parts), or product.layers, or product.parts
         const allProducts = categoryId
           ? (optionsRes?.data?.products || [])
           : [
@@ -501,13 +519,32 @@ const Uniform3DmoduleDegisn = () => {
         const row = allProducts.find((p) => String(p.id) === String(id));
         const layers = row?.layers || [];
 
+        const apiParts = categoryId
+          ? (optionsRes?.data?.parts || [])
+          : (optionsRes?.data?.parts || globalOptionsRes?.data?.parts || []);
+
         let finalParts = [];
-        if (layers.length > 0) {
+        if (apiParts && apiParts.length > 0) {
+          finalParts = apiParts.map((p) => ({
+            id: p.id,
+            name: p.name || p.part_name || `Part ${p.id}`,
+            part_name: p.part_name || p.name || `Part ${p.id}`,
+            part_type: p.part_type || "",
+            image: p.image || null,
+            fabric: typeof p.fabric === "object" ? (p.fabric?.name || p.fabric?.fabricName) : (p.fabric || null),
+            z_index: p.z_index || p.zIndex || 0,
+            offset_x: p.offset_x || p.offsetX || 0,
+            offset_y: p.offset_y || p.offsetY || 0,
+            category_id: p.category_id,
+          }));
+        } else if (layers.length > 0) {
           finalParts = layers;
         } else if (product.parts && product.parts.length > 0) {
           finalParts = product.parts.map((p) => ({
             id: p.id,
             name: p.partName || p.name || `Part ${p.id}`,
+            part_name: p.partName || p.name || `Part ${p.id}`,
+            part_type: p.part_type || p.partType || "",
             image: p.partImage || p.image || null,
             fabric: p.fabric?.fabricName || p.fabric || null,
             z_index: p.zIndex || 0,
@@ -516,6 +553,15 @@ const Uniform3DmoduleDegisn = () => {
           }));
         }
         setSimParts(finalParts);
+
+        if (finalParts && finalParts.length > 0) {
+          setDesignJSON((prev) => {
+            if (!prev.part) {
+              return { ...prev, part: finalParts[0].name };
+            }
+            return prev;
+          });
+        }
       } catch (err) {
         console.error("Failed to load admin simulation config:", err);
       } finally {
@@ -915,7 +961,7 @@ const Uniform3DmoduleDegisn = () => {
             <div
               ref={panelRef}
               className={`absolute top-full md:top-0 left-0 md:left-2 z-30 ${
-                active === "fabric" ? "w-[360px] md:w-[410px]" : "w-[285px]"
+                active === "fabric" || active === "parts" ? "w-[360px] md:w-[410px]" : "w-[285px]"
               } max-w-[calc(100vw-32px)] bg-white shadow-xl rounded-xl p-3 border border-gray-100`}>
               <div className="flex items-center justify-between pb-2 mb-3 border-b border-gray-100">
                 <h5 className="font-semibold text-xs text-gray-700 tracking-wide uppercase">
@@ -1107,74 +1153,194 @@ const Uniform3DmoduleDegisn = () => {
                 </div>
               )}
 
-              {/* Parts, top of stack first to match how the garment is layered. */}
-              {panels[active].type === "parts" && (
-                <div className="w-full max-h-[300px] overflow-y-auto pr-1">
-                  {(!panels[active].data || panels[active].data.length === 0) ? (
-                    <p className="text-xs text-gray-500 text-center py-6">
-                      No parts configured for this uniform.
-                    </p>
-                  ) : (
-                    <div className="space-y-2">
-                      {[...panels[active].data].reverse().map((part) => {
-                        const selected = designJSON.part === part.name;
+              {/* Parts with static PART_TYPE_OPTIONS filter pills and 2-column cards (like fabric) */}
+              {panels[active].type === "parts" && (() => {
+                const allParts = panels[active].data || [];
+
+                const normalize = (str) =>
+                  (str || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+
+                const visibleParts =
+                  partFilter.toLowerCase() === "all"
+                    ? allParts
+                    : allParts.filter((part) => {
+                        const target = normalize(partFilter);
+                        const pt = normalize(part.part_type);
+                        if (pt) {
+                          return pt === target || pt.includes(target) || target.includes(pt);
+                        }
+                        if (target === "other") return true;
+                        const nameNorm = normalize(part.name || part.part_name);
+                        return nameNorm.includes(target);
+                      });
+
+                return (
+                  <div className="w-full space-y-3">
+                    {/* FILTER PILLS */}
+                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1.5 no-scrollbar max-w-full">
+                      {PART_TYPE_OPTIONS.map((opt) => {
+                        const isActive = (partFilter || "all").toLowerCase() === opt.value.toLowerCase();
                         return (
                           <button
-                            key={part.id}
+                            key={opt.value}
+                            type="button"
                             onClick={() => {
-                              if (selected) {
-                                setDesignJSON((prev) => ({
-                                  ...prev,
-                                  part: "",
-                                }));
-                                onActive3dPartClick("");
+                              if (isActive && opt.value !== "all") {
+                                setPartFilter("all");
                               } else {
-                                setDesignJSON((prev) => ({
-                                  ...prev,
-                                  part: part.name,
-                                }));
-                                onActive3dPartClick(part.name);
+                                setPartFilter(opt.value);
                               }
                             }}
-                            className={`w-full flex items-center gap-3 rounded-lg border p-2 text-left transition ${selected
-                              ? "border-blue-600 bg-blue-50/70 shadow-sm"
-                              : "border-gray-200 hover:border-blue-400 bg-white"
-                              }`}
+                            className={`shrink-0 px-3 py-1 rounded-full text-[11px] font-medium transition cursor-pointer select-none ${
+                              isActive
+                                ? "bg-[#1C4FA8] text-white shadow-xs"
+                                : "bg-[#F1F5F9] text-[#486284] hover:bg-[#E2E8F0]"
+                            }`}
                           >
-                            <span className="w-12 h-12 flex-shrink-0 rounded-md bg-gray-50 border border-gray-200 overflow-hidden flex items-center justify-center p-0.5">
-                              {part.image ? (
-                                /* eslint-disable-next-line @next/next/no-img-element */
-                                <img
-                                  src={part.image}
-                                  alt={part.name}
-                                  className="w-full h-full object-contain"
-                                />
-                              ) : (
-                                <PartsIcon />
-                              )}
-                            </span>
-                            <span className="min-w-0 flex-1">
-                              <span className="block text-xs font-semibold text-[#1C2A4A] truncate">
-                                {part.name}
-                              </span>
-                              {part.fabric && (
-                                <span className="block text-[10px] text-gray-500 truncate mt-0.5">
-                                  Fabric: {part.fabric}
-                                </span>
-                              )}
-                            </span>
-                            {selected && (
-                              <span className="w-5 h-5 rounded-full bg-[#1C4FA8] flex items-center justify-center flex-shrink-0">
-                                <FiCheck size={12} className="text-white" />
-                              </span>
-                            )}
+                            {opt.label}
                           </button>
                         );
                       })}
                     </div>
-                  )}
-                </div>
-              )}
+
+                    {/* PARTS CARDS GRID */}
+                    <div className="w-full max-h-[320px] overflow-y-auto pr-1">
+                      {allParts.length === 0 ? (
+                        <div className="text-center py-6 text-gray-500 text-xs">
+                          No parts configured for this uniform.
+                        </div>
+                      ) : visibleParts.length === 0 ? (
+                        <div className="text-center py-6 text-gray-500 text-xs">
+                          <p className="font-medium text-gray-600">
+                            No parts found for &quot;{PART_TYPE_OPTIONS.find((o) => o.value.toLowerCase() === (partFilter || "all").toLowerCase())?.label || partFilter}&quot;.
+                          </p>
+                          <p className="text-[11px] text-gray-400 mt-0.5">
+                            Check other part types or view all parts.
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => setPartFilter("all")}
+                            className="mt-2 text-[#1C4FA8] hover:underline font-semibold text-xs cursor-pointer"
+                          >
+                            View All Parts
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-2 gap-2.5">
+                          {visibleParts.map((part) => {
+                            const isSelected = designJSON.part === part.name;
+
+                            return (
+                              <div
+                                key={part.id}
+                                onClick={() => {
+                                  if (isSelected) {
+                                    setDesignJSON((prev) => ({
+                                      ...prev,
+                                      part: "",
+                                    }));
+                                    onActive3dPartClick("");
+                                  } else {
+                                    setDesignJSON((prev) => ({
+                                      ...prev,
+                                      part: part.name,
+                                    }));
+                                    onActive3dPartClick(part.name);
+                                  }
+                                }}
+                                className={`relative bg-white rounded-xl border p-2.5 flex flex-col justify-between transition shadow-xs cursor-pointer select-none ${
+                                  isSelected
+                                    ? "border-[#1C4FA8] ring-2 ring-[#1C4FA8] bg-blue-50/25 shadow-sm"
+                                    : "border-gray-200 hover:border-[#1C4FA8]/50 hover:shadow-sm"
+                                }`}
+                              >
+                                {/* Top right checkmark badge when selected */}
+                                {isSelected && (
+                                  <span className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#1C4FA8] text-white flex items-center justify-center shadow-xs z-10">
+                                    <FiCheck size={12} strokeWidth={3} />
+                                  </span>
+                                )}
+
+                                {/* TOP ROW: Image + Text Details */}
+                                <div className="flex items-start gap-2">
+                                  {/* Part image preview */}
+                                  <div className="relative w-11 h-11 rounded-lg overflow-hidden flex-shrink-0 border border-gray-200 bg-gray-50 flex items-center justify-center p-0.5">
+                                    {part.image ? (
+                                      <img
+                                        src={part.image}
+                                        alt={part.name}
+                                        className="w-full h-full object-contain"
+                                      />
+                                    ) : (
+                                      <PartsIcon />
+                                    )}
+                                  </div>
+
+                                  {/* Info: Name, fabric, part_type */}
+                                  <div className="min-w-0 flex-1 pr-4">
+                                    <h6
+                                      className="font-bold text-[11px] text-[#1C2C56] truncate leading-tight"
+                                      title={part.name}
+                                    >
+                                      {part.name}
+                                    </h6>
+                                    {part.fabric && (
+                                      <p
+                                        className="text-[9px] text-gray-500 truncate mt-0.5"
+                                        title={part.fabric}
+                                      >
+                                        Fabric: {part.fabric}
+                                      </p>
+                                    )}
+                                    <div className="flex items-center gap-1 mt-1 flex-wrap">
+                                      {part.part_type && (
+                                        <span className="text-[8px] font-bold uppercase tracking-wider px-1 py-0.2 rounded bg-blue-50 text-[#1C4FA8] border border-blue-100">
+                                          {part.part_type}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* BOTTOM ROW: Full-width Apply/Applied button */}
+                                <div className="mt-2.5 pt-1.5 border-t border-gray-100">
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (isSelected) {
+                                        setDesignJSON((prev) => ({
+                                          ...prev,
+                                          part: "",
+                                        }));
+                                        onActive3dPartClick("");
+                                      } else {
+                                        setDesignJSON((prev) => ({
+                                          ...prev,
+                                          part: part.name,
+                                        }));
+                                        onActive3dPartClick(part.name);
+                                      }
+                                    }}
+                                    className={`w-full py-1.5 px-2 rounded-lg text-[11px] font-semibold transition cursor-pointer flex items-center justify-center gap-1.5 ${
+                                      isSelected
+                                        ? "bg-[#1C4FA8] text-white shadow-xs"
+                                        : "bg-[#F0F5FF] text-[#1C4FA8] hover:bg-[#E1EDFF]"
+                                    }`}
+                                  >
+                                    {isSelected && <FiCheck size={12} strokeWidth={3} className="text-white" />}
+                                    <span>{isSelected ? "Applied" : "Apply"}</span>
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* Admin fabrics panel with functional type filter and rich cards */}
               {panels[active].type === "fabricRecords" && (() => {

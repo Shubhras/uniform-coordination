@@ -116,13 +116,22 @@ const AddEditPartModal = ({
         message: "z-Index cannot be negative",
       }),
     subcategory: z.any().optional(),
-    part_type: z.any().optional().nullable(),
+    // part_type: z.any().optional().nullable(),
+    part_type: z
+      .object({
+        value: z.string().min(1),
+        label: z.string(),
+      })
+      .nullable()
+      .refine((val) => val !== null, {
+        message: tm("validation.partTypeRequired"),
+      }),
     image:
       mode === "edit"
         ? z.any().optional().nullable()
         : z.any().refine((val) => val instanceof File, {
-            message: tm("validation.imageRequired"),
-          }),
+          message: tm("validation.imageRequired"),
+        }),
   });
 
   const {
@@ -276,30 +285,30 @@ const AddEditPartModal = ({
     if (mode === "edit" && initialData) {
       const catObj = initialData.category
         ? {
-            value: initialData.category.id || initialData.category,
-            label: initialData.category.categoryName || initialData.category,
-          }
+          value: initialData.category.id || initialData.category,
+          label: initialData.category.categoryName || initialData.category,
+        }
         : null;
 
       const subcatObj = initialData.subcategory
         ? {
-            value: initialData.subcategory.id || initialData.subcategory,
-            label: initialData.subcategory.name || initialData.subcategory,
-          }
+          value: initialData.subcategory.id || initialData.subcategory,
+          label: initialData.subcategory.name || initialData.subcategory,
+        }
         : null;
 
       const fabricObj = initialData.fabric
         ? {
-            value: initialData.fabric.id || initialData.fabric,
-            label: initialData.fabric.fabricName || initialData.fabric,
-          }
+          value: initialData.fabric.id || initialData.fabric,
+          label: initialData.fabric.fabricName || initialData.fabric,
+        }
         : null;
 
       const partTypeObj = initialData.part_type
         ? PART_TYPE_OPTIONS.find((o) => o.value === initialData.part_type) || {
-            value: initialData.part_type,
-            label: initialData.part_type,
-          }
+          value: initialData.part_type,
+          label: initialData.part_type,
+        }
         : null;
 
       reset({
@@ -594,11 +603,17 @@ const AddEditPartModal = ({
             </div>
 
             {/* Part Type (e.g. Collar, Sleeve, Zipper, Cuff, Waist, Hem, Inner Mesh, Cap...) */}
+            {/* Part Type */}
             <div>
               <label className="text-[#1C2C56] text-base font-medium">
-                Part Type
+                {tm("partType")}
+                <span className="text-red-500">*</span>
               </label>
-              <FormItem>
+
+              <FormItem
+                invalid={Boolean(errors.part_type)}
+                errorMessage={errors.part_type?.message}
+              >
                 <Controller
                   name="part_type"
                   control={control}
@@ -609,7 +624,7 @@ const AddEditPartModal = ({
                       value={field.value}
                       onChange={field.onChange}
                       styles={selectStyles}
-                      placeholder="Select Part Type (e.g. Collar, Sleeve, Zipper, Waist, Hem...)"
+                      placeholder={tm("partTypePlaceholder")}
                       isClearable
                       menuPortalTarget={
                         typeof document !== "undefined" ? document.body : null

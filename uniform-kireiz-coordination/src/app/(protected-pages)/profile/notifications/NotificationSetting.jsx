@@ -52,6 +52,9 @@ const NotificationSetting = () => {
           <h3 className="text-[#003562] text-lg font-semibold">
             Notification Setting
           </h3>
+          <span className="bg-[#1C4FA8] text-white text-xs font-semibold rounded-full min-w-6 h-6 flex items-center justify-center px-2">
+            {totalCount}
+          </span>
         </div>
         <p className="text-sm text-gray-500">
           Stay updated with alerts and activities

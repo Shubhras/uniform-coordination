@@ -62,6 +62,35 @@ export async function apiUpdateProfile(token, payload) {
 }
 
 /**
+ * Removes the user's profile image via DELETE request.
+ * 
+ * @param {string} token - User authentication Bearer token.
+ * @returns {Promise<Object>} API response confirming removal.
+ */
+export async function apiRemoveProfileImage(token) {
+    try {
+        return await ApiService.fetchDataWithAxios({
+            url: '/v1/space/userhub/profile/update/',
+            method: 'delete',
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        })
+    } catch (err) {
+        if (err?.response?.status === 404) {
+            return await ApiService.fetchDataWithAxios({
+                url: '/v1/userhub/profile/update/',
+                method: 'delete',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+        }
+        throw err
+    }
+}
+
+/**
  * Updates user account password.
  * 
  * @param {string} token - User authentication Bearer token.

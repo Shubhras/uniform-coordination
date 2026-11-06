@@ -476,10 +476,10 @@ const MyProfile = () => {
                 >
                   <FiFileText className="text-[#003560]" size={16} />
                   {quotationDetailLoadingId ===
-                  (quotation?.uuids ||
-                    quotation?.uuid ||
-                    quotation?.id ||
-                    quotation?.quotation_id)
+                    (quotation?.uuids ||
+                      quotation?.uuid ||
+                      quotation?.id ||
+                      quotation?.quotation_id)
                     ? "Loading..."
                     : "View PDF"}
                 </button>
@@ -609,11 +609,10 @@ const MyProfile = () => {
 
                     <div className="flex shrink-0 flex-col items-end gap-5 pt-0.5 text-right">
                       <span
-                        className={`inline-flex justify-center rounded-[4px] px-2.5 py-1.5 text-xs font-semibold leading-none ${
-                          item?.isActive
-                            ? "bg-[#DBEAFE] text-[#2563A8]"
-                            : "bg-[#F1F5F9] text-[#94A3B8]"
-                        }`}
+                        className={`inline-flex justify-center rounded-[4px] px-2.5 py-1.5 text-xs font-semibold leading-none ${item?.isActive
+                          ? "bg-[#DBEAFE] text-[#2563A8]"
+                          : "bg-[#F1F5F9] text-[#94A3B8]"
+                          }`}
                       >
                         {item?.isActive ? "OPEN" : "CLOSED"}
                       </span>

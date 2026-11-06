@@ -23,6 +23,7 @@ const Upload = (props) => {
         onFileRemove,
         ref,
         showList = true,
+        showError = true,
         tip,
         uploadLimit,
         children,
@@ -78,20 +79,24 @@ const Upload = (props) => {
         return filesToArray({ ...file })
     }
 
-    const onNewFileUpload = (e) => {
+    const onNewFileUpload = async (e) => {
         const { files: newFiles } = e.target
         let result = true
 
         if (beforeUpload) {
-            result = beforeUpload(newFiles, files)
+            result = await beforeUpload(newFiles, files)
 
             if (result === false) {
-                triggerMessage()
+                if (showError) {
+                    triggerMessage()
+                }
                 return
             }
 
             if (typeof result === 'string' && result.length > 0) {
-                triggerMessage(result)
+                if (showError) {
+                    triggerMessage(result)
+                }
                 return
             }
         }

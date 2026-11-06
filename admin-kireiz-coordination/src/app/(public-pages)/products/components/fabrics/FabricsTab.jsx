@@ -10,6 +10,7 @@ import {
   FiChevronRight,
   FiX,
   FiPlus,
+  FiImage,
 } from "react-icons/fi";
 import Select from "react-select";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
@@ -23,6 +24,8 @@ import {
 import AddEditFabricModal from "./AddEditFabricModal";
 import DeleteConfirmDialog from "@/components/shared/DeleteConfirmDialog";
 import Pagination from "@/components/ui/Pagination";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
 const FabricsTab = () => {
   const t = useTranslations("productSpecification.fabrics");
@@ -211,6 +214,12 @@ const FabricsTab = () => {
     );
   }, [fabrics, searchQuery, category]);
 
+  const getImageUrl = (path) => {
+    if (!path) return null;
+    if (path.startsWith("http")) return path;
+    return `${API_BASE}${path}`;
+  };
+
   return (
     <div className="bg-[#F4F7FC] rounded-xl shadow md:p-6 p-4">
       {/* Header */}
@@ -220,7 +229,9 @@ const FabricsTab = () => {
             {t("title")}
           </h2>
           <p className="text-[#64748B] text-sm">
-            {t("totalCount", { count: pagination.total_items || fabrics.length })}
+            {t("totalCount", {
+              count: pagination.total_items || fabrics.length,
+            })}
           </p>
         </div>
 
@@ -294,14 +305,27 @@ const FabricsTab = () => {
         <table className="w-full text-base">
           <thead className="bg-[#1C4FA80F] text-[#486284]">
             <tr>
-              <th className="text-left px-5 py-4 font-medium">{t("tableHeaders.fabricName")}</th>
-              <th className="text-left px-5 py-4 font-medium">{t("tableHeaders.color")}</th>
-              <th className="text-left px-5 py-4 font-medium">{t("tableHeaders.material")}</th>
+              <th className="text-left px-5 py-4 font-medium">
+                {t("tableHeaders.preview")}
+              </th>
+              <th className="text-left px-5 py-4 font-medium">
+                {t("tableHeaders.fabricName")}
+              </th>
+              <th className="text-left px-5 py-4 font-medium">
+                {t("tableHeaders.color")}
+              </th>
+              <th className="text-left px-5 py-4 font-medium">
+                {t("tableHeaders.material")}
+              </th>
               <th className="text-left px-5 py-4 font-medium">
                 {t("tableHeaders.pricePerUnit")}
               </th>
-              <th className="text-left px-5 py-4 font-medium">{t("tableHeaders.status")}</th>
-              <th className="text-right px-5 py-4 font-medium">{t("tableHeaders.actions")}</th>
+              <th className="text-left px-5 py-4 font-medium">
+                {t("tableHeaders.status")}
+              </th>
+              <th className="text-right px-5 py-4 font-medium">
+                {t("tableHeaders.actions")}
+              </th>
             </tr>
           </thead>
 
@@ -313,7 +337,7 @@ const FabricsTab = () => {
                   key={i}
                   className={i % 2 === 0 ? "bg-white" : "bg-[#1C4FA80F]"}
                 >
-                  {Array.from({ length: 6 }).map((_, j) => (
+                  {Array.from({ length: 7 }).map((_, j) => (
                     <td key={j} className="px-5 py-4">
                       <div className="h-4 bg-gray-200 rounded animate-pulse w-20" />
                     </td>
@@ -322,7 +346,7 @@ const FabricsTab = () => {
               ))
             ) : filteredFabrics.length === 0 ? (
               <tr>
-                <td colSpan={6} className="text-center py-10 text-[#64748B]">
+                <td colSpan={7} className="text-center py-10 text-[#64748B]">
                   {t("noData")}
                 </td>
               </tr>
@@ -332,6 +356,40 @@ const FabricsTab = () => {
                   key={fabric.id}
                   className={`text-base ${index % 2 === 0 ? "bg-white" : "bg-[#1C4FA80F]"}`}
                 >
+                  <td className="px-5 py-4">
+                    {fabric.texture_image || fabric.textureImage ? (
+                      <img
+                        src={getImageUrl(
+                          fabric.texture_image || fabric.textureImage,
+                        )}
+                        alt={fabric.fabricName}
+                        className="w-12 h-12 rounded-lg object-cover border bg-white"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.style.display = "none";
+                          if (e.target.nextElementSibling) {
+                            e.target.nextElementSibling.style.display = "flex";
+                          }
+                        }}
+                      />
+                    ) : null}
+                    {!fabric.texture_image && !fabric.textureImage && (
+                      <div
+                        className="w-12 h-12 rounded-lg border flex items-center justify-center bg-white shadow-xs"
+                        title={fabric.color || fabric.fabricName}
+                      >
+                        {fabric.color ? (
+                          <span
+                            className="w-6 h-6 rounded-full border shadow-xs"
+                            style={{ backgroundColor: fabric.color }}
+                          />
+                        ) : (
+                          <FiImage className="text-gray-400" size={20} />
+                        )}
+                      </div>
+                    )}
+                  </td>
+
                   <td className="px-5 py-4 text-[#1C2C56] font-medium">
                     {fabric.fabricName}
                   </td>
@@ -357,12 +415,15 @@ const FabricsTab = () => {
 
                   <td className="px-5 py-4">
                     <span
-                      className={`text-xs font-medium px-2 py-1 rounded-full ${fabric.isActive
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-600"
-                        }`}
+                      className={`text-xs font-medium px-2 py-1 rounded-full ${
+                        fabric.isActive
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-600"
+                      }`}
                     >
-                      {fabric.isActive ? t("addFabricModal.statusActive") : t("addFabricModal.statusInactive")}
+                      {fabric.isActive
+                        ? t("addFabricModal.statusActive")
+                        : t("addFabricModal.statusInactive")}
                     </span>
                   </td>
 

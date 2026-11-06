@@ -202,24 +202,6 @@ const MyProfile = () => {
               className="hidden"
               onChange={handleSelectImage}
             />
-
-            <div className="flex gap-4 text-xs">
-              <button
-                onClick={() => fileRef.current.click()}
-                className="text-[#A0522D] font-medium hover:underline"
-              >
-                Upload
-              </button>
-
-              {image && (
-                <button
-                  onClick={handleRemoveImage}
-                  className="text-red-500 font-medium hover:underline"
-                >
-                  Remove
-                </button>
-              )}
-            </div>
           </div>
 
           <span className="mt-3 flex items-center gap-1 text-[11px] text-green-600 bg-green-50 px-3 py-1 rounded-full lg:hidden">
@@ -459,11 +441,10 @@ const MyProfile = () => {
 
                     <div className="text-right">
                       <span
-                        className={`text-[11px] px-3 py-1 rounded-md ${
-                          item.isActive === true
+                        className={`text-[11px] px-3 py-1 rounded-md ${item.isActive === true
                             ? "text-[#7A3E1D] bg-[#E6D2C4]"
                             : "text-[#8B6A55] bg-[#F5F0EE30]"
-                        }`}
+                          }`}
                       >
                         {item.isActive ? "OPEN" : "CLOSED"}
                       </span>

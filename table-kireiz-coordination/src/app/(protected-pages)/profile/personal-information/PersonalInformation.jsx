@@ -19,7 +19,7 @@ import { z } from 'zod'
 import { HiOutlineUser } from 'react-icons/hi'
 import { TbPlus } from 'react-icons/tb'
 import { CiUser } from 'react-icons/ci'
-import { apiGetProfile, apiUpdateProfile } from '@/services/AuthProfileService'
+import { apiGetProfile, apiUpdateProfile, apiRemoveProfileImage } from '@/services/AuthProfileService'
 import { useSession } from 'next-auth/react'
 import useCurrentSession from '@/utils/hooks/useCurrentSession'
 import toast from '@/components/ui/toast'
@@ -34,7 +34,7 @@ const validationSchema = z.object({
         .min(1, { message: 'Email required' })
         .email({ message: 'Invalid email' }),
     //dialCode: z.string().min(1, { message: 'Please select your country code' }),
-      phoneNumber: z
+    phoneNumber: z
         .string()
         .min(1, { message: 'Phone number is required' })
         .regex(/^\d{10}$/, {
@@ -88,6 +88,7 @@ const PersonalInformation = () => {
     const session = nextAuthSession || currentSession
     const token = session?.accessToken || session?.user?.accessToken
     const [loading, setLoading] = useState(false)
+    const [removingImage, setRemovingImage] = useState(false)
     const {
         handleSubmit,
         reset,
@@ -195,7 +196,7 @@ const PersonalInformation = () => {
                 </Notification>,
             )
             //console.log('Profile updated successfully')
-          router.back()
+            router.back()
         } catch (error) {
             console.error('Profile update failed:', error)
 
@@ -211,6 +212,32 @@ const PersonalInformation = () => {
             )
         } finally {
             setLoading(false)
+        }
+    }
+
+    const handleRemoveImage = async (fieldOnChange) => {
+        fieldOnChange('')
+        if (!token) return
+
+        try {
+            setRemovingImage(true)
+            const res = await apiRemoveProfileImage(token)
+            if (res?.status === true || res?.statusCode === 200) {
+                toast.push(
+                    <Notification title="Success" type="success">
+                        {res?.message || 'Profile image removed successfully'}
+                    </Notification>,
+                )
+            }
+        } catch (error) {
+            console.error('Failed to remove profile image:', error)
+            toast.push(
+                <Notification title="Error" type="danger">
+                    {error?.response?.data?.message || 'Failed to remove profile image'}
+                </Notification>,
+            )
+        } finally {
+            setRemovingImage(false)
         }
     }
 
@@ -275,8 +302,10 @@ const PersonalInformation = () => {
                                             <Button
                                                 size="sm"
                                                 type="button"
+                                                loading={removingImage}
+                                                disabled={removingImage || loading}
                                                 className="w-full sm:w-auto border px-6 py-2 rounded-md"
-                                                onClick={() => field.onChange('')}
+                                                onClick={() => handleRemoveImage(field.onChange)}
                                             >
                                                 Remove
                                             </Button>
@@ -388,7 +417,7 @@ const PersonalInformation = () => {
                             </FormItem> */}
 
                             <FormItem
-                            label="Phone Number"
+                                label="Phone Number"
                                 className="w-full"
                                 invalid={Boolean(errors.phoneNumber)}
                                 errorMessage={errors.phoneNumber?.message}
@@ -400,7 +429,7 @@ const PersonalInformation = () => {
                                         <NumericInput
                                             placeholder="Phone Number"
                                             {...field}
-                                             maxLength={10}
+                                            maxLength={10}
                                             onChange={(e) => {
                                                 const value = e.target.value.replace(/\D/g, '').slice(0, 10)
                                                 field.onChange(value)

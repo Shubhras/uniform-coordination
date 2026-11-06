@@ -40,7 +40,7 @@ const CustomOption = (props) => {
 };
 
 const sortOptions = [
-  { value: "", label: "Sort" },
+  { value: "", label: "All Sort" },
   { value: "new", label: "Newest" },
   { value: "old", label: "Oldest" },
 ];

@@ -18,7 +18,7 @@ import { z } from 'zod'
 import { HiOutlineUser } from 'react-icons/hi'
 import { TbPlus } from 'react-icons/tb'
 import { CiUser } from 'react-icons/ci'
-import { apiGetProfile, apiUpdateProfile } from '@/services/AuthProfileService'
+import { apiGetProfile, apiUpdateProfile, apiDeleteProfileImage } from '@/services/AuthProfileService'
 import { useSession } from 'next-auth/react'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
@@ -34,7 +34,10 @@ const validationSchema = z.object({
     //dialCode: z.string().min(1, { message: 'Please select your country code' }),
     phoneNumber: z
         .string()
-        .min(1, { message: 'Please input your mobile number' }),
+        .min(1, { message: 'Please input your mobile number' })
+        .regex(/^[0-9]{10}$/, {
+            message: 'Phone number must be exactly 10 digits',
+        }),
     position: z.string().min(1, { message: 'Position required' }),
     //img: z.string(),
     img: z.any().optional(),
@@ -79,6 +82,7 @@ const CustomControl = ({ children, ...props }) => {
 const PersonalInformation = () => {
     const { data: session } = useSession()
     const [loading, setLoading] = useState(false)
+    const [removingImage, setRemovingImage] = useState(false)
     const {
         handleSubmit,
         reset,
@@ -108,19 +112,70 @@ const PersonalInformation = () => {
     }, [])
 
     const beforeUpload = (files) => {
-        let valid = true
-
         const allowedFileType = ['image/jpeg', 'image/png']
-        if (files) {
-            const fileArray = Array.from(files)
-            for (const file of fileArray) {
-                if (!allowedFileType.includes(file.type)) {
-                    valid = 'Please upload a .jpeg or .png file!'
-                }
-            }
+        const maxFileSize = 5 * 1024 * 1024 // 5 MB
+
+        if (!files || files.length === 0) {
+            return true
         }
 
-        return valid
+        const file = files[0]
+
+        // File type validation
+        if (!allowedFileType.includes(file.type)) {
+            toast.push(
+                <Notification title="Invalid File" type="danger">
+                    Please upload only JPG or PNG images.
+                </Notification>
+            )
+            return false
+        }
+
+        // File size validation
+        if (file.size > maxFileSize) {
+            toast.push(
+                <Notification title="File Too Large" type="danger">
+                    Image size must not exceed 5 MB.
+                </Notification>
+            )
+            return false
+        }
+
+        // Image dimensions validation
+        return new Promise((resolve) => {
+            const img = new window.Image()
+            const objectUrl = URL.createObjectURL(file)
+
+            img.onload = () => {
+                URL.revokeObjectURL(objectUrl)
+
+                if (img.width !== 500 || img.height !== 500) {
+                    toast.push(
+                        <Notification title="Invalid Dimensions" type="danger">
+                            Image dimensions must be exactly 500 × 500 pixels.
+                        </Notification>
+                    )
+                    resolve(false)
+                    return
+                }
+
+                resolve(true)
+            }
+
+            img.onerror = () => {
+                URL.revokeObjectURL(objectUrl)
+
+                toast.push(
+                    <Notification title="Invalid Image" type="danger">
+                        Please upload a valid JPG or PNG image.
+                    </Notification>
+                )
+
+                resolve(false)
+            }
+
+            img.src = objectUrl
+        })
     }
 
     // useEffect(() => {
@@ -177,6 +232,7 @@ const PersonalInformation = () => {
                 lastName: values.lastName,
                 phone: values.phoneNumber || null,
                 // profileImage: values.img || null,
+                profileImage: values.img instanceof File ? values.img : values.img || "",
             }
             if (values.img instanceof File) {
                 payload.profileImage = values.img
@@ -205,6 +261,38 @@ const PersonalInformation = () => {
             )
         } finally {
             setLoading(false)
+        }
+    }
+
+    const handleRemoveImage = async (field) => {
+        const token = session?.accessToken || session?.user?.accessToken
+        if (!token) {
+            field.onChange(null)
+            return
+        }
+
+        setRemovingImage(true)
+        try {
+            await apiDeleteProfileImage(token)
+            field.onChange(null)
+            toast.push(
+                <Notification title="Success" type="success">
+                    Profile image removed successfully
+                </Notification>,
+            )
+        } catch (error) {
+            console.error('Failed to remove profile image:', error)
+            const errorMessage =
+                error?.response?.data?.message ||
+                error?.response?.data?.error ||
+                'Failed to remove profile image.'
+            toast.push(
+                <Notification title="Error" type="danger">
+                    {errorMessage}
+                </Notification>,
+            )
+        } finally {
+            setRemovingImage(false)
         }
     }
 
@@ -255,6 +343,7 @@ const PersonalInformation = () => {
                                                 showList={false}
                                                 uploadLimit={1}
                                                 beforeUpload={beforeUpload}
+                                                showError={false}
                                                 onChange={(files) => {
                                                     if (files.length > 0) {
                                                         field.onChange(files[0]) // store the File object
@@ -276,15 +365,15 @@ const PersonalInformation = () => {
                                             <Button
                                                 size="sm"
                                                 type="button"
+                                                loading={removingImage}
+                                                disabled={removingImage}
                                                 className="border px-6 py-2 rounded-md"
-                                                onClick={() => {
-                                                    field.onChange('')
-                                                }}
+                                                onClick={() => handleRemoveImage(field)}
                                             >
                                                 Remove
                                             </Button>
                                         </div>
-                                        <p className='text-[#5175B2] text-center text-xs'>Recommended: 500x500px, JPG/PNG</p>
+                                        <p className='text-[#5175B2] text-center text-xs'>Recommended: 500x500px (Max 5MB), JPG/PNG</p>
                                     </div>
                                 </div>
                             )}
@@ -393,6 +482,15 @@ const PersonalInformation = () => {
                                         <NumericInput
                                             placeholder="Phone Number"
                                             {...field}
+                                            maxLength={10}
+                                            inputMode="numeric"
+                                            onChange={(e) => {
+                                                const value = e.target.value
+                                                    .replace(/\D/g, '')
+                                                    .slice(0, 10)
+
+                                                field.onChange(value)
+                                            }}
                                         />
                                     )}
                                 />

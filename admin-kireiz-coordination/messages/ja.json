@@ -673,6 +673,7 @@
       "reset": "リセット",
       "successTitle": "成功",
       "tableHeaders": {
+        "preview": "プレビュー",
         "fabricName": "生地名",
         "color": "カラー",
         "material": "素材",
@@ -796,7 +797,7 @@
         "subcategoryPlaceholder": "サブカテゴリーを選択",
         "fabricLabel": "生地",
         "fabricPlaceholder": "生地を選択",
-        "zIndexLabel": "z-Index",
+        "zIndexLabel": "重なり順",
         "zIndexPlaceholder": "例: 1",
         "uploadImageLabel": "画像をアップロード",
         "uploadImageButton": "画像をアップロード",
@@ -808,11 +809,14 @@
         "cancel": "キャンセル",
         "save": "保存",
         "update": "更新",
+        "partType": "パーツタイプ",
+        "partTypePlaceholder": "パーツタイプを選択",
         "saveFailed": "パーツの保存に失敗しました。もう一度お試しください。",
         "validation": {
           "nameRequired": "パーツ名は必須です",
           "categoryRequired": "カテゴリーは必須です",
-          "imageRequired": "画像は必須です"
+          "imageRequired": "画像は必須です",
+          "partTypeRequired": "パーツタイプは必須です"
         },
         "imageValidated": "画像を確認しました",
         "saveSuccess": "保存しました"

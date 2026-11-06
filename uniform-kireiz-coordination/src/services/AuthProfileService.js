@@ -49,6 +49,22 @@ export async function apiUpdateProfile(token, payload) {
 }
 
 /**
+ * Deletes user profile image.
+ *
+ * @param {string} token - User authentication Bearer token.
+ * @returns {Promise<Object>} API response confirming profile image deletion.
+ */
+export async function apiDeleteProfileImage(token) {
+  return ApiService.fetchDataWithAxios({
+    url: '/v1/userhub/profile/update/',
+    method: 'delete',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+}
+
+/**
  * Updates user account password.
  *
  * @param {string} token - User authentication Bearer token.
