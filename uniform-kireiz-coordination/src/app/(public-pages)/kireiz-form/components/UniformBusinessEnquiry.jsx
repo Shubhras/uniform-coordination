@@ -385,20 +385,18 @@ const UniformBusinessEnquiry = ({ categories = [] }) => {
           <FiArrowLeft
             size={25}
             onClick={!isPrevDisabled ? handlePrev : undefined}
-            className={`cursor-pointer transition ${
-              isPrevDisabled
+            className={`cursor-pointer transition ${isPrevDisabled
                 ? "text-gray-300 cursor-not-allowed"
                 : "text-gray-600 hover:text-black"
-            }`}
+              }`}
           />
           <FiArrowRight
             size={25}
             onClick={!isNextDisabled ? handleNext : undefined}
-            className={`cursor-pointer transition ${
-              isNextDisabled
+            className={`cursor-pointer transition ${isNextDisabled
                 ? "text-gray-300 cursor-not-allowed"
                 : "text-gray-600 hover:text-black"
-            }`}
+              }`}
           />
         </div>
 
@@ -417,13 +415,13 @@ const UniformBusinessEnquiry = ({ categories = [] }) => {
                 onClick={() => handleMedicalFormDesigning(item.id)}
               >
                 <div className="flex justify-center mb-6">
-                  <div className="w-[180px] h-[200px] md:w-[200px] md:h-[220px] rounded-full overflow-hidden shrink-0">
+                  <div className="w-[180px] h-[180px] md:w-[200px] md:h-[200px] aspect-square rounded-full overflow-hidden shrink-0">
                     <Image
-                      src={item.img}
-                      alt={item.id}
+                      src={item.img || "/img/medical-form/category/category1.png"}
+                      alt={item.title || "Industry Solution"}
                       width={200}
-                      height={220}
-                      className="object-cover w-full h-full"
+                      height={200}
+                      className="object-cover w-full h-full rounded-full"
                       unoptimized
                     />
                   </div>
