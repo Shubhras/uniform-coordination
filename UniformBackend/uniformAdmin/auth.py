@@ -1063,7 +1063,16 @@ class AdminUserListAPIView(APIView):
     )
     def get(self, request):
         try:
-            queryset = AdminUser.objects.exclude(role__role_name__in=["sales", "sales_rep"]).order_by("-id")
+            NON_ADMIN_ROLES = ["sales", "sales_rep", "b2b", "b2b_user", "corporate", "customer", "b2c"]
+            NON_ADMIN_SLUGS = ["sales", "sales-rep", "sales_rep", "b2b", "b2b-user", "b2b_user", "corporate", "customer", "b2c"]
+            queryset = AdminUser.objects.exclude(
+                Q(role__role_name__in=NON_ADMIN_ROLES) |
+                Q(role__slug__in=NON_ADMIN_SLUGS) |
+                Q(role__role_name__iexact="b2b") |
+                Q(role__role_name__iexact="b2b_user") |
+                Q(role__slug__iexact="b2b") |
+                Q(role__slug__iexact="b2b-user")
+            ).order_by("-id")
 
             # SEARCH
             search = request.query_params.get("search")
@@ -1075,12 +1084,22 @@ class AdminUserListAPIView(APIView):
                     Q(mobile__icontains=search) |
                     Q(tier__icontains=search)
                 )
-                
+
+            # FILTER BY ROLE
+            role_param = request.query_params.get("role")
+            if role_param:
+                if str(role_param).isdigit():
+                    queryset = queryset.filter(role_id=int(role_param))
+                else:
+                    queryset = queryset.filter(
+                        Q(role__role_name__iexact=role_param) | Q(role__slug__iexact=role_param)
+                    )
+
             # Active Filter
-            is_active = request.query_params.get("isActive")
-            if is_active is not None:
+            is_active = request.query_params.get("isActive") or request.query_params.get("status")
+            if is_active is not None and is_active != "":
                 queryset = queryset.filter(
-                    is_active=is_active.lower() == "true"
+                    is_active=str(is_active).lower() == "true"
                 )    
 
             # PAGINATION
