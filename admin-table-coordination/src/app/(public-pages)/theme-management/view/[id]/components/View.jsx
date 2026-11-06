@@ -152,14 +152,21 @@ const PreviewTheme = () => {
               alt=""
               aria-hidden="true"
               className="absolute inset-0 w-full h-full object-cover blur-2xl scale-110 opacity-30 pointer-events-none"
+              onError={(e) => {
+                e.currentTarget.style.display = "none";
+              }}
             />
           )}
 
           {bannerImages[activeImage] ? (
             <img
-              src={bannerImages[activeImage]}
+              src={bannerImages[activeImage] || "/img/others/table-image.png"}
               alt={themeData?.title || "Theme Banner"}
               className="relative z-10 max-h-full max-w-full object-contain"
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = "/img/others/table-image.png";
+              }}
             />
           ) : (
             <div className="relative z-10 text-sm text-[#8D8178]">
@@ -184,11 +191,10 @@ const PreviewTheme = () => {
                   key={index}
                   type="button"
                   onClick={() => setActiveImage(index)}
-                  className={`h-2 rounded-full transition-all duration-200 ${
-                    activeImage === index
+                  className={`h-2 rounded-full transition-all duration-200 ${activeImage === index
                       ? "bg-white w-6"
                       : "bg-white/60 hover:bg-white/80 w-2"
-                  }`}
+                    }`}
                 />
               ))}
             </div>
@@ -251,11 +257,21 @@ const PreviewTheme = () => {
                         className="flex items-center justify-between rounded-xl border border-[#EFE5DD] p-3"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="w-14 h-14 rounded-lg border border-[#EFE5DD] bg-[#FAF8F6] flex items-center justify-center overflow-hidden p-1 flex-shrink-0">
+                          <div className="w-14 h-14 aspect-square rounded-lg border border-[#EFE5DD] bg-[#FAF8F6] flex items-center justify-center overflow-hidden p-1 flex-shrink-0">
                             <img
-                              src={item.product_details?.ProductImage}
-                              alt={item.product_details?.productName}
-                              className="w-full h-full object-contain"
+                              src={
+                                item.product_details?.ProductImage ||
+                                "/img/products/product-1.jpg"
+                              }
+                              alt={
+                                item.product_details?.productName || "Product"
+                              }
+                              className="max-w-full max-h-full object-contain"
+                              onError={(e) => {
+                                e.currentTarget.onerror = null;
+                                e.currentTarget.src =
+                                  "/img/products/product-1.jpg";
+                              }}
                             />
                           </div>
 
