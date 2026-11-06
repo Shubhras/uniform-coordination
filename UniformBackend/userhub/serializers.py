@@ -276,6 +276,8 @@ class ProductMiniSerializer(serializers.ModelSerializer):
 
 
 class UpdateProfileSerializer(serializers.ModelSerializer):
+    profileImage = serializers.ImageField(required=False, allow_null=True)
+
     class Meta:
         model = Users
         fields = [
@@ -289,11 +291,35 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
             "profileImage",
         ]
 
+    def to_internal_value(self, data):
+        if hasattr(data, "copy"):
+            data = data.copy()
+        elif isinstance(data, dict):
+            data = dict(data)
+
+        # Allow removing profile image via remove_profile_image flag, null, or empty string
+        if str(data.get("remove_profile_image", "")).lower() in ("true", "1", "yes"):
+            data["profileImage"] = None
+        elif "profileImage" in data and data.get("profileImage") in ("", "null", "None", False):
+            data["profileImage"] = None
+
+        return super().to_internal_value(data)
+
     def validate_userName(self, value):
         user = self.instance
         if value and Users.objects.filter(userName=value).exclude(id=user.id).exists():
             raise serializers.ValidationError("Username already exists.")
-        return value    
+        return value
+
+    def update(self, instance, validated_data):
+        if "profileImage" in validated_data and validated_data["profileImage"] is None:
+            if instance.profileImage:
+                try:
+                    instance.profileImage.delete(save=False)
+                except Exception:
+                    pass
+                instance.profileImage = None
+        return super().update(instance, validated_data)    
     
 # class ProductMiniSerializer(serializers.ModelSerializer):
 #     category_name = serializers.CharField(source="category.name", read_only=True)
@@ -977,19 +1003,56 @@ class QuotationSummarySerializer(serializers.ModelSerializer):
         product = self._get_product(obj)
         sizes = parse_size_quantity(obj.size_quantity)
         total_qty = sum(s['qty'] for s in sizes) or 1
-        unit_price = product.price if product else Decimal('0.00')
+        config = self._get_config(obj)
+
+        has_admin_price = (
+            getattr(obj, "subtotal", None) is not None or
+            getattr(obj, "total", None) is not None
+        )
+
+        if has_admin_price:
+            subtotal = Decimal(str(obj.subtotal)) if obj.subtotal is not None else Decimal(str(obj.total))
+            unit_price = (subtotal / Decimal(total_qty)).quantize(Decimal('0.01')) if total_qty > 0 else subtotal
+            item_total = subtotal.quantize(Decimal('0.01'))
+        else:
+            unit_price = Decimal('0.00')
+            item_total = Decimal('0.00')
+
+        fabric = config.get("fabric") or obj.material or ""
+        part = config.get("part") or ""
+        colors_data = config.get("colors") or {}
+        color_display = ""
+        if isinstance(colors_data, dict):
+            active_colors = [
+                f"{str(k).capitalize()}: {v}"
+                for k, v in colors_data.items()
+                if v and str(v).strip()
+            ]
+            if active_colors:
+                color_display = ", ".join(active_colors)
+        elif isinstance(colors_data, str) and colors_data.strip():
+            color_display = colors_data.strip()
+
+        details = []
+        if fabric:
+            details.append(f"Fabric: {fabric}")
+        if part:
+            details.append(f"Part: {part}")
+        if color_display:
+            details.append(f"Color: {color_display}")
+        if obj.size_quantity:
+            details.append(f"Sizes: {obj.size_quantity}")
 
         items = [{
-            "description": f"{product.productName if product else obj.item_type} - {obj.material or ''}".strip(' -'),
-            "detail": f"Sizes: {obj.size_quantity}" if obj.size_quantity else "",
+            "description": f"{product.productName if product else obj.item_type} - {fabric}".strip(' -'),
+            "detail": " | ".join(details) if details else (f"Sizes: {obj.size_quantity}" if obj.size_quantity else ""),
             "quantity": total_qty,
             "unit_price": str(unit_price),
-            "total": str(unit_price * total_qty),
+            "total": str(item_total),
         }]
 
-        config = self._get_config(obj)
         setup_fee = config.get('setup_fee')  # e.g. embroidery digitizing fee
-        if setup_fee:
+        if setup_fee and has_admin_price:
             items.append({
                 "description": "Setup Fee - Embroidery",
                 "detail": "One-time digitizing fee",
@@ -1000,6 +1063,21 @@ class QuotationSummarySerializer(serializers.ModelSerializer):
         return items
 
     def get_total_amount(self, obj):
+        has_admin_price = (
+            getattr(obj, "subtotal", None) is not None or
+            getattr(obj, "total", None) is not None
+        )
+        if not has_admin_price:
+            return "0.00"
+
+        if obj.total is not None:
+            return f"{Decimal(str(obj.total)):.2f}"
+        if obj.subtotal is not None:
+            discount = Decimal(str(obj.discount_percent or 0))
+            sub = Decimal(str(obj.subtotal))
+            tot = sub * (Decimal('1') - discount / Decimal('100'))
+            return f"{tot:.2f}"
+
         items = self.get_line_items(obj)
         return str(sum(Decimal(i['total']) for i in items))
 

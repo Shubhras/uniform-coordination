@@ -1983,12 +1983,12 @@ class AdminDashAPIView(APIView):
             previous_month_start = previous_month_end.replace(day=1)
 
             current_month_b2b = AdminUser.objects.filter(
-                role__role_name="b2b_user",
+                Q(role__role_name__in=["b2b", "b2b_user"]) | Q(role__slug__in=["b2b", "b2b-user"]),
                 created_at__gte=current_month_start
             ).count()
 
             previous_month_b2b = AdminUser.objects.filter(
-                role__role_name="b2b_user",
+                Q(role__role_name__in=["b2b", "b2b_user"]) | Q(role__slug__in=["b2b", "b2b-user"]),
                 created_at__gte=previous_month_start,
                 created_at__lte=previous_month_end
             ).count()
@@ -2246,8 +2246,16 @@ class AdminDashAPIView(APIView):
                 pending_sales_rep_action[rep_name] = row["count"]
 
             # Active vs Inactive counts for Admin Users & Sales Reps
-            active_admin_users = AdminUser.objects.exclude(role__role_name__in=["sales", "sales_rep"]).filter(is_active=True).count()
-            inactive_admin_users = AdminUser.objects.exclude(role__role_name__in=["sales", "sales_rep"]).filter(is_active=False).count()
+            NON_ADMIN_ROLES = ["sales", "sales_rep", "b2b", "b2b_user", "corporate", "customer", "b2c"]
+            NON_ADMIN_SLUGS = ["sales", "sales-rep", "sales_rep", "b2b", "b2b-user", "b2b_user", "corporate", "customer", "b2c"]
+            admin_users_base = AdminUser.objects.exclude(
+                Q(role__role_name__in=NON_ADMIN_ROLES) |
+                Q(role__slug__in=NON_ADMIN_SLUGS) |
+                Q(role__role_name__iexact="b2b") |
+                Q(role__role_name__iexact="b2b_user")
+            )
+            active_admin_users = admin_users_base.filter(is_active=True).count()
+            inactive_admin_users = admin_users_base.filter(is_active=False).count()
             total_admin_users = active_admin_users + inactive_admin_users
 
             reps_list_data = []

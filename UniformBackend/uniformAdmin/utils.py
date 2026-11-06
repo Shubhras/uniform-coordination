@@ -28,16 +28,50 @@ def render_quotation_template(template_text: str, quotation):
         print("Error fetching product:", e)
         product = None
 
-    price = float(getattr(product, "price", 0) or 0) if product else 0
-    discount = float(getattr(product, "discount", 0) or 0) if product else 0
-    quantity = 0
-    if getattr(quotation, "size_quantity", None):
-        numbers = re.findall(r"\d+", quotation.size_quantity)
-        quantity = sum(int(n) for n in numbers)
+    config = {}
+    if getattr(quotation, "customupdatemodel", None) and getattr(quotation.customupdatemodel, "config_json", None):
+        config = quotation.customupdatemodel.config_json or {}
 
-    subtotal = quantity * price
-    discount_amount = (subtotal * discount) / 100
-    total = subtotal - discount_amount
+    size_qty_str = str(getattr(quotation, "size_quantity", "") or "")
+    numbers = re.findall(r"\d+", size_qty_str) if size_qty_str else []
+    quantity = sum(int(n) for n in numbers) if numbers else 1
+
+    has_admin_price = (
+        getattr(quotation, "subtotal", None) is not None or 
+        getattr(quotation, "total", None) is not None
+    )
+
+    if has_admin_price:
+        subtotal = float(quotation.subtotal or 0)
+        discount = float(quotation.discount_percent or 0)
+        discount_amount = (subtotal * discount) / 100
+        if getattr(quotation, "total", None) is not None:
+            total = float(quotation.total)
+        else:
+            total = round(subtotal - discount_amount, 2)
+        price = round(subtotal / quantity, 2) if quantity > 0 else round(total, 2)
+    else:
+        price = 0.0
+        subtotal = 0.0
+        discount = float(getattr(quotation, "discount_percent", 0) or 0)
+        discount_amount = 0.0
+        total = 0.0
+
+    colors_data = config.get("colors") or {}
+    color_display = ""
+    if isinstance(colors_data, dict):
+        active_colors = [
+            f"{str(k).capitalize()}: {v}"
+            for k, v in colors_data.items()
+            if v and str(v).strip()
+        ]
+        if active_colors:
+            color_display = ", ".join(active_colors)
+    elif isinstance(colors_data, str) and colors_data.strip():
+        color_display = colors_data.strip()
+
+    part = config.get("part") or getattr(quotation, "part", "") or ""
+    fabric = config.get("fabric") or getattr(quotation, "material", "") or ""
 
     data = {
         "quotation_id": getattr(quotation, "quotation_id", "") or "",
@@ -45,7 +79,13 @@ def render_quotation_template(template_text: str, quotation):
         "company_name": getattr(quotation, "company_name", "") or "",
         "item_type": getattr(quotation, "item_type", "") or "",
         "material": getattr(quotation, "material", "") or "",
-        "size_quantity": getattr(quotation, "size_quantity", "") or "",
+        "fabric": fabric,
+        "part": part,
+        "parts": part,
+        "color": color_display,
+        "colors": color_display,
+        "size": size_qty_str,
+        "size_quantity": size_qty_str,
         "delivery_date": quotation.delivery_date.strftime("%d-%m-%Y") if getattr(quotation, "delivery_date", None) else "",
         "additional_note": getattr(quotation, "additional_note", "") or "",
 
@@ -146,31 +186,35 @@ def generate_quotation_template_pdf(quotation, template_text):
     except Exception:
         product = None
 
-    price = float(getattr(product, "price", 0) or 0) if product else 0
-    discount = float(getattr(product, "discount", 0) or 0) if product else 0
+    config = {}
+    if getattr(quotation, "customupdatemodel", None) and getattr(quotation.customupdatemodel, "config_json", None):
+        config = quotation.customupdatemodel.config_json or {}
 
     size_qty_str = str(getattr(quotation, "size_quantity", "") or "")
     numbers = re.findall(r"\d+", size_qty_str) if size_qty_str else []
     qty = sum(int(x) for x in numbers) if numbers else 1
-    subtotal = qty * price
-    discount_amt = (subtotal * discount) / 100
-    total = subtotal - discount_amt
 
-    # Prioritize manual quotation figures entered by admin if present
-    try:
-        if getattr(quotation, "subtotal", None) is not None and float(quotation.subtotal) > 0:
-            subtotal = float(quotation.subtotal)
-            if getattr(quotation, "discount_percent", None) is not None:
-                discount = float(quotation.discount_percent)
-            discount_amt = (subtotal * discount) / 100
-            if getattr(quotation, "total", None) is not None and float(quotation.total) > 0:
-                total = float(quotation.total)
-            else:
-                total = subtotal - discount_amt
-            if qty > 0:
-                price = round(subtotal / qty, 2)
-    except Exception:
-        pass
+    has_admin_price = (
+        getattr(quotation, "subtotal", None) is not None or 
+        getattr(quotation, "total", None) is not None
+    )
+
+    if has_admin_price:
+        subtotal = float(quotation.subtotal or 0)
+        discount = float(quotation.discount_percent or 0)
+        discount_amt = (subtotal * discount) / 100
+        if getattr(quotation, "total", None) is not None:
+            total = float(quotation.total)
+        else:
+            total = round(subtotal - discount_amt, 2)
+        price = round(subtotal / qty, 2) if qty > 0 else round(total, 2)
+    else:
+        # Do not show price until admin side added; must show 0 until admin updates it
+        price = 0.0
+        subtotal = 0.0
+        discount = float(getattr(quotation, "discount_percent", 0) or 0)
+        discount_amt = 0.0
+        total = 0.0
 
     # ---------- FILE ----------
     file_name = f"quotation_{quotation.quotation_id}_{datetime.now().strftime('%Y%m%d%H%M%S')}.pdf"
@@ -282,9 +326,49 @@ def generate_quotation_template_pdf(quotation, template_text):
 
     # ---------- PRODUCT ----------
     item_type = getattr(quotation, "item_type", None) or "Custom Uniform"
-    material = getattr(quotation, "material", None) or "-"
+    material = getattr(quotation, "material", None) or ""
+    fabric = config.get("fabric") or material or ""
+    part = config.get("part") or getattr(quotation, "part", "") or ""
+
+    colors_data = config.get("colors") or {}
+    color_display = ""
+    if isinstance(colors_data, dict):
+        active_colors = [
+            f"{str(k).capitalize()}: {v}"
+            for k, v in colors_data.items()
+            if v and str(v).strip()
+        ]
+        if active_colors:
+            color_display = ", ".join(active_colors)
+    elif isinstance(colors_data, str) and colors_data.strip():
+        color_display = colors_data.strip()
+
+    size_display = size_qty_str
+    if not size_display and config.get("sizes") and isinstance(config.get("sizes"), dict):
+        size_display = ", ".join(f"{s}: {q}" for s, q in config["sizes"].items() if str(q) not in ("", "0"))
+
     elements.append(Paragraph(f"<b>Item:</b> {item_type}", normal))
-    elements.append(Paragraph(f"<b>Material:</b> {material}", normal))
+    if fabric and fabric != "-":
+        elements.append(Paragraph(f"<b>Fabric:</b> {fabric}", normal))
+    elif material and material != "-":
+        elements.append(Paragraph(f"<b>Material:</b> {material}", normal))
+    if part and part != "-":
+        elements.append(Paragraph(f"<b>Part:</b> {part}", normal))
+    if color_display and color_display != "-":
+        elements.append(Paragraph(f"<b>Color:</b> {color_display}", normal))
+    if size_display and size_display != "-":
+        elements.append(Paragraph(f"<b>Size:</b> {size_display}", normal))
+
+    options = config.get("options") or {}
+    if isinstance(options, dict):
+        active_opts = [
+            f"{k.replace('_', ' ').capitalize()}: {v}"
+            for k, v in options.items()
+            if v and str(v).strip()
+        ]
+        if active_opts:
+            elements.append(Paragraph(f"<b>Options:</b> {', '.join(active_opts)}", normal))
+
     elements.append(Paragraph(f"<b>Quantity:</b> {qty} pieces", normal))
     elements.append(Paragraph(f"<b>Unit Price:</b> {price}", normal))
 

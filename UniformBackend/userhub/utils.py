@@ -582,6 +582,20 @@ def generate_quotation_pdf(quotation, request):
     if quotation.additional_note:
         data.append(["Additional Note", str(quotation.additional_note)])
 
+    has_admin_price = (
+        getattr(quotation, "subtotal", None) is not None or
+        getattr(quotation, "total", None) is not None
+    )
+    if has_admin_price:
+        subtotal = float(quotation.subtotal or 0)
+        discount = float(quotation.discount_percent or 0)
+        total = float(quotation.total) if quotation.total is not None else round(subtotal - (subtotal * discount / 100), 2)
+        data.append(["Subtotal", f"${subtotal:.2f}"])
+        data.append(["Discount", f"{discount:.2f}%"])
+        data.append(["Total Amount", f"${total:.2f}"])
+    else:
+        data.append(["Total Amount", "$0.00"])
+
     table = Table(data, colWidths=[160, 320])
     table.setStyle(TableStyle([
         ("BACKGROUND", (0, 0), (-1, 0), colors.whitesmoke),
