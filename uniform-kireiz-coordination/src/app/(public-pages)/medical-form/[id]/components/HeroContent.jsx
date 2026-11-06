@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 /**
@@ -14,10 +13,14 @@ import { useRouter } from "next/navigation";
 const HeroContent = ({ categoryData }) => {
   const router = useRouter();
 
+  const fallbackImage = "/img/medical-form/hero/doctors.png";
+
   const dynamicImageSrc =
     categoryData?.bannerImage ||
     categoryData?.categoryImage ||
-    null;
+    categoryData?.heroImage ||
+    categoryData?.image ||
+    fallbackImage;
 
   return (
     <section className="w-full bg-white pt-14 md:px-0 lg:px-0">
@@ -45,25 +48,50 @@ const HeroContent = ({ categoryData }) => {
             </div>
 
             {/* RIGHT DYNAMIC HERO BANNER IMAGE */}
-            <div className="absolute right-0 bottom-0 w-[62%] h-[75vh] z-10 overflow-hidden rounded-bl-[60px] lg:rounded-bl-[100px]">
+            <div className="absolute right-0 bottom-0 w-[62%] h-[75vh] z-10 overflow-hidden rounded-bl-[60px] lg:rounded-bl-[100px] flex items-center justify-center p-4 lg:p-8">
+              {/* Soft ambient blurred background: gracefully fills the 62% landscape container with matching colors */}
               <img
                 src={dynamicImageSrc}
-                alt={categoryData?.categoryName || ""}
-                className="w-full h-full object-cover object-top rounded-bl-[60px] lg:rounded-bl-[100px]"
+                alt=""
+                aria-hidden="true"
+                className="absolute inset-0 w-full h-full object-cover blur-3xl opacity-35 scale-110 pointer-events-none"
+                onError={(e) => {
+                  e.currentTarget.style.display = "none";
+                }}
+              />
+              {/* Foreground sharp image: completely contained, 100% visible, never cropped, never distorted */}
+              <img
+                src={dynamicImageSrc}
+                alt={categoryData?.categoryName || "Category Banner"}
+                className="relative z-10 max-w-full max-h-full object-contain object-center drop-shadow-sm"
+                onError={(e) => {
+                  e.currentTarget.src = fallbackImage;
+                }}
               />
             </div>
           </div>
 
           {/* ===== MOBILE / TABLET VIEW ===== */}
           <div className="lg:hidden flex flex-col gap-6">
-            <div className="relative w-full min-h-96 rounded-b-[50px] overflow-hidden">
-              <Image
+            <div className="relative w-full h-80 sm:h-96 rounded-b-[50px] overflow-hidden flex items-center justify-center bg-[#dce4f7] p-4">
+              {/* Soft ambient blur backdrop */}
+              <img
                 src={dynamicImageSrc}
-                alt={categoryData?.categoryName || ""}
-                fill
-                className="object-cover object-top"
-                priority
-                unoptimized
+                alt=""
+                aria-hidden="true"
+                className="absolute inset-0 w-full h-full object-cover blur-2xl opacity-35 scale-110 pointer-events-none"
+                onError={(e) => {
+                  e.currentTarget.style.display = "none";
+                }}
+              />
+              {/* Main image: fully contained */}
+              <img
+                src={dynamicImageSrc}
+                alt={categoryData?.categoryName || "Category Banner"}
+                className="relative z-10 max-w-full max-h-full object-contain object-center"
+                onError={(e) => {
+                  e.currentTarget.src = fallbackImage;
+                }}
               />
             </div>
 
