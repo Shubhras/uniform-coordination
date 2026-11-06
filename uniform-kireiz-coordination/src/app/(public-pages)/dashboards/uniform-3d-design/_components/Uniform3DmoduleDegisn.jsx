@@ -299,6 +299,7 @@ const Uniform3DmoduleDegisn = () => {
   // // const [mounted, setMounted] = useState(false)
   const [isSaving, setIsSaving] = useState(false);
   const [imgSrc, setImgSrc] = useState('/img/uniform/uniform.png');
+  const [fabricFilter, setFabricFilter] = useState('All');
   const panelRef = useRef(null)
 
   useEffect(() => {
@@ -464,6 +465,15 @@ const Uniform3DmoduleDegisn = () => {
           ? (optionsRes?.data?.fabrics || [])
           : (optionsRes?.data?.fabrics || globalOptionsRes?.data?.fabrics || []);
         setSimFabrics(fabricsList);
+
+        if (fabricsList && fabricsList.length > 0) {
+          setDesignJSON((prev) => {
+            if (!prev.fabric) {
+              return { ...prev, fabric: fabricsList[0].name };
+            }
+            return prev;
+          });
+        }
 
         // 3. Colors: category-specific or fallback to global colors
         const colorsList =
@@ -858,22 +868,6 @@ const Uniform3DmoduleDegisn = () => {
   return (
     <section className="w-full bg-white flex flex-col px-4 sm:px-6 py-4 gap-6 mt-11">
       {/* Shows the applied template style */}
-      {template && (
-        <div className="w-full border border-[#C7D7F5] bg-[#F5F8FF] rounded-xl px-4 py-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-          <span className="text-sm font-medium text-[#1C2C56]">
-            Using template: {template.templateName}
-          </span>
-
-          <button
-            type="button"
-            onClick={() => router.push(`/dashboards/uniform-3d-design/${id}`)}
-            className="text-xs text-[#1C4FA8] underline"
-          >
-            Clear template
-          </button>
-        </div>
-      )}
-
       <div className="flex flex-col md:flex-row gap-4 md:gap-6 relative w-full flex-1 min-w-0">
         <div className="w-full md:w-[80px] flex-shrink-0 flex md:flex-col items-center">
           {/* Left rail: on mobile horizontal row at TOP, on desktop (md+) vertical column on LEFT */}
@@ -920,7 +914,9 @@ const Uniform3DmoduleDegisn = () => {
           {panels[active] && (
             <div
               ref={panelRef}
-              className="absolute top-full md:top-0 left-0 md:left-2 z-30 w-[285px] max-w-[calc(100vw-32px)] bg-white shadow-xl rounded-xl p-3 border border-gray-100">
+              className={`absolute top-full md:top-0 left-0 md:left-2 z-30 ${
+                active === "fabric" ? "w-[360px] md:w-[410px]" : "w-[285px]"
+              } max-w-[calc(100vw-32px)] bg-white shadow-xl rounded-xl p-3 border border-gray-100`}>
               <div className="flex items-center justify-between pb-2 mb-3 border-b border-gray-100">
                 <h5 className="font-semibold text-xs text-gray-700 tracking-wide uppercase">
                   {panels[active].title}
@@ -947,8 +943,8 @@ const Uniform3DmoduleDegisn = () => {
                           uniformState.active3dPart = "top";
                         }}
                         className={`flex-1 py-1 text-xs font-semibold rounded-md border transition ${position === "top"
-                            ? "bg-[#1C4FA8] text-white border-[#1C4FA8] shadow-sm"
-                            : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
+                          ? "bg-[#1C4FA8] text-white border-[#1C4FA8] shadow-sm"
+                          : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
                           }`}
                       >
                         Top
@@ -960,8 +956,8 @@ const Uniform3DmoduleDegisn = () => {
                           uniformState.active3dPart = "bottom";
                         }}
                         className={`flex-1 py-1 text-xs font-semibold rounded-md border transition ${position === "bottom"
-                            ? "bg-[#1C4FA8] text-white border-[#1C4FA8] shadow-sm"
-                            : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
+                          ? "bg-[#1C4FA8] text-white border-[#1C4FA8] shadow-sm"
+                          : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
                           }`}
                       >
                         Bottom
@@ -982,25 +978,41 @@ const Uniform3DmoduleDegisn = () => {
                           key={swatch.key || idx}
                           type="button"
                           onClick={() => {
-                            applyBaseColorToModel(swatch.code);
-                            setColor(swatch.code);
+                            if (selected) {
+                              applyBaseColorToModel("#ffffff");
+                              setColor("#ffffff");
+                              setDesignJSON((prev) => ({
+                                ...prev,
+                                colors: {
+                                  ...prev.colors,
+                                  [activeHalf]: "",
+                                },
+                                colorKeys: {
+                                  ...prev.colorKeys,
+                                  [activeHalf]: "",
+                                },
+                              }));
+                            } else {
+                              applyBaseColorToModel(swatch.code);
+                              setColor(swatch.code);
 
-                            setDesignJSON((prev) => ({
-                              ...prev,
-                              colors: {
-                                ...prev.colors,
-                                [activeHalf]: swatch.code,
-                              },
-                              colorKeys: {
-                                ...prev.colorKeys,
-                                [activeHalf]: swatch.key,
-                              },
-                            }));
+                              setDesignJSON((prev) => ({
+                                ...prev,
+                                colors: {
+                                  ...prev.colors,
+                                  [activeHalf]: swatch.code,
+                                },
+                                colorKeys: {
+                                  ...prev.colorKeys,
+                                  [activeHalf]: swatch.key,
+                                },
+                              }));
+                            }
                           }}
                           title={swatch.name || swatch.code}
                           className={`relative w-10 h-10 rounded-full shadow flex items-center justify-center transition cursor-pointer hover:scale-105 ${selected
-                              ? "ring-2 ring-offset-2 ring-[#1C4FA8] border-0"
-                              : "border border-gray-200"
+                            ? "ring-2 ring-offset-2 ring-[#1C4FA8] border-0"
+                            : "border border-gray-200"
                             }`}
                           style={{ background: swatch.code }}
                         >
@@ -1040,6 +1052,8 @@ const Uniform3DmoduleDegisn = () => {
                 />
               )}
 
+
+
               {panels[active].type === "textures" && (
                 <div className="w-full">
                   {/* HEADER */}
@@ -1059,10 +1073,17 @@ const Uniform3DmoduleDegisn = () => {
                         <button
                           key={i}
                           onClick={() => {
-                            setDesignJSON((prev) => ({
-                              ...prev,
-                              fabric: tex
-                            }));
+                            if (selected) {
+                              setDesignJSON((prev) => ({
+                                ...prev,
+                                fabric: ""
+                              }));
+                            } else {
+                              setDesignJSON((prev) => ({
+                                ...prev,
+                                fabric: tex
+                              }));
+                            }
                           }}
                           className={`relative w-[43px] h-[43px] rounded-md overflow-hidden transition ${selected
                             ? "ring-2 ring-[#1C4FA8] border-0"
@@ -1101,11 +1122,19 @@ const Uniform3DmoduleDegisn = () => {
                           <button
                             key={part.id}
                             onClick={() => {
-                              setDesignJSON((prev) => ({
-                                ...prev,
-                                part: part.name,
-                              }));
-                              onActive3dPartClick(part.name);
+                              if (selected) {
+                                setDesignJSON((prev) => ({
+                                  ...prev,
+                                  part: "",
+                                }));
+                                onActive3dPartClick("");
+                              } else {
+                                setDesignJSON((prev) => ({
+                                  ...prev,
+                                  part: part.name,
+                                }));
+                                onActive3dPartClick(part.name);
+                              }
                             }}
                             className={`w-full flex items-center gap-3 rounded-lg border p-2 text-left transition ${selected
                               ? "border-blue-600 bg-blue-50/70 shadow-sm"
@@ -1147,58 +1176,236 @@ const Uniform3DmoduleDegisn = () => {
                 </div>
               )}
 
-              {/* Admin fabrics — no image field, so name/material/colour only. */}
-              {panels[active].type === "fabricRecords" && (
-                <div className="w-full max-h-[280px] overflow-y-auto pr-1">
-                  {(!panels[active].data || panels[active].data.length === 0) ? (
-                    <div className="text-center py-6 text-gray-500 text-xs">
-                      No fabrics available for this category.
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-2 gap-2">
-                      {panels[active].data.map((fabric) => {
-                        const selected = designJSON.fabric === fabric.name;
+              {/* Admin fabrics panel with functional type filter and rich cards */}
+              {panels[active].type === "fabricRecords" && (() => {
+                const allFabrics = panels[active].data || [];
+
+                const normalize = (str) =>
+                  (str || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+
+                const getFabricFunctionalType = (f) =>
+                  f.functional_type || f.functionalType || f.functional_type_name || "";
+
+                // The 4 functional types requested, always present alongside 'All'
+                const filterPills = (() => {
+                  const defaults = [
+                    "All",
+                    "Antibacterial",
+                    "Stain-resistant",
+                    "Moisture-wicking",
+                    "Breathable",
+                  ];
+                  allFabrics.forEach((f) => {
+                    const raw = getFabricFunctionalType(f).trim();
+                    if (raw) {
+                      const formatted = raw
+                        .split(/[-_\s]+/)
+                        .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+                        .join("-");
+                      const exists = defaults.some(
+                        (d) => normalize(d) === normalize(formatted)
+                      );
+                      if (!exists) {
+                        defaults.push(formatted);
+                      }
+                    }
+                  });
+                  return defaults;
+                })();
+
+                const visibleFabrics =
+                  fabricFilter === "All"
+                    ? allFabrics
+                    : allFabrics.filter((f) => {
+                        const ft = normalize(getFabricFunctionalType(f));
+                        const target = normalize(fabricFilter);
+                        return ft && (ft.includes(target) || target.includes(ft));
+                      });
+
+                return (
+                  <div className="w-full space-y-3">
+                    {/* FILTER PILLS */}
+                    <div className="flex flex-wrap items-center gap-1.5 pb-1 max-w-full">
+                      {filterPills.map((pill) => {
+                        const isActive = fabricFilter === pill;
                         return (
                           <button
-                            key={fabric.id}
+                            key={pill}
+                            type="button"
                             onClick={() => {
-                              setDesignJSON((prev) => ({
-                                ...prev,
-                                fabric: fabric.name,
-                              }));
-                            }}
-                            className={`flex items-center gap-2 rounded-md border p-2 text-left transition ${selected
-                              ? "border-blue-600 bg-blue-50"
-                              : "border-gray-300 hover:border-blue-500"
-                              }`}
-                          >
-                            <span
-                              className="w-6 h-6 rounded border border-gray-300 flex-shrink-0"
-                              style={
-                                fabric.swatch
-                                  ? { background: fabric.swatch }
-                                  : { background: "repeating-linear-gradient(45deg,#f1f5f9,#f1f5f9 4px,#e2e8f0 4px,#e2e8f0 8px)" }
+                              if (isActive && pill !== "All") {
+                                setFabricFilter("All");
+                              } else {
+                                setFabricFilter(pill);
                               }
-                              title={fabric.swatch ? fabric.color : `Colour recorded as "${fabric.color}"`}
-                            />
-                            <span className="min-w-0 flex-1">
-                              <span className="block text-[11px] font-medium text-[#1C2A4A] truncate">
-                                {fabric.name}
-                              </span>
-                              <span className="block text-[10px] text-gray-500 capitalize truncate">
-                                {fabric.material_type || "—"}
-                              </span>
-                            </span>
-                            {selected && (
-                              <FiCheck size={14} className="text-[#1C4FA8] flex-shrink-0" />
-                            )}
+                            }}
+                            className={`px-3 py-1 rounded-full text-[11px] font-medium transition cursor-pointer select-none ${
+                              isActive
+                                ? "bg-[#1C4FA8] text-white shadow-xs"
+                                : "bg-[#F1F5F9] text-[#486284] hover:bg-[#E2E8F0]"
+                            }`}
+                          >
+                            {pill}
                           </button>
                         );
                       })}
                     </div>
-                  )}
-                </div>
-              )}
+
+                    {/* FABRIC CARDS GRID */}
+                    <div className="w-full max-h-[320px] overflow-y-auto pr-1">
+                      {allFabrics.length === 0 ? (
+                        <div className="text-center py-6 text-gray-500 text-xs">
+                          No fabrics available for this category.
+                        </div>
+                      ) : visibleFabrics.length === 0 ? (
+                        <div className="text-center py-6 text-gray-500 text-xs">
+                          <p className="font-medium text-gray-600">
+                            No {fabricFilter.toLowerCase()} fabrics found.
+                          </p>
+                          <p className="text-[11px] text-gray-400 mt-0.5">
+                            Check other functional types or view all fabrics.
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => setFabricFilter("All")}
+                            className="mt-2 text-[#1C4FA8] hover:underline font-semibold text-xs cursor-pointer"
+                          >
+                            View All Fabrics
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-2 gap-2.5">
+                          {visibleFabrics.map((fabric) => {
+                            const isSelected = designJSON.fabric === fabric.name;
+
+                            return (
+                              <div
+                                key={fabric.id}
+                                onClick={() => {
+                                  if (isSelected) {
+                                    setDesignJSON((prev) => ({
+                                      ...prev,
+                                      fabric: "",
+                                    }));
+                                  } else {
+                                    setDesignJSON((prev) => ({
+                                      ...prev,
+                                      fabric: fabric.name,
+                                    }));
+                                  }
+                                }}
+                                className={`relative bg-white rounded-xl border p-2.5 flex flex-col justify-between transition shadow-xs cursor-pointer select-none ${
+                                  isSelected
+                                    ? "border-[#1C4FA8] ring-2 ring-[#1C4FA8] bg-blue-50/25 shadow-sm"
+                                    : "border-gray-200 hover:border-[#1C4FA8]/50 hover:shadow-sm"
+                                }`}
+                              >
+                                {/* Top right checkmark badge when selected */}
+                                {isSelected && (
+                                  <span className="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#1C4FA8] text-white flex items-center justify-center shadow-xs z-10">
+                                    <FiCheck size={12} strokeWidth={3} />
+                                  </span>
+                                )}
+
+                                {/* TOP ROW: Image + Text Details */}
+                                <div className="flex items-start gap-2">
+                                  {/* Texture / Swatch preview */}
+                                  <div className="relative w-11 h-11 rounded-lg overflow-hidden flex-shrink-0 border border-gray-200 bg-gray-50">
+                                    {fabric.texture_image ? (
+                                      <img
+                                        src={fabric.texture_image}
+                                        alt={fabric.name}
+                                        className="w-full h-full object-cover"
+                                      />
+                                    ) : (
+                                      <div
+                                        className="w-full h-full"
+                                        style={{
+                                          backgroundColor:
+                                            fabric.swatch || fabric.color || "#CBD5E1",
+                                        }}
+                                      />
+                                    )}
+
+                                    {/* Color dot in bottom-right corner */}
+                                    {(fabric.color || fabric.swatch) && (
+                                      <span
+                                        className="absolute bottom-0.5 right-0.5 w-3 h-3 rounded-full border border-white shadow-xs"
+                                        style={{
+                                          backgroundColor:
+                                            fabric.color || fabric.swatch,
+                                        }}
+                                        title={fabric.color || fabric.swatch}
+                                      />
+                                    )}
+                                  </div>
+
+                                  {/* Info: Name, composition, weave, weight */}
+                                  <div className="min-w-0 flex-1 pr-4">
+                                    <h6
+                                      className="font-bold text-[11px] text-[#1C2C56] truncate leading-tight"
+                                      title={fabric.name}
+                                    >
+                                      {fabric.name}
+                                    </h6>
+                                    <p
+                                      className="text-[9px] text-gray-500 truncate mt-0.5"
+                                      title={fabric.composition || fabric.material_type}
+                                    >
+                                      {fabric.composition || fabric.material_type || "—"}
+                                    </p>
+                                    <div className="flex items-center gap-1 mt-1 flex-wrap">
+                                      {fabric.weave && (
+                                        <span className="text-[8px] font-bold uppercase tracking-wider px-1 py-0.2 rounded bg-blue-50 text-[#1C4FA8] border border-blue-100">
+                                          {fabric.weave}
+                                        </span>
+                                      )}
+                                      {fabric.weight && (
+                                        <span className="text-[8px] text-gray-400 font-medium">
+                                          {fabric.weight} GSM
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* BOTTOM ROW: Full-width Apply/Applied button */}
+                                <div className="mt-2.5 pt-1.5 border-t border-gray-100">
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (isSelected) {
+                                        setDesignJSON((prev) => ({
+                                          ...prev,
+                                          fabric: "",
+                                        }));
+                                      } else {
+                                        setDesignJSON((prev) => ({
+                                          ...prev,
+                                          fabric: fabric.name,
+                                        }));
+                                      }
+                                    }}
+                                    className={`w-full py-1.5 px-2 rounded-lg text-[11px] font-semibold transition cursor-pointer flex items-center justify-center gap-1.5 ${
+                                      isSelected
+                                        ? "bg-[#1C4FA8] text-white shadow-xs"
+                                        : "bg-[#F0F5FF] text-[#1C4FA8] hover:bg-[#E1EDFF]"
+                                    }`}
+                                  >
+                                    {isSelected && <FiCheck size={12} strokeWidth={3} className="text-white" />}
+                                    <span>{isSelected ? "Applied" : "Apply"}</span>
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* Admin-managed choices, labelled with the name the admin typed. */}
               {panels[active].type === "adminOptions" && (
@@ -1214,17 +1421,31 @@ const Uniform3DmoduleDegisn = () => {
                         <button
                           key={opt.id}
                           onClick={() => {
-                            setDesignJSON((prev) => ({
-                              ...prev,
-                              options: {
-                                ...prev.options,
-                                [active]: opt.name,
-                              },
-                              optionKeys: {
-                                ...prev.optionKeys,
-                                [active]: String(opt.id),
-                              },
-                            }));
+                            if (selected) {
+                              setDesignJSON((prev) => ({
+                                ...prev,
+                                options: {
+                                  ...prev.options,
+                                  [active]: "",
+                                },
+                                optionKeys: {
+                                  ...prev.optionKeys,
+                                  [active]: "",
+                                },
+                              }));
+                            } else {
+                              setDesignJSON((prev) => ({
+                                ...prev,
+                                options: {
+                                  ...prev.options,
+                                  [active]: opt.name,
+                                },
+                                optionKeys: {
+                                  ...prev.optionKeys,
+                                  [active]: String(opt.id),
+                                },
+                              }));
+                            }
                           }}
                           title={opt.name}
                           className={`relative p-1.5 rounded-lg shadow transition ${selected ? "ring-2 ring-[#1C4FA8]" : "hover:shadow-md"
@@ -1268,17 +1489,31 @@ const Uniform3DmoduleDegisn = () => {
                         : designJSON.options?.[active] === opt;
                     return (
                       <button key={i} onClick={() => {
-                        setDesignJSON((prev) => ({
-                          ...prev,
-                          options: {
-                            ...prev.options,
-                            [active]: opt   // collar / pants / pocket / aprons
-                          },
-                          optionKeys: {
-                            ...prev.optionKeys,
-                            [active]: optKey
-                          }
-                        }));
+                        if (selected) {
+                          setDesignJSON((prev) => ({
+                            ...prev,
+                            options: {
+                              ...prev.options,
+                              [active]: ""
+                            },
+                            optionKeys: {
+                              ...prev.optionKeys,
+                              [active]: ""
+                            }
+                          }));
+                        } else {
+                          setDesignJSON((prev) => ({
+                            ...prev,
+                            options: {
+                              ...prev.options,
+                              [active]: opt   // collar / pants / pocket / aprons
+                            },
+                            optionKeys: {
+                              ...prev.optionKeys,
+                              [active]: optKey
+                            }
+                          }));
+                        }
                       }} className={`p-2 rounded-lg shadow relative transition ${selected ? "ring-2 ring-[#1C4FA8]" : ""
                         }`}>
                         <img src={opt} className="w-full h-full object-cover" />
@@ -1363,10 +1598,6 @@ const Uniform3DmoduleDegisn = () => {
         <div className="relative flex-1 flex flex-col items-center mt-0 w-full min-w-0">
           <div
             className="absolute top-28 w-[380px] h-[380px] rounded-full transition-colors duration-500 opacity-20 blur-3xl pointer-events-none"
-            style={{
-              backgroundColor:
-                designJSON.colors[position === "bottom" ? "bottom" : "top"] || color || "#1C4FA8",
-            }}
           />
 
           {/* Product image (3D canvas is commented out). `unoptimized`: host isn't whitelisted in next.config. */}

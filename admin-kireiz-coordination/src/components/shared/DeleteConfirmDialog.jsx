@@ -16,6 +16,8 @@ const DeleteConfirmDialog = ({
     cancelText,
     deleteText,
     deletingText,
+    showWarning = true,
+    warningText,
 }) => {
     const t = useTranslations("deleteConfirmDialog");
 
@@ -34,18 +36,26 @@ const DeleteConfirmDialog = ({
                         <FiAlertTriangle className="text-red-500" size={28} />
                     </div>
 
-                    <h2 className="text-lg font-semibold text-[#1C2C56]">
-                        {title}
-                    </h2>
+                    <h2 className="text-lg font-semibold text-[#1C2C56]">{title}</h2>
 
-                    <p className="text-sm text-[#64748B] mt-2 max-w-xs">
-                        {message}
-                    </p>
+                    <p className="text-sm text-[#64748B] mt-2 max-w-sm">{message}</p>
 
                     {itemName && (
                         <div className="mt-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-lg px-4 py-2">
                             <p className="text-sm font-medium text-[#1E293B]">
                                 &quot;{itemName}&quot;
+                            </p>
+                        </div>
+                    )}
+
+                    {showWarning && (
+                        <div className="mt-3 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2.5 text-xs text-amber-800 text-left max-w-sm w-full flex items-start gap-2.5">
+                            <FiAlertTriangle
+                                className="text-amber-600 shrink-0 mt-0.5"
+                                size={16}
+                            />
+                            <p className="leading-relaxed font-medium">
+                                {warningText || t("warningText")}
                             </p>
                         </div>
                     )}
@@ -68,7 +78,9 @@ const DeleteConfirmDialog = ({
                         disabled={loading}
                         className="bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white px-6 py-2 rounded-md text-sm font-medium transition-colors"
                     >
-                        {loading ? (deletingText || t("deleting")) : (deleteText || t("delete"))}
+                        {loading
+                            ? deletingText || t("deleting")
+                            : deleteText || t("delete")}
                     </button>
                 </div>
             </div>

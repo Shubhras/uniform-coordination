@@ -11,7 +11,8 @@ import {
     PiGearDuotone,
     PiPulseDuotone,
     PiSignOutDuotone,
-    PiShoppingCartThin
+    PiShoppingCartThin,
+    PiHeartThin,
 } from 'react-icons/pi'
 import { IoIosLogOut } from "react-icons/io";
 import { CiUser } from 'react-icons/ci'
@@ -81,11 +82,21 @@ const _UserDropdown = () => {
     const handleCartSummary = () => {
         router.push("/cart-summary");
     };
+    const handleFavourites = () => {
+        router.push("/favourites");
+    };
 
     return (
         <>
             {session?.user?.email && (
                 <>
+                    <div
+                        className="relative cursor-pointer z-10 flex items-center justify-center p-1 group"
+                        onClick={handleFavourites}
+                        title="View Favourites"
+                    >
+                        <PiHeartThin size={26} className="text-gray-800 group-hover:text-[#A0522D] transition-colors" />
+                    </div>
                     <div
                         className="relative cursor-pointer z-10 flex items-center justify-center p-1 group"
                         onClick={handleCartSummary}
