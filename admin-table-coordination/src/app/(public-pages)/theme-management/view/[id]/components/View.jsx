@@ -145,37 +145,54 @@ const PreviewTheme = () => {
 
         {/* Banner */}
 
-        <div className="relative overflow-hidden rounded-2xl h-[360px]">
-          <img
-            src={bannerImages[activeImage]}
-            alt=""
-            className="w-full h-full object-cover"
-          />
+        <div className="relative overflow-hidden rounded-2xl h-[380px] md:h-[460px] bg-[#F7F2EE] border border-[#EFE5DD] flex items-center justify-center">
+          {bannerImages[activeImage] && (
+            <img
+              src={bannerImages[activeImage]}
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 w-full h-full object-cover blur-2xl scale-110 opacity-30 pointer-events-none"
+            />
+          )}
 
-          {/* overlay */}
-
-          <div className="absolute inset-0 bg-black/20" />
+          {bannerImages[activeImage] ? (
+            <img
+              src={bannerImages[activeImage]}
+              alt={themeData?.title || "Theme Banner"}
+              className="relative z-10 max-h-full max-w-full object-contain"
+            />
+          ) : (
+            <div className="relative z-10 text-sm text-[#8D8178]">
+              No image available
+            </div>
+          )}
 
           {/* Preset */}
 
-          <div className="absolute top-5 left-5">
-            <span className="bg-white/95 text-[#7A553D] text-xs px-3 py-1 rounded-full shadow">
+          <div className="absolute top-5 left-5 z-20">
+            <span className="bg-white/95 text-[#7A553D] text-xs font-medium px-3 py-1 rounded-full shadow-sm">
               {t("presetLook")}
             </span>
           </div>
 
           {/* Slider dots */}
 
-          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2">
-            {bannerImages.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setActiveImage(index)}
-                className={`w-2.5 h-2.5 rounded-full transition ${activeImage === index ? "bg-white w-6" : "bg-white/50"
+          {bannerImages.length > 1 && (
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md z-20 shadow-sm">
+              {bannerImages.map((_, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() => setActiveImage(index)}
+                  className={`h-2 rounded-full transition-all duration-200 ${
+                    activeImage === index
+                      ? "bg-white w-6"
+                      : "bg-white/60 hover:bg-white/80 w-2"
                   }`}
-              />
-            ))}
-          </div>
+                />
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Items Heading */}
@@ -234,11 +251,13 @@ const PreviewTheme = () => {
                         className="flex items-center justify-between rounded-xl border border-[#EFE5DD] p-3"
                       >
                         <div className="flex items-center gap-3">
-                          <img
-                            src={item.product_details?.ProductImage}
-                            alt={item.product_details?.productName}
-                            className="w-14 h-14 rounded-lg object-cover border"
-                          />
+                          <div className="w-14 h-14 rounded-lg border border-[#EFE5DD] bg-[#FAF8F6] flex items-center justify-center overflow-hidden p-1 flex-shrink-0">
+                            <img
+                              src={item.product_details?.ProductImage}
+                              alt={item.product_details?.productName}
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
 
                           <div>
                             <p className="text-[15px] font-medium text-[#2C1810]">

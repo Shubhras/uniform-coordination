@@ -301,11 +301,17 @@ const AddTheme = () => {
 
               {themeData.image ? (
                 <div>
-                  <div className="overflow-hidden rounded-2xl border border-[#E7D6C9]">
+                  <div className="relative overflow-hidden rounded-2xl border border-[#E7D6C9] h-[240px] bg-[#FCFAF8] flex items-center justify-center">
+                    <img
+                      src={URL.createObjectURL(themeData.image)}
+                      alt=""
+                      aria-hidden="true"
+                      className="absolute inset-0 w-full h-full object-cover blur-2xl scale-110 opacity-25 pointer-events-none"
+                    />
                     <img
                       src={URL.createObjectURL(themeData.image)}
                       alt="Thumbnail"
-                      className="w-full h-[220px] object-cover"
+                      className="relative z-10 max-h-full max-w-full object-contain"
                     />
                   </div>
 

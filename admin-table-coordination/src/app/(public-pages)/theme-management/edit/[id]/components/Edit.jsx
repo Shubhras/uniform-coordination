@@ -571,12 +571,20 @@ const Edit = () => {
               onClick={() =>
                 document.getElementById("thumbnailUpload")?.click()
               }
-              className="overflow-hidden rounded-xl border border-[#EFE5DD] h-[230px] cursor-pointer hover:opacity-90 transition"
+              className="relative overflow-hidden rounded-xl border border-[#EFE5DD] h-[240px] bg-[#FAF8F6] flex items-center justify-center cursor-pointer hover:opacity-90 transition"
             >
+              {thumbnailPreview && (
+                <img
+                  src={thumbnailPreview}
+                  alt=""
+                  aria-hidden="true"
+                  className="absolute inset-0 w-full h-full object-cover blur-2xl scale-110 opacity-25 pointer-events-none"
+                />
+              )}
               <img
                 src={thumbnailPreview || "/placeholder.png"}
                 alt="Thumbnail"
-                className="w-full h-full object-cover"
+                className="relative z-10 max-h-full max-w-full object-contain"
               />
             </div>
           </div>
@@ -603,12 +611,12 @@ const Edit = () => {
               {coverImages.map((img) => (
                 <div
                   key={img.id}
-                  className="relative w-[105px] h-[105px] rounded-xl overflow-hidden border border-[#EFE5DD]"
+                  className="relative w-[105px] h-[105px] rounded-xl overflow-hidden border border-[#EFE5DD] bg-[#FAF8F6] flex items-center justify-center p-1"
                 >
                   <img
                     src={img.image}
                     alt=""
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                   />
 
                   <button className="absolute top-1 right-1 w-5 h-5 rounded-full bg-white flex items-center justify-center shadow">
