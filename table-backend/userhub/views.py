@@ -453,6 +453,8 @@ class userUpdateProfileAPIView(APIView):
                 response_data["profileImage"] = request.build_absolute_uri(
                     user.profileImage.url
                 )
+            else:
+                response_data["profileImage"] = None
 
             return Response({
                 "status": True,
@@ -473,6 +475,44 @@ class userUpdateProfileAPIView(APIView):
                 "status": False,
                 "statusCode": 500,
                 "message": "Unable to update profile.",
+                "error": str(exc)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @extend_schema(
+        summary="Remove Profile Image API",
+        responses={200: UserResponseSerializer},
+        tags=["UserHub Authentication"],
+    )
+    def delete(self, request):
+        """Remove user's profile image."""
+        try:
+            user = request.user
+            if user.profileImage:
+                try:
+                    user.profileImage.delete(save=False)
+                except Exception:
+                    pass
+                user.profileImage = None
+                user.save(update_fields=["profileImage"])
+
+            response_data = UserResponseSerializer(
+                user,
+                context={"request": request}
+            ).data
+            response_data["profileImage"] = None
+
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "Profile image removed successfully.",
+                "data": response_data
+            }, status=status.HTTP_200_OK)
+
+        except Exception as exc:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": "Unable to remove profile image.",
                 "error": str(exc)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
