@@ -8,12 +8,12 @@ const authHeader = (accessToken) => ({
  * Fetch list of privacy policy or terms & conditions
  * @param {string} accessToken
  * @param {"privacy_and_policy" | "terms_and_conditions"} privacyPolicyType
- * @param {"table"} type
+ * @param {"uniform"} type
  */
 export async function apiGetPrivacyPolicyList(
   accessToken,
   privacyPolicyType = "privacy_and_policy",
-  type = "table"
+  type = "uniform"
 ) {
   return ApiService.fetchDataWithAxios({
     url: `/v1/uniformAdmin/privacy-policy/list/?type=${type}&privacyPolicyType=${privacyPolicyType}`,

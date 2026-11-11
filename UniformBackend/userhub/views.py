@@ -44,6 +44,82 @@ from uniformAdmin.utils import new_build_media_url
 from .tasks import send_login_alert_email_task
 
 
+def build_verification_link(request, user):
+    """
+    Constructs the frontend email verification URL.
+    Ensures the link points to the user-facing frontend domain, NOT internal backend ports.
+    """
+    frontend_url = None
+    if hasattr(request, "data") and isinstance(request.data, dict):
+        frontend_url = request.data.get("frontend_url")
+    if not frontend_url and hasattr(request, "query_params"):
+        frontend_url = request.query_params.get("frontend_url")
+
+    if not frontend_url:
+        frontend_url = request.headers.get("origin") or request.META.get("HTTP_ORIGIN")
+
+    if not frontend_url:
+        referer = request.headers.get("referer") or request.META.get("HTTP_REFERER")
+        if referer:
+            from urllib.parse import urlparse
+            p = urlparse(referer)
+            frontend_url = f"{p.scheme}://{p.netloc}"
+
+    if not frontend_url:
+        forwarded_proto = request.headers.get("x-forwarded-proto") or request.META.get("HTTP_X_FORWARDED_PROTO")
+        scheme = "https" if request.is_secure() or forwarded_proto == "https" else "http"
+        forwarded_host = request.headers.get("x-forwarded-host") or request.META.get("HTTP_X_FORWARDED_HOST")
+        host = forwarded_host or request.get_host()
+        frontend_url = f"{scheme}://{host}"
+
+    base_url = frontend_url.rstrip("/")
+    uid = user.id
+    email = user.email
+    return f"{base_url}/account-verified-page?user_id={uid}&email={email}"
+
+
+def send_verification_email_message(user, verify_link):
+    """
+    Sends email verification with both plain-text and rich HTML clickable button/link.
+    """
+    subject = "Verify your email"
+    plain_message = f"Click here to verify your email, it's you:\n{verify_link}"
+    html_message = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>Verify your email</title>
+    </head>
+    <body style="font-family: Arial, Helvetica, sans-serif; background-color: #f9fafb; margin: 0; padding: 24px; color: #333;">
+      <div style="max-width: 560px; margin: 0 auto; background: #ffffff; border-radius: 12px; padding: 32px; border: 1px solid #e5e7eb; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+        <h2 style="color: #1f2937; margin-top: 0; font-size: 22px;">Verify your email address</h2>
+        <p style="font-size: 15px; line-height: 1.6; color: #4b5563;">
+          Thank you for registering with Kireiz. Please confirm your email address by clicking the button below:
+        </p>
+        <div style="text-align: center; margin: 28px 0;">
+          <a href="{verify_link}" target="_blank" rel="noopener noreferrer" style="display: inline-block; background-color: #1C4FA8; color: #ffffff !important; text-decoration: none; padding: 13px 32px; border-radius: 8px; font-weight: bold; font-size: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            Verify Email Address
+          </a>
+        </div>
+        <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;" />
+        <p style="font-size: 12px; color: #9ca3af; margin-bottom: 0;">
+          If you did not request this verification, you can safely ignore this email.
+        </p>
+      </div>
+    </body>
+    </html>
+    """
+    send_mail(
+        subject=subject,
+        message=plain_message,
+        from_email=settings.EMAIL_HOST_USER,
+        recipient_list=[user.email],
+        html_message=html_message,
+        fail_silently=False,
+    )
+
+
 class SignupAPIView(APIView):
     authentication_classes = []
     permission_classes = [AllowAny]
@@ -66,20 +142,9 @@ class SignupAPIView(APIView):
                 send_admin_registration_email(user)
 
                  # EMAIL VERIFICATION 
-                uid = user.id
-                email = user.email               
-                scheme = "https" if request.is_secure() or request.headers.get("x-forwarded-proto") == "https" else "http"
-                host = request.get_host()
-                verify_link = f"{scheme}://{host}/account-verified-page?user_id={uid}&email={email}"
-
                 try:
-                    send_mail(
-                        subject="Verify your email",
-                        message=f"Click here to verify your email, it's you:\n{verify_link}",
-                        from_email=settings.EMAIL_HOST_USER,
-                        recipient_list=[user.email],
-                        fail_silently=False,
-                    )
+                    verify_link = build_verification_link(request, user)
+                    send_verification_email_message(user, verify_link)
                 except Exception as mail_exc:
                     logger.error(f"Failed to send verification email to {user.email}: {mail_exc}")
 
@@ -297,6 +362,7 @@ class GetProfileAPIView(APIView):
                 "role": user.role.id if user.role else None,
                 "roleName": user.role.role_name if user.role else None,
                 "isActive": user.isActive,
+                "is_verify": user.is_verify,
                 "isDeleted": user.isDeleted,
                 "lastLogin": user.lastLogin,
                 "appleID": user.appleID,
@@ -969,6 +1035,56 @@ class VerifyUserAPIView(APIView):
             "statusCode": 200,
             "message": "User verified successfully."
         }, status=200)
+
+
+class ResendVerificationEmailAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        summary="Resend Verification Email API",
+        responses={200: dict},
+        tags=["UserHub Authentication"]
+    )
+    def post(self, request):
+        user = request.user
+        if not isinstance(user, Users):
+            user = Users.objects.filter(
+                Q(email=getattr(request.user, "email", None)) | Q(id=getattr(request.user, "id", None))
+            ).first()
+
+        if not user:
+            return Response({
+                "status": False,
+                "statusCode": 404,
+                "message": "User not found."
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        force = bool(request.data.get("force", False))
+        if user.is_verify and not force:
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "is_verify": True,
+                "already_verified": True,
+                "message": f"Your email ({user.email}) is already verified."
+            }, status=status.HTTP_200_OK)
+
+        try:
+            verify_link = build_verification_link(request, user)
+            send_verification_email_message(user, verify_link)
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "is_verify": user.is_verify,
+                "message": f"Verification email has been sent to {user.email}."
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f"Failed to resend verification email to {user.email}: {e}")
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": f"Failed to send verification email: {str(e)}"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 #-----------------Notification-------------------------

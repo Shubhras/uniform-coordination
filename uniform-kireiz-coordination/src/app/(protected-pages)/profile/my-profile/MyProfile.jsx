@@ -4,6 +4,9 @@ import React, { useEffect, useRef, useState } from "react";
 import Avatar from "@/components/ui/Avatar";
 import Button from "@/components/ui/Button";
 import Spinner from "@/components/ui/Spinner";
+import Dialog from "@/components/ui/Dialog";
+import toast from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import {
@@ -14,6 +17,7 @@ import {
   FiEdit2,
   FiFileText,
   FiLock,
+  FiMail,
 } from "react-icons/fi";
 import { HiCheckCircle } from "react-icons/hi";
 import { CiUser } from "react-icons/ci";
@@ -23,6 +27,7 @@ import {
   apiGetQuotation,
   apiSimulationExportPdf,
   apiSimulationHistory,
+  apiResendVerificationEmail,
 } from "@/services/AuthProfileService";
 import {
   apiGetUserQuotationDetail,
@@ -131,6 +136,8 @@ const MyProfile = () => {
   const [quotationDetailLoadingId, setQuotationDetailLoadingId] =
     useState(null);
   const [viewDesignLoading, setViewDesignLoading] = useState(false);
+  const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false);
+  const [verifyEmailLoading, setVerifyEmailLoading] = useState(false);
   const activeQuotation = quotationData?.[0] || null;
   const visibleRecentSimulations = simulationData.slice(0, 3);
 
@@ -371,6 +378,46 @@ const MyProfile = () => {
     }
   };
 
+  const handleResendVerification = async () => {
+    const userEmail = profile?.email || session?.user?.email || "-";
+    try {
+      setVerifyEmailLoading(true);
+      if (!session?.accessToken) {
+        toast.push(
+          <Notification title="Notice" type="info">
+            Session token not available. Please sign in again.
+          </Notification>
+        );
+        return;
+      }
+
+      const res = await apiResendVerificationEmail(session.accessToken, { force: true });
+      if (res?.status) {
+        toast.push(
+          <Notification title="Verification Email Sent" type="success">
+            {res?.message || `A verification email has been sent to ${userEmail}. Please check your inbox.`}
+          </Notification>
+        );
+        setIsVerifyModalOpen(false);
+      } else {
+        toast.push(
+          <Notification title="Notice" type="info">
+            {res?.message || `Your email (${userEmail}) is verified.`}
+          </Notification>
+        );
+      }
+    } catch (err) {
+      console.error("Failed to resend verification email:", err);
+      toast.push(
+        <Notification title="Failed to Send" type="danger">
+          {err?.response?.data?.message || "Failed to send verification email. Please try again."}
+        </Notification>
+      );
+    } finally {
+      setVerifyEmailLoading(false);
+    }
+  };
+
   if (profileLoading) {
     return (
       <section className="relative mt-15 mx-auto w-full bg-white px-5 md:px-8 lg:px-12">
@@ -499,6 +546,14 @@ const MyProfile = () => {
             onClick={() => router.push("/profile/change-password")}
           >
             Change Password
+          </Button>
+          <Button
+            size="sm"
+            icon={<FiMail size={13} />}
+            className="h-8 whitespace-nowrap rounded-md border border-[#E5E7EB] px-3.5 text-xs font-medium text-[#475569] hover:border-[#1C4FA8] hover:text-[#1C4FA8]"
+            onClick={() => setIsVerifyModalOpen(true)}
+          >
+            Verify Email
           </Button>
         </div>
       </div>
@@ -729,8 +784,69 @@ const MyProfile = () => {
           </div>
         </div>
       </div>
+
+      {/* Email Verification Dialog */}
+      <Dialog
+        isOpen={isVerifyModalOpen}
+        onClose={() => setIsVerifyModalOpen(false)}
+        onRequestClose={() => setIsVerifyModalOpen(false)}
+        className="w-full max-w-lg mx-auto"
+      >
+        <div className="flex flex-col p-2">
+          {/* Header */}
+          <div className="flex items-center gap-3 border-b border-[#E5E7EB] pb-4">
+            <div className="w-10 h-10 rounded-full bg-[#1C4FA8]/10 flex items-center justify-center text-[#1C4FA8]">
+              <FiMail size={20} />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-[#1F2937]">Email Verification</h3>
+              <p className="text-xs text-[#6B7280]">Manage and confirm your account email address</p>
+            </div>
+          </div>
+
+          {/* Body */}
+          <div className="py-6 space-y-4">
+            <div className="rounded-xl border border-green-200 bg-green-50/70 p-4 flex items-start gap-3">
+              <HiCheckCircle size={22} className="text-green-600 mt-0.5 shrink-0" />
+              <div>
+                <h4 className="text-sm font-semibold text-green-900">
+                  {profile?.is_verify ?? true ? "Email Address is Verified" : "Verification Pending"}
+                </h4>
+                <p className="text-xs text-green-700 mt-1">
+                  Your registered email address <span className="font-semibold underline">{profile?.email || session?.user?.email || "-"}</span> is verified and active on your Kireiz account.
+                </p>
+              </div>
+            </div>
+
+            <p className="text-xs text-[#6B7280] leading-relaxed">
+              All official quotation updates, order confirmations, simulation schedules, and notifications are sent directly to this address.
+            </p>
+          </div>
+
+          {/* Footer Actions */}
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#E5E7EB]">
+            <Button
+              size="sm"
+              variant="plain"
+              onClick={() => setIsVerifyModalOpen(false)}
+              className="rounded-lg text-[#6B7280]"
+            >
+              Close
+            </Button>
+            <Button
+              size="sm"
+              loading={verifyEmailLoading}
+              onClick={handleResendVerification}
+              className="rounded-lg bg-[#1C4FA8] hover:bg-[#163e85] text-white font-medium flex items-center gap-2"
+            >
+              <FiMail /> Resend Verification Email
+            </Button>
+          </div>
+        </div>
+      </Dialog>
     </div>
   );
 };
 
 export default MyProfile;
+

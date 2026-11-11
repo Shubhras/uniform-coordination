@@ -219,6 +219,7 @@ urlpatterns = [
     path('tabletheme/get-list/',TableThemeListAPIView.as_view(), name = 'Table_Theme-get-list'),
     path('tabletheme/<int:id>/get/',TableThemeDetailAPIView.as_view(), name = 'Table_Theme-get-detail'),
     path('tabletheme/<int:id>/update/',TableThemeUpdateAPIView.as_view(), name = 'Table_Theme-update'),
+    path('tabletheme/cover-image/<int:image_id>/delete/', TableThemeCoverImageDeleteAPIView.as_view(), name='tabletheme-cover-image-delete'),
     # path('tabletheme/delete/',TableThemeDeleteAPIView.as_view(), name = 'Table_Theme-delete'),
     path(
         'tabletheme/delete/<int:pk>/',

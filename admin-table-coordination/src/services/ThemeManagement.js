@@ -62,3 +62,13 @@ export async function apiUpdateTheme(accessToken, id, formData) {
     },
   });
 }
+
+export async function apiDeleteThemeCoverImage(accessToken, imageId) {
+  return ApiService.fetchDataWithAxios({
+    url: `/v1/space/uniformAdmin/tabletheme/cover-image/${imageId}/delete/`,
+    method: "delete",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+}

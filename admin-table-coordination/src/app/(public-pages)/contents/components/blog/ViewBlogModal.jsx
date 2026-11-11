@@ -33,12 +33,6 @@ const ViewBlogModal = ({ isOpen, onClose, post }) => {
           <h2 className="text-xl font-bold text-[#1C2C56] leading-snug">
             {t("blogPostDetails")}
           </h2>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors text-lg"
-          >
-            ✕
-          </button>
         </div>
 
         {/* Content Body */}

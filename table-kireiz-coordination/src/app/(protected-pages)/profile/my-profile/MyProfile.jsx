@@ -8,6 +8,9 @@ import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import Avatar from "@/components/ui/Avatar";
 import Button from "@/components/ui/Button";
 import Spinner from "@/components/ui/Spinner";
+import Dialog from "@/components/ui/Dialog";
+import toast from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import {
   FiEdit2,
   FiLock,
@@ -24,9 +27,11 @@ import {
   apiGetProfile,
   apiSimulationExportPdf,
   apiSimulationHistory,
+  apiResendVerificationEmail,
 } from "@/services/AuthProfileService";
 import { apiUserOrderList } from "@/services/OrderService";
 import { formatDate } from "@/utils/formatDate";
+import RentalTimelineModal from "@/components/shared/RentalTimelineModal";
 
 const MyProfile = () => {
   const router = useRouter();
@@ -52,6 +57,19 @@ const MyProfile = () => {
   // PDF download state
   const [pdfLoadingId, setPdfLoadingId] = useState(null);
   const [pdfError, setPdfError] = useState("");
+
+  // Email verification dialog state
+  const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false);
+  const [verifyEmailLoading, setVerifyEmailLoading] = useState(false);
+
+  // Tracking timeline modal state
+  const [isTrackingModalOpen, setIsTrackingModalOpen] = useState(false);
+  const [trackingOrder, setTrackingOrder] = useState(null);
+
+  const handleOpenTrack = (order) => {
+    setTrackingOrder(order || ordersList[0] || null);
+    setIsTrackingModalOpen(true);
+  };
 
   // Fetch profile details
   useEffect(() => {
@@ -180,6 +198,46 @@ const MyProfile = () => {
     }
   };
 
+  const handleResendVerification = async () => {
+    const userEmail = profile?.email || session?.user?.email || "-";
+    try {
+      setVerifyEmailLoading(true);
+      if (!token) {
+        toast.push(
+          <Notification title="Notice" type="info">
+            Session token not available. Please sign in again.
+          </Notification>
+        );
+        return;
+      }
+
+      const res = await apiResendVerificationEmail(token, { force: true });
+      if (res?.status) {
+        toast.push(
+          <Notification title="Verification Email Sent" type="success">
+            {res?.message || `A verification email has been sent to ${userEmail}. Please check your inbox.`}
+          </Notification>
+        );
+        setIsVerifyModalOpen(false);
+      } else {
+        toast.push(
+          <Notification title="Notice" type="info">
+            {res?.message || `Your email (${userEmail}) is verified.`}
+          </Notification>
+        );
+      }
+    } catch (err) {
+      console.error("Failed to resend verification email:", err);
+      toast.push(
+        <Notification title="Failed to Send" type="danger">
+          {err?.response?.data?.message || "Failed to send verification email. Please try again."}
+        </Notification>
+      );
+    } finally {
+      setVerifyEmailLoading(false);
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       {/* Profile Card */}
@@ -273,8 +331,9 @@ const MyProfile = () => {
               <FiLock /> Change Password
             </Button>
             <Button
+              onClick={() => setIsVerifyModalOpen(true)}
               size="sm"
-              className="flex items-center rounded-lg gap-2 border border-[#7D7D7D] text-[#515254] font-medium"
+              className="flex items-center rounded-lg gap-2 border border-[#7D7D7D] text-[#515254] font-medium hover:border-[#A0522D] hover:text-[#A0522D]"
             >
               <FiMail /> Verify Email
             </Button>
@@ -345,7 +404,8 @@ const MyProfile = () => {
               <Button
                 size="sm"
                 variant="default"
-                className="border border-[#A0522D] text-[#A0522D] w-full rounded-lg"
+                className="border border-[#A0522D] text-[#A0522D] hover:bg-[#FAF4EF] w-full rounded-lg transition"
+                onClick={() => handleOpenTrack(ordersList[0])}
               >
                 Track
               </Button>
@@ -468,15 +528,85 @@ const MyProfile = () => {
           <div className="px-6 py-5 border-t border-[#D6B8A6]">
             <Button
               variant="default"
-              className="w-full border border-[#A0522D] text-[#A0522D] bg-[#F5F0EE30]"
+              className="w-full border border-[#A0522D] text-[#A0522D] bg-[#F5F0EE30] hover:bg-[#F5F0EE80]"
+              onClick={() => router.push("/dashboards/uniform-3d-design")}
             >
               Create New Simulation
             </Button>
           </div>
         </div>
       </div>
+
+      {/* Email Verification Dialog */}
+      <Dialog
+        isOpen={isVerifyModalOpen}
+        onClose={() => setIsVerifyModalOpen(false)}
+        onRequestClose={() => setIsVerifyModalOpen(false)}
+        className="w-full max-w-lg mx-auto"
+      >
+        <div className="flex flex-col p-2">
+          {/* Header */}
+          <div className="flex items-center gap-3 border-b border-[#E5E7EB] pb-4">
+            <div className="w-10 h-10 rounded-full bg-[#A0522D]/10 flex items-center justify-center text-[#A0522D]">
+              <FiMail size={20} />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-[#5A3E2B]">Email Verification</h3>
+              <p className="text-xs text-[#7D7D7D]">Manage and confirm your account email address</p>
+            </div>
+          </div>
+
+          {/* Body */}
+          <div className="py-6 space-y-4">
+            <div className="rounded-xl border border-green-200 bg-green-50/70 p-4 flex items-start gap-3">
+              <HiCheckCircle size={22} className="text-green-600 mt-0.5 shrink-0" />
+              <div>
+                <h4 className="text-sm font-semibold text-green-900">
+                  {profile?.is_verify ?? true ? "Email Address is Verified" : "Verification Pending"}
+                </h4>
+                <p className="text-xs text-green-700 mt-1">
+                  Your registered email address <span className="font-semibold underline">{profile?.email || session?.user?.email || "-"}</span> is verified and active on your Kireiz account.
+                </p>
+              </div>
+            </div>
+
+            <p className="text-xs text-[#626262] leading-relaxed">
+              All official quotation updates, order confirmations, rental schedules, and notifications are sent directly to this address.
+            </p>
+          </div>
+
+          {/* Footer Actions */}
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#E5E7EB]">
+            <Button
+              size="sm"
+              variant="plain"
+              onClick={() => setIsVerifyModalOpen(false)}
+              className="rounded-lg text-[#626262]"
+            >
+              Close
+            </Button>
+            <Button
+              size="sm"
+              loading={verifyEmailLoading}
+              onClick={handleResendVerification}
+              className="rounded-lg bg-[#A0522D] hover:bg-[#854324] text-white font-medium flex items-center gap-2"
+            >
+              <FiMail /> Resend Verification Email
+            </Button>
+          </div>
+        </div>
+      </Dialog>
+
+      {/* Rental Timeline Tracking Modal */}
+      <RentalTimelineModal
+        isOpen={isTrackingModalOpen}
+        onClose={() => setIsTrackingModalOpen(false)}
+        orderId={trackingOrder?.order_id}
+        initialOrder={trackingOrder}
+      />
     </div>
   );
 };
 
 export default MyProfile;
+

@@ -11,6 +11,7 @@ import Notification from '@/components/ui/Notification'
 import Dialog from '@/components/ui/Dialog'
 import toast from '@/components/ui/toast'
 import Spinner from '@/components/ui/Spinner'
+import RentalTimelineModal from '@/components/shared/RentalTimelineModal'
 import {
     FiArrowLeft,
     FiCalendar,
@@ -102,6 +103,7 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
     const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
     const [cancelReason, setCancelReason] = useState('')
     const [cancelling, setCancelling] = useState(false)
+    const [trackingModalOpen, setTrackingModalOpen] = useState(false)
 
     const orderId = params?.id || 'ORD-2024-0091'
 
@@ -414,6 +416,7 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
                                                 <div className="flex gap-3">
                                                     <button
                                                         type="button"
+                                                        onClick={() => setTrackingModalOpen(true)}
                                                         className="flex-1 rounded-md border border-[#E4B292] bg-white px-4 py-2 text-sm font-medium text-[#B66636] hover:bg-[#FAF6F4] transition"
                                                     >
                                                         Track Order
@@ -609,6 +612,14 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
                     </div>
                 </div>
             </Dialog>
+
+            {/* Rental Timeline Tracking Modal */}
+            <RentalTimelineModal
+                isOpen={trackingModalOpen}
+                onClose={() => setTrackingModalOpen(false)}
+                orderId={orderData?.order_id || orderId}
+                initialOrder={orderData}
+            />
         </div>
     )
 }

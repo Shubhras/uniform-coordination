@@ -245,3 +245,25 @@ export async function apiGetFavouritesList(token, params = {}) {
         throw err
     }
 }
+
+/**
+ * Triggers sending or resending a verification email for the current user.
+ * 
+ * @param {string} token - User authentication Bearer token.
+ * @param {Object} [data={}] - Optional request payload (e.g. { force: true }).
+ * @returns {Promise<Object>} API response confirming email dispatch or verified status.
+ */
+export async function apiResendVerificationEmail(token, data = {}) {
+    const payload = {
+        ...data,
+        frontend_url: typeof window !== 'undefined' ? window.location.origin : undefined,
+    }
+    return ApiService.fetchDataWithAxios({
+        url: '/v1/space/userhub/verify-email/resend/',
+        method: 'post',
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+        data: payload,
+    })
+}
