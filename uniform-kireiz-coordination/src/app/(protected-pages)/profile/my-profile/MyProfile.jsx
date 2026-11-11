@@ -24,7 +24,10 @@ import {
   apiSimulationExportPdf,
   apiSimulationHistory,
 } from "@/services/AuthProfileService";
-import { apiGetUserQuotationDetail } from "@/services/QuotationRequestService";
+import {
+  apiGetUserQuotationDetail,
+  apiGetQuotationRequestDetail,
+} from "@/services/QuotationRequestService";
 
 const normalizePdfUrl = (rawUrl) => {
   if (!rawUrl || typeof rawUrl !== "string") {
@@ -127,6 +130,7 @@ const MyProfile = () => {
   const [pdfLoadingId, setPdfLoadingId] = useState(null);
   const [quotationDetailLoadingId, setQuotationDetailLoadingId] =
     useState(null);
+  const [viewDesignLoading, setViewDesignLoading] = useState(false);
   const activeQuotation = quotationData?.[0] || null;
   const visibleRecentSimulations = simulationData.slice(0, 3);
 
@@ -292,6 +296,81 @@ const MyProfile = () => {
     router.push(`/profile/my-profile/${quotationId}`);
   };
 
+  const handleViewDesign = async () => {
+    try {
+      setViewDesignLoading(true);
+
+      // 1. Direct check from activeQuotation
+      const quotationDesignId =
+        activeQuotation?.customupdatemodel?.id ||
+        activeQuotation?.customupdatemodel_id ||
+        (typeof activeQuotation?.customupdatemodel === "number" ||
+        (typeof activeQuotation?.customupdatemodel === "string" &&
+          !isNaN(activeQuotation?.customupdatemodel) &&
+          activeQuotation?.customupdatemodel.trim() !== "")
+          ? activeQuotation.customupdatemodel
+          : null) ||
+        activeQuotation?.custom_update_model?.id ||
+        activeQuotation?.custom_update_model ||
+        activeQuotation?.customUpdateModel?.id ||
+        activeQuotation?.simulation_id ||
+        activeQuotation?.simulationId ||
+        activeQuotation?.model_info?.id;
+
+      if (quotationDesignId) {
+        router.push(`/dashboards/design-result/${quotationDesignId}`);
+        return;
+      }
+
+      // 2. Fetch quotation request detail if customupdatemodel wasn't in activeQuotation
+      const qId =
+        activeQuotation?.quotation_id ||
+        activeQuotation?.quotationNo ||
+        activeQuotation?.uuids ||
+        activeQuotation?.uuid ||
+        activeQuotation?.id;
+
+      if (qId && session?.accessToken) {
+        try {
+          const detailRes = await apiGetQuotationRequestDetail(
+            qId,
+            session.accessToken,
+          );
+          const data = detailRes?.data || detailRes;
+          const fetchedDesignId =
+            data?.customupdatemodel?.id ||
+            data?.customupdatemodel_id ||
+            (typeof data?.customupdatemodel === "number"
+              ? data.customupdatemodel
+              : null) ||
+            data?.custom_update_model?.id ||
+            data?.simulation_id;
+
+          if (fetchedDesignId) {
+            router.push(`/dashboards/design-result/${fetchedDesignId}`);
+            return;
+          }
+        } catch (detailErr) {
+          console.warn(
+            "Could not fetch quotation request detail for design:",
+            detailErr,
+          );
+        }
+      }
+
+      // 3. Fallback: most recent simulation from user's simulationData
+      if (simulationData?.length > 0 && simulationData[0]?.id) {
+        router.push(`/dashboards/design-result/${simulationData[0].id}`);
+        return;
+      }
+
+      // 4. Default fallback: 3D design studio dashboard
+      router.push("/dashboards/uniform-3d-design");
+    } finally {
+      setViewDesignLoading(false);
+    }
+  };
+
   if (profileLoading) {
     return (
       <section className="relative mt-15 mx-auto w-full bg-white px-5 md:px-8 lg:px-12">
@@ -440,7 +519,12 @@ const MyProfile = () => {
             </p>
           </div>
 
-          <Button className="rounded-md h-8 bg-[#003560] px-4 py-1 text-xs md:text-sm text-white hover:bg-[#002a49]">
+          <Button
+            loading={viewDesignLoading}
+            disabled={viewDesignLoading}
+            className="rounded-md h-8 bg-[#003560] px-4 py-1 text-xs md:text-sm text-white hover:bg-[#002a49]"
+            onClick={handleViewDesign}
+          >
             View Design
           </Button>
         </div>

@@ -30,12 +30,12 @@ export async function apiGetProfile(token) {
 export async function apiUpdateProfile(token, payload) {
   const formData = new FormData()
 
-  formData.append('firstName', payload.firstName)
-  formData.append('lastName', payload.lastName)
-  formData.append('phone', payload.phone)
+  formData.append('firstName', payload.firstName || '')
+  formData.append('lastName', payload.lastName || '')
+  formData.append('phone', payload.phone || '')
 
-  if (payload.profileImage instanceof File) {
-    formData.append('profileImage', payload.profileImage)
+  if (payload.profileImage && (payload.profileImage instanceof File || payload.profileImage instanceof Blob)) {
+    formData.append('profileImage', payload.profileImage, payload.profileImage.name || 'avatar.jpg')
   }
 
   return ApiService.fetchDataWithAxios({
