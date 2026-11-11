@@ -10,17 +10,26 @@ import { handleTokenRefresh, redirectToLogin } from '../tokenStorage'
  * @returns {Promise<any>} Retried request promise or rejection.
  */
 const AxiosResponseIntrceptorErrorCallback = async (error, axiosInstance) => {
-    const originalRequest = error.config
-    const status = error.response ? error.response.status : null
+    const originalRequest = error?.config
+    const status = error?.response?.status
+    const errorDetail = error?.response?.data?.detail || ''
 
-    // Check if error is 401 Unauthorized
-    if (status === 401 && originalRequest) {
+    const isAuthError =
+        status === 401 ||
+        (status === 403 &&
+            typeof errorDetail === 'string' &&
+            (errorDetail.toLowerCase().includes('signature') ||
+             errorDetail.toLowerCase().includes('token') ||
+             errorDetail.toLowerCase().includes('credential')))
+
+    // Check if error is an authentication error
+    if (isAuthError && originalRequest) {
         const requestUrl = originalRequest.url || ''
 
-        // If the refresh token endpoint or login endpoint itself returned 401,
+        // If the refresh token endpoint or login endpoint itself returned an auth error,
         // it means both tokens are expired or invalid -> redirect to login page.
         if (requestUrl.includes('/token/refresh/') || requestUrl.includes('/userhub/login/')) {
-            console.warn('Auth/Refresh endpoint returned 401. Both tokens expired. Redirecting to login.')
+            console.warn('Auth/Refresh endpoint returned auth error. Both tokens expired. Redirecting to login.')
             await redirectToLogin()
             return Promise.reject(error)
         }

@@ -35,12 +35,22 @@ const processQueue = (error, token = null) => {
 const AxiosResponseIntrceptorErrorCallback = async (error, axiosInstance) => {
     const originalRequest = error?.config
 
-    // If there is no response or error is not 401, reject immediately
-    if (error?.response?.status !== 401 || !originalRequest) {
+    const status = error?.response?.status
+    const errorDetail = error?.response?.data?.detail || ''
+    const isAuthError =
+        status === 401 ||
+        (status === 403 &&
+            typeof errorDetail === 'string' &&
+            (errorDetail.toLowerCase().includes('signature') ||
+             errorDetail.toLowerCase().includes('token') ||
+             errorDetail.toLowerCase().includes('credential')))
+
+    // If there is no response or error is not an authentication error, reject immediately
+    if (!isAuthError || !originalRequest) {
         return Promise.reject(error)
     }
 
-    // If the 401 error is from the refresh token API itself, both tokens are expired/invalid
+    // If the auth error is from the refresh token API itself, both tokens are expired/invalid
     if (originalRequest?.url?.includes('/token/refresh/')) {
         clearTokens()
         if (typeof window !== 'undefined') {

@@ -113,6 +113,8 @@ const AdminSidebar = ({
 
     useEffect(() => {
         let isMounted = true
+        let interval = null
+
         const fetchUnreadCount = async () => {
             if (session?.user?.accessToken) {
                 try {
@@ -128,6 +130,9 @@ const AdminSidebar = ({
                         }
                     }
                 } catch (err) {
+                    if (err?.response?.status === 401 || err?.response?.status === 403) {
+                        if (interval) clearInterval(interval)
+                    }
                     if (isMounted) setUnreadCount(0)
                 }
             } else {
@@ -136,7 +141,7 @@ const AdminSidebar = ({
         }
 
         fetchUnreadCount()
-        const interval = setInterval(fetchUnreadCount, 15000)
+        interval = setInterval(fetchUnreadCount, 15000)
 
         const handleNotificationsUpdated = () => {
             fetchUnreadCount()
@@ -148,7 +153,7 @@ const AdminSidebar = ({
 
         return () => {
             isMounted = false
-            clearInterval(interval)
+            if (interval) clearInterval(interval)
             if (typeof window !== 'undefined') {
                 window.removeEventListener('notificationsUpdated', handleNotificationsUpdated)
             }
