@@ -1539,7 +1539,7 @@
           "emailRequired": "Email is required",
           "invalidEmail": "Invalid email address",
           "mobileRequired": "Mobile number is required",
-          "invalidMobile": "Enter a valid 10-digit mobile number",
+          "invalidMobile": "Enter a valid 8-15 digit mobile number",
           "passwordRequired": "Password is required"
         }
       },
@@ -1654,7 +1654,7 @@
           "emailRequired": "Email is required",
           "invalidEmail": "Invalid email address",
           "phoneRequired": "Phone number is required",
-          "invalidPhone": "Enter a valid 10-digit phone number",
+          "invalidPhone": "Enter a valid 8-15 digit phone number",
           "itemTypeRequired": "Item type is required",
           "materialRequired": "Material is required",
           "sizeQuantityRequired": "Size & Quantity is required",
@@ -1662,7 +1662,24 @@
           "deliveryDateRequired": "Delivery date is required",
           "quotationStatusRequired": "Quotation status is required",
           "subtotalNegative": "Subtotal cannot be negative"
-        }
+        },
+        "changeToSubmitted": "Change to Submitted",
+        "changeToSent": "Change to Sent",
+        "cancelQuotation": "Cancel Quotation",
+        "moveToQuoting": "Move to Quoting",
+        "confirmSubmitTitle": "Change Status to Submitted",
+        "confirmSubmitMessage": "Are you sure you want to change the status to Submitted? The status will be updated to accepted in the backend.",
+        "confirmSentTitle": "Change Status to Sent",
+        "confirmSentMessage": "Are you sure you want to update the quotation status to Sent?",
+        "confirmCancelTitle": "Cancel Quotation",
+        "confirmCancelMessage": "Are you sure you want to cancel this quotation? This action cannot be undone.",
+        "cancelReasonLabel": "Cancellation Reason (Optional)",
+        "cancelReasonPlaceholder": "Enter reason for cancellation...",
+        "keepQuotation": "Keep Quotation",
+        "confirmCancellation": "Confirm Cancellation",
+        "confirm": "Confirm",
+        "backToQuotations": "Back to Quotations",
+        "statusSubmitted": "Submitted"
       },
       "viewQuotationPage": {
         "pageTitle": "Quotation Details",
@@ -1751,7 +1768,7 @@
           "nameRequired": "Full Name is required",
           "emailRequired": "Email is required",
           "emailInvalid": "Please enter a valid email address",
-          "invalidMobile": "Enter a valid 10-digit mobile number",
+          "invalidMobile": "Enter a valid 8-15 digit mobile number",
           "designationRequired": "Designation is required",
           "passwordRequired": "Password is required"
         }
@@ -1868,6 +1885,7 @@
         "lastNameRequired": "Last name is required*",
         "emailRequired": "Email is required*",
         "phoneRequired": "Phone number is required*",
+        "invalidPhone": "Enter a valid 8-15 digit phone number",
         "userTypeRequired": "User type is required*",
         "genderRequired": "Gender is required*",
         "languageRequired": "Language is required*"
@@ -2389,5 +2407,39 @@
     "notFound": "Product not found",
     "loadFailed": "Could not load the product",
     "errorTitle": "Error"
+  },
+  "profile": {
+    "title": "Personal information",
+    "firstNameLabel": "First name",
+    "firstNamePlaceholder": "First Name",
+    "lastNameLabel": "Last name",
+    "lastNamePlaceholder": "Last Name",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Email",
+    "phoneLabel": "Phone number",
+    "phonePlaceholder": "Phone Number",
+    "positionLabel": "Position",
+    "positionPlaceholder": "Position",
+    "uploadImage": "Upload Image",
+    "remove": "Remove",
+    "recommendedSize": "Recommended: 500x500px, JPG/PNG",
+    "cancel": "Cancel",
+    "saveChanges": "Save Changes",
+    "saving": "Saving...",
+    "successTitle": "Success",
+    "errorTitle": "Error",
+    "updateSuccess": "Profile updated successfully",
+    "updateFailed": "Failed to update profile",
+    "validation": {
+      "firstNameRequired": "First name is required*",
+      "lastNameRequired": "Last name is required*",
+      "emailRequired": "Email is required*",
+      "invalidEmail": "Invalid email address",
+      "dialCodeRequired": "Country code is required*",
+      "phoneRequired": "Phone number is required*",
+      "invalidPhone": "Enter a valid 8-15 digit phone number",
+      "invalidImageType": "Please upload only JPG or PNG images.",
+      "imageSizeExceeded": "Image size should not exceed 2 MB."
+    }
   }
 }

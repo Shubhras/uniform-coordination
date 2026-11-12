@@ -119,7 +119,7 @@ const TermsPolicy = () => {
       const res = await apiGetPrivacyPolicyList(
         accessToken,
         activeTabConfig.typeKey,
-        "table"
+        "uniform"
       );
       const item = extractFirstItem(res);
       setActiveDoc(item);
@@ -194,7 +194,7 @@ const TermsPolicy = () => {
         const payload = {
           title: formData.title.trim(),
           privacyPolicyType: activeTabConfig.typeKey,
-          type: "table",
+          type: "uniform",
           content: formData.content,
           language: "en",
           version: "1.0",
@@ -216,7 +216,7 @@ const TermsPolicy = () => {
         const payload = {
           title: formData.title.trim(),
           privacyPolicyType: activeTabConfig.typeKey,
-          type: "table",
+          type: "uniform",
           content: formData.content,
           language: activeDoc?.language || "en",
           version: activeDoc?.version || "1.0",

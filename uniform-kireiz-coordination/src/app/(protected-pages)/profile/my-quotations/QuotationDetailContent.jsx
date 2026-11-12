@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import Button from '@/components/ui/Button'
 import Spinner from '@/components/ui/Spinner'
 import {
     FiArrowLeft,
@@ -9,6 +10,7 @@ import {
     FiFileText,
     FiCheck,
     FiCheckCircle,
+    FiX,
     FiXCircle,
     FiClock,
     FiSend,
@@ -28,51 +30,80 @@ import {
 import { formatDate } from '@/utils/dateFormater'
 import ComposeEmailModal from '@/components/shared/ComposeEmailModal'
 
+const formatStatusLabel = (val) => {
+    if (!val) return 'Pending'
+    const clean = String(val).replace(/_/g, ' ')
+    return clean.charAt(0).toUpperCase() + clean.slice(1)
+}
+
 const statusStyles = {
     approved: {
         text: '#34C759',
         bg: '#1C4FA80F',
-        label: 'Approved',
+    },
+    agreed: {
+        text: '#34C759',
+        bg: '#1C4FA80F',
+    },
+    accepted: {
+        text: '#4580ED',
+        bg: '#1C4FA80F',
     },
     cancelled: {
         text: '#C10007',
         bg: '#1C4FA80F',
-        label: 'Cancelled',
     },
     declined: {
         text: '#C10007',
         bg: '#1C4FA80F',
-        label: 'Declined',
     },
     pending: {
         text: '#4580ED',
         bg: '#1C4FA80F',
-        label: 'Pending',
     },
     submitted: {
         text: '#4580ED',
         bg: '#1C4FA80F',
-        label: 'Submitted',
+    },
+    sent: {
+        text: '#4580ED',
+        bg: '#1C4FA80F',
     },
     received: {
         text: '#FF8D28',
         bg: '#1C4FA80F',
-        label: 'Received',
     },
 }
 
-const StatusBadge = ({ statusKey, statusLabel }) => {
-    const style = statusStyles[statusKey] || statusStyles.pending
+const StatusBadge = ({ statusKey, statusLabel, quotationStatus }) => {
+    const rawVal = quotationStatus || statusLabel || statusKey || 'pending'
+    const rawKey = String(rawVal).toLowerCase()
+
+    let key = 'pending'
+    if (rawKey.includes('cancel') || rawKey.includes('declin') || rawKey.includes('reject')) {
+        key = 'cancelled'
+    } else if (rawKey.includes('approv') || rawKey.includes('agree')) {
+        key = 'approved'
+    } else if (rawKey.includes('accept')) {
+        key = 'accepted'
+    } else if (rawKey.includes('submit') || rawKey.includes('sent')) {
+        key = 'submitted'
+    } else if (rawKey.includes('receiv') || rawKey.includes('quot')) {
+        key = 'received'
+    }
+
+    const style = statusStyles[key] || statusStyles.pending
+    const textToShow = formatStatusLabel(rawVal)
 
     return (
         <span
-            className="inline-flex items-center rounded-md px-3 py-1.5 text-[12px] font-medium"
+            className="inline-flex items-center rounded-md px-3 py-1.5 text-[12px] font-medium capitalize"
             style={{
                 color: style.text,
                 backgroundColor: style.bg,
             }}
         >
-            {statusLabel}
+            {textToShow}
         </span>
     )
 }
@@ -82,30 +113,54 @@ const StatusBadge = ({ statusKey, statusLabel }) => {
  * Visualizes the 4-stage pipeline: Received > Quoting > Submitted > Agreed / Declined
  */
 const StatusProgressionStepper = ({ quotation }) => {
-    const statusKey = quotation?.statusKey || 'pending'
-    const workflowStatus = String(quotation?.workflowStatus || '').toUpperCase()
+    // Only use quotation_status, do not use workflow_status
+    const rawStatus = String(
+        quotation?.quotation_status ||
+        quotation?.rawStatus ||
+        quotation?.status ||
+        quotation?.statusKey ||
+        'pending',
+    ).toLowerCase()
 
-    // Determine current pipeline stage
-    const isDeclined = statusKey === 'declined' || statusKey === 'cancelled'
+    // 1. Cancelled
+    const isCancelled =
+        rawStatus.includes('cancel') ||
+        rawStatus.includes('declin') ||
+        rawStatus.includes('reject')
+
+    // 2. Agreed
     const isAgreed =
-        ['approved', 'agreed', 'accepted'].includes(statusKey) ||
-        ['AGREED', 'SIGNED', 'COMPLETED'].includes(workflowStatus)
+        rawStatus.includes('approv') ||
+        rawStatus.includes('agree')
 
-    let currentStageIndex = 0 // 0: Received, 1: Quoting, 2: Submitted, 3: Agreed/Declined
+    // 3. Submitted / Accepted
+    const isSubmitted =
+        rawStatus.includes('accept') ||
+        rawStatus.includes('submit') ||
+        rawStatus.includes('sent')
 
-    if (isDeclined || isAgreed) {
+    // 4. Received / Quoting
+    const isReceived =
+        rawStatus.includes('receiv') ||
+        rawStatus.includes('quot') ||
+        rawStatus.includes('review')
+
+    // Stage Index:
+    // 0: Received (when pending)
+    // 1: Quoting (when received)
+    // 2: Submitted (when accepted / submitted / sent)
+    // 3: Agreed / Cancelled
+    let currentStageIndex = 0
+
+    if (isCancelled || isAgreed) {
         currentStageIndex = 3
-    } else if (
-        ['submitted', 'sent'].includes(statusKey) ||
-        workflowStatus === 'SENT' ||
-        Boolean(quotation?.total && quotation?.total !== '0.00')
-    ) {
+    } else if (isSubmitted) {
         currentStageIndex = 2
-    } else if (['quoting', 'under_review'].includes(statusKey)) {
+    } else if (isReceived) {
         currentStageIndex = 1
     } else {
-        // Freshly received or pending request: Received is completed (0), currently Quoting (1)
-        currentStageIndex = 1
+        // Pending
+        currentStageIndex = 0
     }
 
     const stages = [
@@ -129,9 +184,9 @@ const StatusProgressionStepper = ({ quotation }) => {
         },
         {
             key: 'agreed',
-            label: isDeclined ? 'Declined' : 'Agreed',
-            description: isDeclined ? 'Request declined' : 'Contract finalized',
-            icon: isDeclined ? FiXCircle : FiCheckCircle,
+            label: isCancelled ? 'Cancelled' : 'Agreed',
+            description: isCancelled ? 'Request cancelled' : 'Contract finalized',
+            icon: isCancelled ? FiXCircle : FiCheckCircle,
         },
     ]
 
@@ -170,7 +225,7 @@ const StatusProgressionStepper = ({ quotation }) => {
                             lineBg = 'bg-[#003560]'
                             textColor = 'text-[#003560]'
                         } else if (isCurrent) {
-                            if (isDeclined) {
+                            if (isCancelled) {
                                 badgeBg = 'bg-[#EF4444] text-white border-[#DC2626] ring-4 ring-[#FEE2E2]'
                                 textColor = 'text-[#DC2626]'
                             } else if (isAgreed) {
@@ -216,7 +271,7 @@ const StatusProgressionStepper = ({ quotation }) => {
                                 {/* Current Status Tag */}
                                 {isCurrent && (
                                     <span
-                                        className={`mt-1.5 inline-block rounded-full px-2 py-0.5 text-[10px] font-medium ${isDeclined
+                                        className={`mt-1.5 inline-block rounded-full px-2 py-0.5 text-[10px] font-medium ${isCancelled
                                             ? 'bg-[#FEF2F2] text-[#B91C1C]'
                                             : isAgreed
                                                 ? 'bg-[#ECFDF5] text-[#047857]'
@@ -519,7 +574,36 @@ const QuotationDetailContent = ({
     onDownload,
     onView,
     downloadLoading,
+    onCancel,
+    onAgree,
+    actionLoading,
 }) => {
+    // Only use quotation_status, do not use workflow_status
+    const rawStatus = String(
+        quotation?.quotation_status ||
+        quotation?.rawStatus ||
+        quotation?.status ||
+        quotation?.statusKey ||
+        'pending',
+    ).toLowerCase()
+
+    const isCancelled =
+        rawStatus.includes('cancel') ||
+        rawStatus.includes('declin') ||
+        rawStatus.includes('reject')
+
+    const isAgreed =
+        rawStatus.includes('approv') ||
+        rawStatus.includes('agree')
+
+    const isSubmitted =
+        rawStatus.includes('accept') ||
+        rawStatus.includes('submit') ||
+        rawStatus.includes('sent')
+
+    const canCancel = !isCancelled && !isAgreed
+    const canAgree = !isCancelled && !isAgreed && isSubmitted
+
     return (
         <div className="w-full space-y-5 rounded-2xl bg-white">
             {/* Top Navigation Bar & Status Header */}
@@ -543,10 +627,36 @@ const QuotationDetailContent = ({
                     </div>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-2.5">
+                    {canCancel && (
+                        <Button
+                            size="sm"
+                            variant="default"
+                            className="h-8.5 px-3.5 text-xs font-semibold text-[#DC2626] border border-[#FECACA] bg-white hover:bg-[#FEF2F2] rounded-lg transition-colors flex items-center gap-1.5"
+                            onClick={onCancel}
+                            disabled={actionLoading}
+                        >
+                            <FiX size={14} />
+                            Cancel
+                        </Button>
+                    )}
+
+                    {canAgree && (
+                        <Button
+                            size="sm"
+                            className="h-8.5 px-4 text-xs font-semibold text-white bg-[#003560] hover:bg-[#002a49] rounded-lg transition-colors flex items-center gap-1.5 shadow-xs"
+                            onClick={onAgree}
+                            disabled={actionLoading}
+                        >
+                            <FiCheck size={14} />
+                            Agreed
+                        </Button>
+                    )}
+
                     <StatusBadge
                         statusKey={quotation.statusKey}
                         statusLabel={quotation.statusLabel}
+                        quotationStatus={quotation.quotation_status || quotation.rawStatus}
                     />
                 </div>
             </div>

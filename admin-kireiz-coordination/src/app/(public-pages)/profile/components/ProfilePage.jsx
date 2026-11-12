@@ -1,5 +1,6 @@
 "use client";
 import { useMemo, useEffect, useState } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import Button from "@/components/ui/Button";
 import Upload from "@/components/ui/Upload";
 import Input from "@/components/ui/Input";
@@ -27,46 +28,38 @@ import { CiUser } from "react-icons/ci";
 
 const { Control } = components;
 
-const validationSchema = z.object({
-  firstName: z
-    .string({
-      error: "First name is required",
-    })
-    .trim()
-    .min(1, "First name is required"),
+const getValidationSchema = (t) =>
+  z.object({
+    firstName: z
+      .string()
+      .trim()
+      .min(1, t("validation.firstNameRequired")),
 
-  lastName: z
-    .string({
-      error: "Last name is required",
-    })
-    .trim()
-    .min(1, "Last name is required"),
+    lastName: z
+      .string()
+      .trim()
+      .min(1, t("validation.lastNameRequired")),
 
-  email: z
-    .string({
-      error: "Email is required",
-    })
-    .trim()
-    .min(1, "Email is required")
-    .email("Invalid email address"),
+    email: z
+      .string()
+      .trim()
+      .min(1, t("validation.emailRequired"))
+      .email(t("validation.invalidEmail")),
 
-  dialCode: z
-    .string({
-      error: "Country code is required",
-    })
-    .min(1, "Country code is required"),
+    dialCode: z
+      .string()
+      .min(1, t("validation.dialCodeRequired")),
 
-  phoneNumber: z
-    .string({
-      error: "Phone number is required",
-    })
-    .trim()
-    .min(1, "Phone number is required"),
+    phoneNumber: z
+      .string()
+      .trim()
+      .min(1, t("validation.phoneRequired"))
+      .regex(/^\d{8,15}$/, t("validation.invalidPhone")),
 
-  position: z.string().optional(),
+    position: z.string().optional(),
 
-  img: z.string().optional(),
-});
+    img: z.string().optional(),
+  });
 
 const CustomSelectOption = (props) => {
   return (
@@ -105,6 +98,8 @@ const CustomControl = ({ children, ...props }) => {
 };
 
 const ProfilePage = () => {
+  const t = useTranslations("profile");
+  const locale = useLocale();
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
   const [imageError, setImageError] = useState("");
@@ -151,18 +146,20 @@ const ProfilePage = () => {
     if (!file) return false;
 
     if (!allowedFileType.includes(file.type)) {
-      setImageError("Please upload only JPG or PNG images.");
+      setImageError(t("validation.invalidImageType"));
       return false;
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      setImageError("Image size should not exceed 2 MB.");
+      setImageError(t("validation.imageSizeExceeded"));
       return false;
     }
 
     setImageError("");
     return true;
   };
+
+  const validationSchema = useMemo(() => getValidationSchema(t), [t]);
 
   const {
     handleSubmit,
@@ -197,15 +194,15 @@ const ProfilePage = () => {
         name: `${values.firstName} ${values.lastName}`.trim(),
         email: values.email,
         mobile: values.phoneNumber,
-        language: "en",
+        language: locale || "en",
       };
 
       console.log("Payload:", payload);
 
       const res = await apiUpdateSettingsProfile(accessToken, payload);
       toast.push(
-        <Notification title="Success" type="success">
-          {res?.message}
+        <Notification title={t("successTitle")} type="success">
+          {res?.message || t("updateSuccess")}
         </Notification>,
       );
 
@@ -215,6 +212,28 @@ const ProfilePage = () => {
       }
     } catch (error) {
       console.error(error);
+      toast.push(
+        <Notification title={t("errorTitle")} type="danger">
+          {error?.response?.data?.message || t("updateFailed")}
+        </Notification>,
+      );
+    }
+  };
+
+  const handleCancel = () => {
+    if (data?.data) {
+      const profile = data.data;
+      const nameParts = profile.name?.trim().split(" ") || [];
+      reset({
+        firstName: nameParts[0] || "",
+        lastName: nameParts.slice(1).join(" ") || "",
+        email: profile.email || "",
+        phoneNumber: profile.mobile || "",
+        position: profile.role_name || "",
+        dialCode: "+91",
+        img: profile.profile_image || "",
+      });
+      setImageError("");
     }
   };
 
@@ -222,7 +241,7 @@ const ProfilePage = () => {
     <>
       <div className="bg-white md:p-6 p-3 rounded-2xl  max-w-7xl mx-auto shadow-md mt-3">
         <h4 className="mb-8 text-[#003562] text-lg font-semibold">
-          Personal information
+          {t("title")}
         </h4>
         <Form onSubmit={handleSubmit(onSubmit)}>
           {/* <div className="mb-8">
@@ -284,7 +303,7 @@ const ProfilePage = () => {
           </div> */}
           <div className="grid md:grid-cols-2 gap-4">
             <FormItem
-              label="First name"
+              label={t("firstNameLabel")}
               invalid={Boolean(errors.firstName)}
               errorMessage={errors.firstName?.message}
             >
@@ -295,14 +314,14 @@ const ProfilePage = () => {
                   <Input
                     type="text"
                     autoComplete="off"
-                    placeholder="First Name"
+                    placeholder={t("firstNamePlaceholder")}
                     {...field}
                   />
                 )}
               />
             </FormItem>
             <FormItem
-              label="Last name"
+              label={t("lastNameLabel")}
               invalid={Boolean(errors.lastName)}
               errorMessage={errors.lastName?.message}
             >
@@ -313,7 +332,7 @@ const ProfilePage = () => {
                   <Input
                     type="text"
                     autoComplete="off"
-                    placeholder="Last Name"
+                    placeholder={t("lastNamePlaceholder")}
                     {...field}
                   />
                 )}
@@ -321,7 +340,7 @@ const ProfilePage = () => {
             </FormItem>
           </div>
           <FormItem
-            label="Email"
+            label={t("emailLabel")}
             invalid={Boolean(errors.email)}
             errorMessage={errors.email?.message}
           >
@@ -332,7 +351,7 @@ const ProfilePage = () => {
                 <Input
                   type="email"
                   autoComplete="off"
-                  placeholder="Email"
+                  placeholder={t("emailPlaceholder")}
                   {...field}
                 />
               )}
@@ -345,7 +364,7 @@ const ProfilePage = () => {
                   Boolean(errors.phoneNumber) || Boolean(errors.dialCode)
                 }
               >
-                <label className="form-label mb-2">Phone number</label>
+                <label className="form-label mb-2">{t("phoneLabel")}</label>
                 <Controller
                   name="dialCode"
                   control={control}
@@ -383,7 +402,8 @@ const ProfilePage = () => {
                   render={({ field }) => (
                     <NumericInput
                       autoComplete="off"
-                      placeholder="Phone Number"
+                      placeholder={t("phonePlaceholder")}
+                      maxLength={15}
                       value={field.value}
                       onChange={field.onChange}
                       onBlur={field.onBlur}
@@ -393,7 +413,7 @@ const ProfilePage = () => {
               </FormItem>
             </div>
             <FormItem
-              label="Position"
+              label={t("positionLabel")}
               invalid={Boolean(errors.position)}
               errorMessage={errors.position?.message}
             >
@@ -404,7 +424,7 @@ const ProfilePage = () => {
                   <Input
                     type="text"
                     autoComplete="off"
-                    placeholder="Position"
+                    placeholder={t("positionPlaceholder")}
                     disabled
                     {...field}
                   />
@@ -418,8 +438,9 @@ const ProfilePage = () => {
               type="button"
               size="sm"
               className="border px-6 py-2 rounded-md"
+              onClick={handleCancel}
             >
-              Cancel
+              {t("cancel")}
             </Button>
             <Button
               // variant="solid"
@@ -428,7 +449,7 @@ const ProfilePage = () => {
               loading={isSubmitting}
               className="bg-[#1C4FA8] hover:bg-[#1C4FA8] px-6 text-white py-2 rounded-md"
             >
-              Save Changes
+              {isSubmitting ? t("saving") : t("saveChanges")}
             </Button>
           </div>
         </Form>

@@ -29,7 +29,11 @@ const baseValidationSchema = z.object({
     dialCode: z.string().min(1, { message: 'Please select your country code' }),
     phoneNumber: z
         .string()
-        .min(1, { message: 'Please input your mobile number' }),
+        .trim()
+        .min(1, { message: 'Please input your mobile number' })
+        .regex(/^\d{8,15}$/, {
+            message: 'Enter a valid 8-15 digit mobile number',
+        }),
     country: z.string().min(1, { message: 'Please select a country' }),
     address: z.string().min(1, { message: 'Addrress required' }),
     postcode: z.string().min(1, { message: 'Postcode required' }),

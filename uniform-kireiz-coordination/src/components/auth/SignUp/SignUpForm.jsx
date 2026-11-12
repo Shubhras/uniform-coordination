@@ -21,7 +21,7 @@ const validationSchema = z
       .string({ required_error: "Please enter your mobile no." })
       .trim()
       .min(1, "Please enter your mobile no.")
-      .regex(/^[0-9]{10}$/, "Please enter a valid 10-digit mobile number"),
+      .regex(/^[0-9]{8,15}$/, "Please enter a valid mobile number (8-15 digits)"),
     email: z
       .string({ error: "Please enter your email" })
       .min(1, "Please enter your email")
@@ -66,7 +66,8 @@ const SignUpForm = (props) => {
   const isFormValid = Boolean(
     watchedFirstName?.trim() &&
     watchedLastName?.trim() &&
-    watchedPhone?.trim()?.length === 10 &&
+    watchedPhone?.trim()?.length >= 8 &&
+    watchedPhone?.trim()?.length <= 15 &&
     watchedEmail?.trim() &&
     watchedPassword &&
     agreedToTerms
@@ -129,11 +130,11 @@ const SignUpForm = (props) => {
                 inputMode="numeric"
                 placeholder="Mobile no."
                 autoComplete="tel"
-                maxLength={10}
+                maxLength={15}
                 {...field}
                 value={field.value || ""}
                 onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, "").slice(0, 10);
+                  const value = e.target.value.replace(/\D/g, "").slice(0, 15);
                   field.onChange(value);
                 }}
                 onKeyDown={(e) => {

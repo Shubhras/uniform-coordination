@@ -43,6 +43,12 @@ const EditCustomer = () => {
 
     if (!formData.phone.trim()) {
       newErrors.phone = t("validation.phoneRequired");
+    } else if (
+      formData.phone.trim().length < 8 ||
+      formData.phone.trim().length > 15 ||
+      !/^\d+$/.test(formData.phone.trim())
+    ) {
+      newErrors.phone = t("validation.invalidPhone");
     }
 
     if (!formData.userType) {
@@ -334,10 +340,24 @@ const EditCustomer = () => {
             <label className="text-sm font-medium">{t("phoneLabel")}</label>
 
             <input
-              type="text"
+              type="tel"
+              inputMode="numeric"
+              maxLength={15}
               name="phone"
               value={formData.phone}
-              onChange={handleChange}
+              onChange={(e) => {
+                const numericValue = e.target.value.replace(/\D/g, "").slice(0, 15);
+                setFormData((prev) => ({
+                  ...prev,
+                  phone: numericValue,
+                }));
+                if (errors.phone) {
+                  setErrors((prev) => ({
+                    ...prev,
+                    phone: "",
+                  }));
+                }
+              }}
               className="w-full border rounded-lg px-3 py-2 mt-1"
             />
             {errors.phone && (

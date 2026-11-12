@@ -1537,7 +1537,7 @@
           "emailRequired": "メールアドレスは必須です",
           "invalidEmail": "有効なメールアドレスを入力してください",
           "mobileRequired": "携帯電話番号は必須です",
-          "invalidMobile": "有効な10桁の携帯電話番号を入力してください",
+          "invalidMobile": "有効な8〜15桁の携帯電話番号を入力してください",
           "passwordRequired": "パスワードは必須です"
         }
       },
@@ -1650,7 +1650,7 @@
           "emailRequired": "メールアドレスは必須です*",
           "invalidEmail": "有効なメールアドレスを入力してください",
           "phoneRequired": "電話番号は必須です*",
-          "invalidPhone": "有効な10桁の電話番号を入力してください",
+          "invalidPhone": "有効な8〜15桁の電話番号を入力してください",
           "itemTypeRequired": "アイテム種別は必須です*",
           "materialRequired": "素材は必須です*",
           "sizeQuantityRequired": "サイズ・数量は必須です*",
@@ -1658,7 +1658,24 @@
           "deliveryDateRequired": "納品日は必須です*",
           "quotationStatusRequired": "見積ステータスは必須です*",
           "subtotalNegative": "小計を負の値にすることはできません"
-        }
+        },
+        "changeToSubmitted": "提出済みに変更",
+        "changeToSent": "送信済みに変更",
+        "cancelQuotation": "見積をキャンセル",
+        "moveToQuoting": "見積作成中に移行",
+        "confirmSubmitTitle": "ステータスを提出済みに変更",
+        "confirmSubmitMessage": "ステータスを提出済みに変更しますか？バックエンドでは受諾済み（accepted）として更新されます。",
+        "confirmSentTitle": "ステータスを送信済みに変更",
+        "confirmSentMessage": "見積ステータスを送信済みに変更しますか？",
+        "confirmCancelTitle": "見積をキャンセル",
+        "confirmCancelMessage": "この見積をキャンセルしてもよろしいですか？この操作は元に戻せません。",
+        "cancelReasonLabel": "キャンセル理由（任意）",
+        "cancelReasonPlaceholder": "キャンセル理由を入力してください...",
+        "keepQuotation": "見積を維持",
+        "confirmCancellation": "キャンセルを確定",
+        "confirm": "確認",
+        "backToQuotations": "見積一覧に戻る",
+        "statusSubmitted": "提出済み"
       },
       "viewQuotationPage": {
         "pageTitle": "見積詳細",
@@ -1747,7 +1764,7 @@
           "nameRequired": "氏名は必須です",
           "emailRequired": "メールアドレスは必須です",
           "emailInvalid": "有効なメールアドレスを入力してください",
-          "invalidMobile": "有効な10桁の携帯電話番号を入力してください",
+          "invalidMobile": "有効な8〜15桁の携帯電話番号を入力してください",
           "designationRequired": "役職は必須です",
           "passwordRequired": "パスワードは必須です"
         }
@@ -1864,6 +1881,7 @@
         "lastNameRequired": "姓は必須です*",
         "emailRequired": "メールアドレスは必須です*",
         "phoneRequired": "電話番号は必須です*",
+        "invalidPhone": "有効な8〜15桁の電話番号を入力してください",
         "userTypeRequired": "ユーザー種別は必須です*",
         "genderRequired": "性別は必須です*",
         "languageRequired": "言語は必須です*"
@@ -2385,5 +2403,39 @@
     "notFound": "商品が見つかりません",
     "loadFailed": "商品の読み込みに失敗しました",
     "errorTitle": "エラー"
+  },
+  "profile": {
+    "title": "個人情報",
+    "firstNameLabel": "名",
+    "firstNamePlaceholder": "名",
+    "lastNameLabel": "姓",
+    "lastNamePlaceholder": "姓",
+    "emailLabel": "メールアドレス",
+    "emailPlaceholder": "メールアドレス",
+    "phoneLabel": "電話番号",
+    "phonePlaceholder": "電話番号",
+    "positionLabel": "役職",
+    "positionPlaceholder": "役職",
+    "uploadImage": "画像をアップロード",
+    "remove": "削除",
+    "recommendedSize": "推奨: 500x500px、JPG/PNG",
+    "cancel": "キャンセル",
+    "saveChanges": "変更を保存",
+    "saving": "保存中...",
+    "successTitle": "成功",
+    "errorTitle": "エラー",
+    "updateSuccess": "プロフィールを更新しました",
+    "updateFailed": "プロフィールの更新に失敗しました",
+    "validation": {
+      "firstNameRequired": "名は必須です*",
+      "lastNameRequired": "姓は必須です*",
+      "emailRequired": "メールアドレスは必須です*",
+      "invalidEmail": "有効なメールアドレスを入力してください",
+      "dialCodeRequired": "国コードは必須です*",
+      "phoneRequired": "電話番号は必須です*",
+      "invalidPhone": "有効な8〜15桁の電話番号を入力してください",
+      "invalidImageType": "JPGまたはPNG画像のみをアップロードしてください。",
+      "imageSizeExceeded": "画像サイズは2MBを超えないようにしてください。"
+    }
   }
 }

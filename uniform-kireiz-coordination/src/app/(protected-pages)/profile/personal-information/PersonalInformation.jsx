@@ -35,8 +35,8 @@ const validationSchema = z.object({
     phoneNumber: z
         .string()
         .min(1, { message: 'Please input your mobile number' })
-        .regex(/^[0-9]{10}$/, {
-            message: 'Phone number must be exactly 10 digits',
+        .regex(/^[0-9]{8,15}$/, {
+            message: 'Phone number must be between 8 and 15 digits',
         }),
     position: z.string().min(1, { message: 'Position required' }),
     //img: z.string(),
@@ -482,12 +482,12 @@ const PersonalInformation = () => {
                                         <NumericInput
                                             placeholder="Phone Number"
                                             {...field}
-                                            maxLength={10}
+                                            maxLength={15}
                                             inputMode="numeric"
                                             onChange={(e) => {
                                                 const value = e.target.value
                                                     .replace(/\D/g, '')
-                                                    .slice(0, 10)
+                                                    .slice(0, 15)
 
                                                 field.onChange(value)
                                             }}

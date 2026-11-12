@@ -1397,7 +1397,7 @@
           "emailRequired": "Email is required",
           "invalidEmail": "Invalid email address",
           "mobileRequired": "Mobile number is required",
-          "invalidMobile": "Enter a valid 10-digit mobile number",
+          "invalidMobile": "Enter a valid 8-15 digit mobile number",
           "passwordRequired": "Password is required"
         }
       },
@@ -1501,7 +1501,24 @@
           "sizeQuantityRequired": "Size & Quantity is required*",
           "deliveryDateRequired": "Delivery date is required*",
           "quotationStatusRequired": "Quotation status is required*"
-        }
+        },
+        "changeToSubmitted": "更改为已提交",
+        "changeToSent": "更改为已发送",
+        "cancelQuotation": "取消报价",
+        "moveToQuoting": "进入报价中",
+        "confirmSubmitTitle": "更改状态为已提交",
+        "confirmSubmitMessage": "确定将状态更改为已提交吗？后端状态将更新为 accepted。",
+        "confirmSentTitle": "更改状态为已发送",
+        "confirmSentMessage": "确定将报价状态更新为已发送吗？",
+        "confirmCancelTitle": "取消报价",
+        "confirmCancelMessage": "确定要取消此报价吗？此操作无法撤销。",
+        "cancelReasonLabel": "取消原因（可选）",
+        "cancelReasonPlaceholder": "输入取消原因...",
+        "keepQuotation": "保留报价",
+        "confirmCancellation": "确认取消",
+        "confirm": "确认",
+        "backToQuotations": "返回报价列表",
+        "statusSubmitted": "已提交"
       },
       "viewQuotationPage": {
         "pageTitle": "Quotation Details",
@@ -1869,5 +1886,39 @@
     "mAgo": "{count}m ago",
     "hAgo": "{count}h ago",
     "dAgo": "{count}d ago"
+  },
+  "profile": {
+    "title": "个人信息",
+    "firstNameLabel": "名",
+    "firstNamePlaceholder": "名",
+    "lastNameLabel": "姓氏",
+    "lastNamePlaceholder": "姓氏",
+    "emailLabel": "电子邮件",
+    "emailPlaceholder": "电子邮件",
+    "phoneLabel": "电话号码",
+    "phonePlaceholder": "电话号码",
+    "positionLabel": "职位",
+    "positionPlaceholder": "职位",
+    "uploadImage": "上传图片",
+    "remove": "删除",
+    "recommendedSize": "推荐：500x500px，JPG/PNG",
+    "cancel": "取消",
+    "saveChanges": "保存更改",
+    "saving": "保存中...",
+    "successTitle": "成功",
+    "errorTitle": "错误",
+    "updateSuccess": "个人资料更新成功",
+    "updateFailed": "更新个人资料失败",
+    "validation": {
+      "firstNameRequired": "名为必填项*",
+      "lastNameRequired": "姓氏为必填项*",
+      "emailRequired": "电子邮件为必填项*",
+      "invalidEmail": "无效的电子邮件地址",
+      "dialCodeRequired": "国家代码为必填项*",
+      "phoneRequired": "电话号码为必填项*",
+      "invalidPhone": "请输入有效的 8-15 位电话号码",
+      "invalidImageType": "请仅上传 JPG 或 PNG 图片。",
+      "imageSizeExceeded": "图片大小不得超过 2 MB。"
+    }
   }
 }

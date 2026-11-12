@@ -3,11 +3,17 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
+import Button from '@/components/ui/Button'
+import Dialog from '@/components/ui/Dialog'
+import Notification from '@/components/ui/Notification'
+import toast from '@/components/ui/toast'
 import Spinner from '@/components/ui/Spinner'
 import {
     apiDownloadUserQuotationPdf,
     apiGetUserQuotationDetail,
     apiGetQuotationRequestDetail,
+    apiCancelQuotation,
+    apiApproveQuotation,
 } from '@/services/QuotationRequestService'
 import QuotationDetailContent from '../QuotationDetailContent'
 
@@ -15,7 +21,7 @@ const statusStyles = {
     approved: {
         text: '#34C759',
         bg: '#1C4FA80F',
-        label: 'Approved',
+        label: 'Agreed',
     },
     cancelled: {
         text: '#C10007',
@@ -25,7 +31,7 @@ const statusStyles = {
     declined: {
         text: '#C10007',
         bg: '#1C4FA80F',
-        label: 'Declined',
+        label: 'Cancelled',
     },
     pending: {
         text: '#4580ED',
@@ -35,7 +41,7 @@ const statusStyles = {
     sent: {
         text: '#4580ED',
         bg: '#1C4FA80F',
-        label: 'Sent',
+        label: 'Submitted',
     },
     submitted: {
         text: '#4580ED',
@@ -51,20 +57,16 @@ const statusStyles = {
 
 const getNormalizedStatus = (quotation) => {
     const rawStatus = String(
-        quotation?.status ||
-            quotation?.quotation_status ||
-            quotation?.request_status ||
-            quotation?.state ||
-            'submitted',
+        quotation?.quotation_status ||
+            quotation?.status ||
+            'pending',
     ).toLowerCase()
 
-    if (rawStatus.includes('approv') || rawStatus.includes('accept') || rawStatus.includes('agree')) return 'approved'
-    if (rawStatus.includes('cancel')) return 'cancelled'
-    if (rawStatus.includes('declin') || rawStatus.includes('reject')) return 'declined'
-    if (rawStatus.includes('sent')) return 'sent'
-    if (rawStatus.includes('pend')) return 'pending'
-    if (rawStatus.includes('submit')) return 'submitted'
-    if (rawStatus.includes('receiv') || rawStatus.includes('review') || rawStatus.includes('request')) return 'received'
+    if (rawStatus.includes('cancel') || rawStatus.includes('declin') || rawStatus.includes('reject')) return 'cancelled'
+    if (rawStatus.includes('approv') || rawStatus.includes('agree')) return 'approved'
+    if (rawStatus.includes('accept') || rawStatus.includes('submit') || rawStatus.includes('sent')) return 'submitted'
+    if (rawStatus.includes('receiv') || rawStatus.includes('quot') || rawStatus.includes('review')) return 'received'
+    if (rawStatus.includes('pend') || rawStatus.includes('request')) return 'pending'
 
     return 'pending'
 }
@@ -269,7 +271,14 @@ const normalizeQuotation = (quotation) => {
             '',
         requestId: quotation?.quotationNo || quotation?.quotation_id || '-',
         statusKey,
-        statusLabel: statusStyles[statusKey]?.label || quotation?.status || 'Pending',
+        statusLabel:
+            (quotation?.quotation_status
+                ? quotation.quotation_status.charAt(0).toUpperCase() + quotation.quotation_status.slice(1)
+                : '') ||
+            statusStyles[statusKey]?.label ||
+            quotation?.status ||
+            'Pending',
+        quotation_status: quotation?.quotation_status || quotation?.status || '',
         rawStatus: quotation?.quotation_status || quotation?.status || '',
         workflowStatus: quotation?.workflow_status || '',
         companyName: quotation?.company_name || '-',
@@ -300,6 +309,11 @@ const QuotationDetailPage = ({ quotationId }) => {
     const [loading, setLoading] = useState(true)
     const [errorMessage, setErrorMessage] = useState('')
     const [downloadLoading, setDownloadLoading] = useState(false)
+    const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
+    const [agreeDialogOpen, setAgreeDialogOpen] = useState(false)
+    const [cancelReason, setCancelReason] = useState('')
+    const [actionSubmitting, setActionSubmitting] = useState(false)
+    const [actionError, setActionError] = useState('')
 
     useEffect(() => {
         const fetchQuotationDetail = async () => {
@@ -446,6 +460,144 @@ const QuotationDetailPage = ({ quotationId }) => {
         }
     }
 
+    const handleOpenCancelDialog = () => {
+        setCancelReason('')
+        setActionError('')
+        setCancelDialogOpen(true)
+    }
+
+    const handleOpenAgreeDialog = () => {
+        setActionError('')
+        setAgreeDialogOpen(true)
+    }
+
+    const handleConfirmCancel = async () => {
+        const targetId =
+            quotation?.uuids ||
+            quotation?.uuid ||
+            quotation?.quotation_uuid ||
+            quotationId ||
+            quotation?.quotationId ||
+            quotation?.id
+
+        if (!session?.accessToken || !targetId) {
+            setActionError('Quotation identification not found.')
+            return
+        }
+
+        try {
+            setActionSubmitting(true)
+            setActionError('')
+
+            const payload = {
+                cancel_reason: cancelReason.trim() || 'Cancelled by user',
+            }
+
+            const response = await apiCancelQuotation(
+                targetId,
+                payload,
+                session.accessToken,
+            )
+
+            if (response && response.status === false) {
+                setActionError(response.message || 'Unable to cancel quotation.')
+                return
+            }
+
+            setQuotation((prev) => ({
+                ...prev,
+                status: 'cancelled',
+                quotation_status: 'cancelled',
+                statusKey: 'cancelled',
+                statusLabel: 'Cancelled',
+                rawStatus: 'cancelled',
+            }))
+
+            setCancelDialogOpen(false)
+            setCancelReason('')
+
+            toast.push(
+                <Notification title="Quotation Cancelled" type="success">
+                    {response?.message || 'Quotation has been cancelled successfully.'}
+                </Notification>,
+            )
+        } catch (error) {
+            console.error('Cancel quotation error:', error)
+            setActionError(
+                error?.response?.data?.message ||
+                error?.response?.data?.detail ||
+                error?.message ||
+                'Unable to cancel quotation.',
+            )
+        } finally {
+            setActionSubmitting(false)
+        }
+    }
+
+    const handleConfirmAgree = async () => {
+        const targetId =
+            quotation?.uuids ||
+            quotation?.uuid ||
+            quotation?.quotation_uuid ||
+            quotationId ||
+            quotation?.quotationId ||
+            quotation?.id
+
+        if (!session?.accessToken || !targetId) {
+            setActionError('Quotation identification not found.')
+            return
+        }
+
+        try {
+            setActionSubmitting(true)
+            setActionError('')
+
+            const payload = {
+                quotation_status: 'approved',
+                status: 'approved',
+            }
+
+            const response = await apiApproveQuotation(
+                targetId,
+                payload,
+                session.accessToken,
+            )
+
+            if (response && response.status === false) {
+                setActionError(response.message || 'Unable to agree to quotation.')
+                return
+            }
+
+            setQuotation((prev) => ({
+                ...prev,
+                status: 'approved',
+                quotation_status: 'approved',
+                statusKey: 'approved',
+                statusLabel: 'Approved',
+                rawStatus: 'approved',
+                workflowStatus: 'AGREED',
+            }))
+
+            setAgreeDialogOpen(false)
+
+            toast.push(
+                <Notification title="Quotation Agreed" type="success">
+                    {response?.message || 'Quotation proposal agreed successfully!'}
+                </Notification>,
+            )
+        } catch (error) {
+            console.error('Agree quotation error:', error)
+            setActionError(
+                error?.response?.data?.message ||
+                error?.response?.data?.detail ||
+                error?.message ||
+                'Unable to agree to quotation.',
+            )
+        } finally {
+            setActionSubmitting(false)
+        }
+    }
+
     if (loading) {
         return (
             <div className="flex items-center justify-center py-16">
@@ -478,7 +630,132 @@ const QuotationDetailPage = ({ quotationId }) => {
                 onDownload={handleDownloadDocument}
                 onView={handleViewDocument}
                 downloadLoading={downloadLoading}
+                onCancel={handleOpenCancelDialog}
+                onAgree={handleOpenAgreeDialog}
+                actionLoading={actionSubmitting}
             />
+
+            {/* Cancel Quotation Confirmation Modal */}
+            <Dialog
+                isOpen={cancelDialogOpen}
+                onClose={() => !actionSubmitting && setCancelDialogOpen(false)}
+                onRequestClose={() => !actionSubmitting && setCancelDialogOpen(false)}
+                width={500}
+                contentClassName="p-0"
+            >
+                <div className="rounded-2xl bg-white p-6">
+                    <div className="mb-4">
+                        <h3 className="text-lg font-semibold text-[#111827]">
+                            Cancel Quotation
+                        </h3>
+                        <p className="mt-1.5 text-xs text-[#6B7280]">
+                            Are you sure you want to cancel this quotation request? This action cannot be undone.
+                        </p>
+                    </div>
+
+                    <div className="mb-4">
+                        <label
+                            htmlFor="cancel-reason"
+                            className="mb-1.5 block text-xs font-medium text-[#374151]"
+                        >
+                            Reason for cancellation (optional)
+                        </label>
+                        <textarea
+                            id="cancel-reason"
+                            rows={3}
+                            value={cancelReason}
+                            onChange={(e) => setCancelReason(e.target.value)}
+                            placeholder="Please enter a reason for cancellation..."
+                            className="w-full resize-none rounded-xl border border-[#D7E3F4] p-3 text-xs text-[#111827] outline-none transition-colors focus:border-[#003560]"
+                        />
+                    </div>
+
+                    {actionError ? (
+                        <div className="mb-4 rounded-lg bg-[#FEF2F2] p-2.5 text-xs text-[#DC2626]">
+                            {actionError}
+                        </div>
+                    ) : null}
+
+                    <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#F1F5F9]">
+                        <Button
+                            size="sm"
+                            variant="default"
+                            className="rounded-lg border border-[#D7E3F4] px-4 text-xs font-medium text-[#475569]"
+                            onClick={() => setCancelDialogOpen(false)}
+                            disabled={actionSubmitting}
+                        >
+                            Keep Quotation
+                        </Button>
+                        <Button
+                            size="sm"
+                            className="rounded-lg bg-[#DC2626] px-4 text-xs font-semibold text-white hover:bg-[#B91C1C]"
+                            onClick={handleConfirmCancel}
+                            loading={actionSubmitting}
+                        >
+                            Confirm Cancel
+                        </Button>
+                    </div>
+                </div>
+            </Dialog>
+
+            {/* Agree Quotation Confirmation Modal */}
+            <Dialog
+                isOpen={agreeDialogOpen}
+                onClose={() => !actionSubmitting && setAgreeDialogOpen(false)}
+                onRequestClose={() => !actionSubmitting && setAgreeDialogOpen(false)}
+                width={500}
+                contentClassName="p-0"
+            >
+                <div className="rounded-2xl bg-white p-6">
+                    <div className="mb-4">
+                        <h3 className="text-lg font-semibold text-[#111827]">
+                            Agree to Quotation Proposal
+                        </h3>
+                        <p className="mt-1.5 text-xs text-[#6B7280]">
+                            Are you sure you want to agree to this quotation proposal? Once agreed, contract finalization will begin.
+                        </p>
+                    </div>
+
+                    <div className="mb-4 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-3.5 space-y-2 text-xs">
+                        <div className="flex justify-between">
+                            <span className="text-[#64748B]">Request Ref:</span>
+                            <span className="font-semibold text-[#111827]">{quotation.requestId}</span>
+                        </div>
+                        {quotation.total ? (
+                            <div className="flex justify-between">
+                                <span className="text-[#64748B]">Total Amount:</span>
+                                <span className="font-bold text-[#003560]">${Number(quotation.total).toLocaleString()}</span>
+                            </div>
+                        ) : null}
+                    </div>
+
+                    {actionError ? (
+                        <div className="mb-4 rounded-lg bg-[#FEF2F2] p-2.5 text-xs text-[#DC2626]">
+                            {actionError}
+                        </div>
+                    ) : null}
+
+                    <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#F1F5F9]">
+                        <Button
+                            size="sm"
+                            variant="default"
+                            className="rounded-lg border border-[#D7E3F4] px-4 text-xs font-medium text-[#475569]"
+                            onClick={() => setAgreeDialogOpen(false)}
+                            disabled={actionSubmitting}
+                        >
+                            Back
+                        </Button>
+                        <Button
+                            size="sm"
+                            className="rounded-lg bg-[#003560] px-4 text-xs font-semibold text-white hover:bg-[#002a49]"
+                            onClick={handleConfirmAgree}
+                            loading={actionSubmitting}
+                        >
+                            Confirm Agreement
+                        </Button>
+                    </div>
+                </div>
+            </Dialog>
         </div>
     )
 }

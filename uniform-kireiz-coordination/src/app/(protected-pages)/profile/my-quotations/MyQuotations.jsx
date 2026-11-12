@@ -64,28 +64,30 @@ const statusFilterOptions = [
   { value: "declined", label: "Declined" },
 ];
 
-const getNormalizedStatus = (quotation) => {
-  const rawStatus = String(
-    quotation?.status ||
-    quotation?.quotation_status ||
-    quotation?.request_status ||
-    quotation?.state ||
-    "submitted",
-  ).toLowerCase();
+// const getNormalizedStatus = (quotation) => {
+//   const rawStatus = String(
+//     quotation?.status ||
+//     quotation?.quotation_status ||
+//     quotation?.request_status ||
+//     quotation?.state ||
+//     "submitted",
+//   ).toLowerCase();
 
-  if (rawStatus.includes("approv") || rawStatus.includes("accept"))
-    return "approved";
-  if (rawStatus.includes("cancel")) return "cancelled";
-  if (rawStatus.includes("declin") || rawStatus.includes("reject"))
-    return "declined";
-  if (rawStatus.includes("sent")) return "sent";
-  if (rawStatus.includes("pend")) return "pending";
-  if (rawStatus.includes("submit")) return "submitted";
-  if (rawStatus.includes("receiv") || rawStatus.includes("review"))
-    return "received";
+//   if (rawStatus.includes("approv") || rawStatus.includes("accept"))
+//     return "approved";
+//   if (rawStatus.includes("cancel")) return "cancelled";
+//   if (rawStatus.includes("declin") || rawStatus.includes("reject"))
+//     return "declined";
+//   if (rawStatus.includes("sent")) return "sent";
+//   if (rawStatus.includes("pend")) return "pending";
+//   if (rawStatus.includes("submit")) return "submitted";
+//   if (rawStatus.includes("receiv") || rawStatus.includes("review"))
+//     return "received";
 
-  return "pending";
-};
+//   return "pending";
+// };
+const getNormalizedStatus = (quotation) =>
+  quotation?.quotation_status || "";
 
 const getRequestedItems = (quotation) => {
   const source =
@@ -340,27 +342,18 @@ const MyQuotations = () => {
               className="min-w-[180px]"
               components={{ Option: CustomStatusOption }}
               styles={{
-                control: (base) => {
-                  const activeColor =
-                    statusStyles[statusFilter]?.text || "#003560";
-                  return {
-                    ...base,
-                    borderRadius: "10px",
-                    borderColor: activeColor,
-                    borderStyle: "solid",
-                    borderWidth: "1px",
-                    backgroundColor: statusFilter
-                      ? statusStyles[statusFilter]?.bg || "white"
-                      : "white",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    padding: "2px 4px",
-                    cursor: "pointer",
-                    boxShadow: "none",
-                    "&:hover": { borderColor: activeColor },
-                  };
-                },
+                control: () => ({
+                  borderRadius: "10px",
+                  borderColor: "#B2C7E3",
+                  borderStyle: "solid",
+                  borderWidth: "1px",
+                  backgroundColor: "white",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "2px 4px",
+                  cursor: "pointer",
+                }),
                 menu: (base) => ({
                   ...base,
                   marginTop: "4px",
@@ -375,8 +368,14 @@ const MyQuotations = () => {
                   maxHeight: "220px",
                   overflowY: "auto",
                 }),
+
                 singleValue: () => ({
-                  color: statusStyles[statusFilter]?.text || "#003560",
+                  color: "#1C2C56",
+                  fontWeight: 500,
+                  fontSize: "14px",
+                }),
+                placeholder: () => ({
+                  color: "#1C2C56",
                   fontWeight: 500,
                   fontSize: "14px",
                 }),

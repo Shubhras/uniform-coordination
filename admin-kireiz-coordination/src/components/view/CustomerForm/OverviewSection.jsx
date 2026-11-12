@@ -161,6 +161,7 @@ const OverviewSection = ({ control, errors }) => {
                             <NumericInput
                                 autoComplete="off"
                                 placeholder="Phone Number"
+                                maxLength={15}
                                 value={field.value}
                                 onChange={field.onChange}
                                 onBlur={field.onBlur}

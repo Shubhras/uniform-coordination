@@ -21,7 +21,7 @@ const FIELDS = [
     name: "mobile",
     labelKey: "mobileLabel",
     type: "tel",
-    maxLength: 10,
+    maxLength: 15,
     inputMode: "numeric",
     autoComplete: "off",
     required: false,
@@ -50,7 +50,7 @@ const AddRepModal = ({ accessToken, onClose, onCreated, initialData = null }) =>
     name: initialData?.name || "",
     email: initialData?.email || "",
     mobile: initialData?.mobile
-      ? String(initialData.mobile).replace(/\D/g, "").slice(0, 10)
+      ? String(initialData.mobile).replace(/\D/g, "").slice(0, 15)
       : "",
     designation: initialData?.designation || "Sales Representative",
     password: "",
@@ -62,7 +62,7 @@ const AddRepModal = ({ accessToken, onClose, onCreated, initialData = null }) =>
   const change = (e) => {
     const { name, value } = e.target;
     const finalValue =
-      name === "mobile" ? value.replace(/\D/g, "").slice(0, 10) : value;
+      name === "mobile" ? value.replace(/\D/g, "").slice(0, 15) : value;
     setForm((prev) => ({ ...prev, [name]: finalValue }));
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
@@ -107,8 +107,15 @@ const AddRepModal = ({ accessToken, onClose, onCreated, initialData = null }) =>
         errs.email = t("validation.emailInvalid") || "Please enter a valid email address";
       }
     }
-    if (form.mobile && form.mobile.trim().length > 0 && form.mobile.trim().length !== 10) {
-      errs.mobile = t("validation.invalidMobile") || "Enter a valid 10-digit mobile number";
+    if (
+      form.mobile &&
+      form.mobile.trim().length > 0 &&
+      (form.mobile.trim().length < 8 ||
+        form.mobile.trim().length > 15 ||
+        !/^\d+$/.test(form.mobile.trim()))
+    ) {
+      errs.mobile =
+        t("validation.invalidMobile") || "Enter a valid 8-15 digit mobile number";
     }
     if (!form.designation.trim()) {
       errs.designation = t("validation.designationRequired") || "Designation is required";

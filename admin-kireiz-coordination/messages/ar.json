@@ -1397,7 +1397,7 @@
           "emailRequired": "Email is required",
           "invalidEmail": "Invalid email address",
           "mobileRequired": "Mobile number is required",
-          "invalidMobile": "Enter a valid 10-digit mobile number",
+          "invalidMobile": "Enter a valid 8-15 digit mobile number",
           "passwordRequired": "Password is required"
         }
       },
@@ -1501,7 +1501,24 @@
           "sizeQuantityRequired": "Size & Quantity is required*",
           "deliveryDateRequired": "Delivery date is required*",
           "quotationStatusRequired": "Quotation status is required*"
-        }
+        },
+        "changeToSubmitted": "تغيير إلى مقدم",
+        "changeToSent": "تغيير إلى مرسل",
+        "cancelQuotation": "إلغاء عرض السعر",
+        "moveToQuoting": "الانتقال إلى قيد التسعير",
+        "confirmSubmitTitle": "تغيير الحالة إلى مقدم",
+        "confirmSubmitMessage": "هل أنت متأكد من تغيير الحالة إلى مقدم؟ سيتم تحديث الحالة إلى accepted في الخلفية.",
+        "confirmSentTitle": "تغيير الحالة إلى مرسل",
+        "confirmSentMessage": "هل أنت متأكد من تحديث حالة عرض السعر إلى مرسل؟",
+        "confirmCancelTitle": "إلغاء عرض السعر",
+        "confirmCancelMessage": "هل أنت متأكد من إلغاء عرض السعر هذا؟ لا يمكن التراجع عن هذا الإجراء.",
+        "cancelReasonLabel": "سبب الإلغاء (اختياري)",
+        "cancelReasonPlaceholder": "أدخل سبب الإلغاء...",
+        "keepQuotation": "الاحتفاظ بعرض السعر",
+        "confirmCancellation": "تأكيد الإلغاء",
+        "confirm": "تأكيد",
+        "backToQuotations": "العودة إلى عروض الأسعار",
+        "statusSubmitted": "مقدم"
       },
       "viewQuotationPage": {
         "pageTitle": "Quotation Details",
@@ -1869,5 +1886,39 @@
     "mAgo": "{count}m ago",
     "hAgo": "{count}h ago",
     "dAgo": "{count}d ago"
+  },
+  "profile": {
+    "title": "المعلومات الشخصية",
+    "firstNameLabel": "الاسم الأول",
+    "firstNamePlaceholder": "الاسم الأول",
+    "lastNameLabel": "اسم العائلة",
+    "lastNamePlaceholder": "اسم العائلة",
+    "emailLabel": "البريد الإلكتروني",
+    "emailPlaceholder": "البريد الإلكتروني",
+    "phoneLabel": "رقم الهاتف",
+    "phonePlaceholder": "رقم الهاتف",
+    "positionLabel": "المنصب",
+    "positionPlaceholder": "المنصب",
+    "uploadImage": "تحميل الصورة",
+    "remove": "إزالة",
+    "recommendedSize": "الموصى به: 500x500px، JPG/PNG",
+    "cancel": "إلغاء",
+    "saveChanges": "حفظ التغييرات",
+    "saving": "جارٍ الحفظ...",
+    "successTitle": "نجاح",
+    "errorTitle": "خطأ",
+    "updateSuccess": "تم تحديث الملف الشخصي بنجاح",
+    "updateFailed": "فشل تحديث الملف الشخصي",
+    "validation": {
+      "firstNameRequired": "الاسم الأول مطلوب*",
+      "lastNameRequired": "اسم العائلة مطلوب*",
+      "emailRequired": "البريد الإلكتروني مطلوب*",
+      "invalidEmail": "عنوان بريد إلكتروني غير صالح",
+      "dialCodeRequired": "رمز الدولة مطلوب*",
+      "phoneRequired": "رقم الهاتف مطلوب*",
+      "invalidPhone": "أدخل رقم هاتف صالح من 8 إلى 15 رقمًا",
+      "invalidImageType": "يرجى تحميل صور JPG أو PNG فقط.",
+      "imageSizeExceeded": "يجب ألا يتجاوز حجم الصورة 2 ميجابايت."
+    }
   }
 }

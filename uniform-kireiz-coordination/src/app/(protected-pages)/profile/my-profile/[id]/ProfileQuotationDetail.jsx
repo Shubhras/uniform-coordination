@@ -12,6 +12,7 @@ import {
     apiDownloadUserQuotationPdf,
     apiGetQuotationRequestDetail,
     apiGetUserQuotationDetail,
+    apiApproveQuotation,
 } from '@/services/QuotationRequestService'
 
 const getStatusMeta = (status) => {
@@ -231,6 +232,9 @@ const ProfileQuotationDetail = ({ quotationId }) => {
     const [cancelReason, setCancelReason] = useState('')
     const [cancelSubmitting, setCancelSubmitting] = useState(false)
     const [cancelError, setCancelError] = useState('')
+    const [agreeDialogOpen, setAgreeDialogOpen] = useState(false)
+    const [agreeSubmitting, setAgreeSubmitting] = useState(false)
+    const [agreeError, setAgreeError] = useState('')
 
     useEffect(() => {
         const fetchQuotation = async () => {
@@ -283,8 +287,11 @@ const ProfileQuotationDetail = ({ quotationId }) => {
     const statusMeta = getStatusMeta(
         quotation?.quotation_status || quotation?.status_label || quotation?.status,
     )
+    const rawStatusLower = String(quotation?.quotation_status || quotation?.status || statusMeta.label).toLowerCase()
+    const isFinalized = rawStatusLower.includes('cancel') || rawStatusLower.includes('accept') || rawStatusLower.includes('approv') || rawStatusLower.includes('declin')
     const sizeRange = getSizeRange(quotation)
-    const canCancelQuotation = statusMeta.label.toLowerCase() === 'pending'
+    const canCancelQuotation = !isFinalized
+    const canAgreeQuotation = !isFinalized && (rawStatusLower.includes('submit') || rawStatusLower.includes('sent'))
     const resetCancelForm = () => {
         setCancelReason('')
         setCancelError('')
@@ -333,6 +340,47 @@ const ProfileQuotationDetail = ({ quotationId }) => {
             )
         } finally {
             setCancelSubmitting(false)
+        }
+    }
+
+    const handleAgreeQuotation = async () => {
+        const targetId = quotation?.uuids || quotation?.uuid || quotationId || quotation?.id
+        if (!session?.accessToken || !targetId) {
+            setAgreeError('Quotation not found.')
+            return
+        }
+
+        try {
+            setAgreeSubmitting(true)
+            setAgreeError('')
+
+            const response = await apiApproveQuotation(
+                targetId,
+                { quotation_status: 'approved', status: 'approved' },
+                session.accessToken,
+            )
+
+            if (response && response.status === false) {
+                setAgreeError(response.message || 'Unable to agree to quotation.')
+                return
+            }
+
+            setQuotation((prev) => ({
+                ...prev,
+                status: 'approved',
+                quotation_status: 'approved',
+                status_label: 'Accepted',
+            }))
+            setAgreeDialogOpen(false)
+        } catch (error) {
+            console.error('Agree quotation error:', error)
+            setAgreeError(
+                error?.response?.data?.message ||
+                error?.response?.data?.detail ||
+                'Unable to agree to quotation.',
+            )
+        } finally {
+            setAgreeSubmitting(false)
         }
     }
 
@@ -428,9 +476,22 @@ const ProfileQuotationDetail = ({ quotationId }) => {
                             </div>
                         </div>
 
-                        {canCancelQuotation && (
+                        {canAgreeQuotation && (
                             <Button
                                 className="flex h-12 w-full items-center justify-center rounded-lg bg-[#003560] text-white hover:bg-[#002a49]"
+                                onClick={() => {
+                                    setAgreeError('')
+                                    setAgreeDialogOpen(true)
+                                }}
+                            >
+                                Agreed
+                            </Button>
+                        )}
+
+                        {canCancelQuotation && (
+                            <Button
+                                variant="default"
+                                className="flex h-12 w-full items-center justify-center rounded-lg border border-[#FECACA] bg-white text-[#DC2626] hover:bg-[#FEF2F2]"
                                 onClick={() => {
                                     resetCancelForm()
                                     setCancelDialogOpen(true)
@@ -480,11 +541,48 @@ const ProfileQuotationDetail = ({ quotationId }) => {
                             Reset
                         </Button>
                         <Button
-                            className="h-11 rounded-lg bg-[#003560] px-5 text-white hover:bg-[#002a49]"
+                            className="h-11 rounded-lg bg-[#DC2626] px-5 text-white hover:bg-[#B91C1C]"
                             onClick={handleCancelQuotation}
                             loading={cancelSubmitting}
                         >
-                            Send
+                            Confirm Cancel
+                        </Button>
+                    </div>
+                </div>
+            </Dialog>
+
+            <Dialog
+                isOpen={agreeDialogOpen}
+                onClose={() => !agreeSubmitting && setAgreeDialogOpen(false)}
+                onRequestClose={() => !agreeSubmitting && setAgreeDialogOpen(false)}
+                width={520}
+                contentClassName="p-0"
+            >
+                <div className="rounded-[20px] bg-white p-6">
+                    <div className="mb-5">
+                        <h3 className="text-xl font-semibold text-[#111827]">Agree to Quotation</h3>
+                        <p className="mt-2 text-sm text-[#6B7280]">
+                            Are you sure you want to agree to this quotation proposal?
+                        </p>
+                    </div>
+
+                    {agreeError && <p className="mb-4 text-sm text-[#DC2626]">{agreeError}</p>}
+
+                    <div className="mt-6 flex items-center justify-end gap-3">
+                        <Button
+                            variant="default"
+                            className="h-11 rounded-lg border border-[#D7E3F4] bg-white px-5 text-[#475569]"
+                            onClick={() => setAgreeDialogOpen(false)}
+                            disabled={agreeSubmitting}
+                        >
+                            Back
+                        </Button>
+                        <Button
+                            className="h-11 rounded-lg bg-[#003560] px-5 text-white hover:bg-[#002a49]"
+                            onClick={handleAgreeQuotation}
+                            loading={agreeSubmitting}
+                        >
+                            Confirm Agreement
                         </Button>
                     </div>
                 </div>

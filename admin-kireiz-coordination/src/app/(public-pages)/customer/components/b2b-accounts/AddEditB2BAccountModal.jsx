@@ -49,7 +49,7 @@ const getValidationSchema = (mode, t) =>
         .string()
         .trim()
         .min(1, t("validation.mobileRequired"))
-        .regex(/^[6-9]\d{9}$/, t("validation.invalidMobile")),
+        .regex(/^\d{8,15}$/, t("validation.invalidMobile")),
 
       tier: z.any().nullable().optional(),
 
@@ -374,11 +374,11 @@ const AddEditB2BAccountModal = ({
                       type="tel"
                       inputMode="numeric"
                       placeholder="9763880909"
-                      maxLength={10}
+                      maxLength={15}
                       onChange={(e) => {
                         const value = e.target.value
                           .replace(/\D/g, "")
-                          .slice(0, 10);
+                          .slice(0, 15);
                         field.onChange(value);
                       }}
                       className="mt-1 w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#1C2C56]"

@@ -1482,7 +1482,7 @@
           "emailRequired": "Email is required",
           "invalidEmail": "Invalid email address",
           "mobileRequired": "Mobile number is required",
-          "invalidMobile": "Enter a valid 10-digit mobile number",
+          "invalidMobile": "Enter a valid 8-15 digit mobile number",
           "passwordRequired": "Password is required"
         }
       },
@@ -1586,7 +1586,24 @@
           "sizeQuantityRequired": "Size & Quantity is required*",
           "deliveryDateRequired": "Delivery date is required*",
           "quotationStatusRequired": "Quotation status is required*"
-        }
+        },
+        "changeToSubmitted": "Cambiar a Enviado",
+        "changeToSent": "Cambiar a Enviado (Sent)",
+        "cancelQuotation": "Cancelar cotización",
+        "moveToQuoting": "Pasar a cotizando",
+        "confirmSubmitTitle": "Cambiar estado a Enviado",
+        "confirmSubmitMessage": "¿Está seguro de cambiar el estado a Enviado? El estado se actualizará a aceptado.",
+        "confirmSentTitle": "Cambiar estado a Enviado",
+        "confirmSentMessage": "¿Está seguro de cambiar el estado a Enviado?",
+        "confirmCancelTitle": "Cancelar cotización",
+        "confirmCancelMessage": "¿Está seguro de cancelar esta cotización? Esta acción no se puede deshacer.",
+        "cancelReasonLabel": "Motivo de cancelación (opcional)",
+        "cancelReasonPlaceholder": "Introduzca el motivo...",
+        "keepQuotation": "Mantener cotización",
+        "confirmCancellation": "Confirmar cancelación",
+        "confirm": "Confirmar",
+        "backToQuotations": "Volver a cotizaciones",
+        "statusSubmitted": "Enviado"
       },
       "viewQuotationPage": {
         "pageTitle": "Quotation Details",
@@ -1870,5 +1887,39 @@
     "mAgo": "{count}m ago",
     "hAgo": "{count}h ago",
     "dAgo": "{count}d ago"
+  },
+  "profile": {
+    "title": "Información personal",
+    "firstNameLabel": "Nombre",
+    "firstNamePlaceholder": "Nombre",
+    "lastNameLabel": "Apellido",
+    "lastNamePlaceholder": "Apellido",
+    "emailLabel": "Correo electrónico",
+    "emailPlaceholder": "Correo electrónico",
+    "phoneLabel": "Número de teléfono",
+    "phonePlaceholder": "Número de teléfono",
+    "positionLabel": "Cargo",
+    "positionPlaceholder": "Cargo",
+    "uploadImage": "Subir imagen",
+    "remove": "Eliminar",
+    "recommendedSize": "Recomendado: 500x500px, JPG/PNG",
+    "cancel": "Cancelar",
+    "saveChanges": "Guardar cambios",
+    "saving": "Guardando...",
+    "successTitle": "Éxito",
+    "errorTitle": "Error",
+    "updateSuccess": "Perfil actualizado con éxito",
+    "updateFailed": "Error al actualizar el perfil",
+    "validation": {
+      "firstNameRequired": "El nombre es obligatorio*",
+      "lastNameRequired": "El apellido es obligatorio*",
+      "emailRequired": "El correo electrónico es obligatorio*",
+      "invalidEmail": "Dirección de correo no válida",
+      "dialCodeRequired": "El código de país es obligatorio*",
+      "phoneRequired": "El número de teléfono es obligatorio*",
+      "invalidPhone": "Introduzca un número de teléfono válido de 8 a 15 dígitos",
+      "invalidImageType": "Suba únicamente imágenes JPG o PNG.",
+      "imageSizeExceeded": "El tamaño de la imagen no debe superar los 2 MB."
+    }
   }
 }

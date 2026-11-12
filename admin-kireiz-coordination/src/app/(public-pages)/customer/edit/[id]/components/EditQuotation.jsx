@@ -13,6 +13,7 @@ import {
 } from "@/services/B2BAccountService";
 import { apiGetSalesReps } from "@/services/SalesRepService";
 import { apiResendQuotation } from "@/services/QuotationHistoryService";
+import Dialog from "@/components/ui/Dialog";
 import QuotationWorkflowProgression from "./QuotationWorkflowProgression";
 
 const calculateTotal = (subtotalVal, discountPercentVal) => {
@@ -51,6 +52,10 @@ const EditQuotation = () => {
   // be set from the UI, so Sales Team Performance would always read zero.
   const [salesReps, setSalesReps] = useState([]);
 
+  const [submitModalOpen, setSubmitModalOpen] = useState(false);
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [cancelReasonInput, setCancelReasonInput] = useState("");
+
   const validateForm = () => {
     const newErrors = {};
 
@@ -71,7 +76,11 @@ const EditQuotation = () => {
 
     if (!formData.phone_number.trim()) {
       newErrors.phone_number = t("validation.phoneRequired");
-    } else if (formData.phone_number.trim().length !== 10) {
+    } else if (
+      formData.phone_number.trim().length < 8 ||
+      formData.phone_number.trim().length > 15 ||
+      !/^\d+$/.test(formData.phone_number.trim())
+    ) {
       newErrors.phone_number = t("validation.invalidPhone");
     }
 
@@ -135,6 +144,16 @@ const EditQuotation = () => {
     sales_rep: "",
     cancel_reason: "",
   });
+
+  const currentStatusRaw = String(formData?.quotation_status || "")
+    .toLowerCase()
+    .trim();
+  const isAgreed =
+    currentStatusRaw === "approved" || currentStatusRaw === "sent";
+  const canCancel =
+    !isAgreed &&
+    currentStatusRaw !== "cancelled" &&
+    currentStatusRaw !== "declined";
 
   const getQuotationDetails = async () => {
     try {
@@ -250,7 +269,7 @@ const EditQuotation = () => {
     }
 
     if (name === "phone_number") {
-      const numericValue = value.replace(/\D/g, "").slice(0, 10);
+      const numericValue = value.replace(/\D/g, "").slice(0, 15);
       setFormData((prev) => ({
         ...prev,
         [name]: numericValue,
@@ -437,6 +456,69 @@ const EditQuotation = () => {
     }
   };
 
+  const handleDirectStatusUpdate = async (newStatus, extraFields = {}) => {
+    try {
+      setSaving(true);
+      const payload = {
+        ...formData,
+        ...extraFields,
+        company_name: formData.company_name,
+        contact_person: formData.contact_person,
+        email: formData.email,
+        phone_number: formData.phone_number,
+        item_type: formData.item_type,
+        material: formData.material,
+        size_quantity: formData.size_quantity,
+        delivery_date:
+          formatDateToISO(formData.delivery_date) || formData.delivery_date,
+        additional_note: formData.additional_note,
+        cancel_reason:
+          extraFields.cancel_reason ||
+          formData.cancel_reason ||
+          formData.additional_note ||
+          "",
+        valid_until: formatDateToISO(formData.valid_until),
+        quotation_status: newStatus,
+        sales_rep: formData.sales_rep ? Number(formData.sales_rep) : null,
+        subtotal: formData.subtotal === "" ? null : Number(formData.subtotal),
+        discount_percent:
+          formData.discount_percent === ""
+            ? 0
+            : Number(formData.discount_percent),
+        total: formData.total === "" ? null : Number(formData.total),
+      };
+
+      const res = await apiUpdateQuotation(accessToken, id, payload);
+
+      toast.push(
+        <Notification title={t("successTitle")} type="success">
+          {res?.message || t("updateSuccess")}
+        </Notification>,
+      );
+
+      if (res?.status) {
+        setFormData((prev) => ({
+          ...prev,
+          quotation_status: newStatus,
+          ...extraFields,
+        }));
+        if (errors.quotation_status) {
+          setErrors((prev) => ({ ...prev, quotation_status: "" }));
+        }
+        setSubmitModalOpen(false);
+        setCancelModalOpen(false);
+        setCancelReasonInput("");
+      } else {
+        toast.error(res?.message || t("updateFailed"));
+      }
+    } catch (error) {
+      console.error("Status update error:", error);
+      toast.error(error?.response?.data?.message || t("genericError"));
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#F8F9FB] p-6">
       <div className="flex items-center justify-between mb-8">
@@ -463,11 +545,11 @@ const EditQuotation = () => {
       <QuotationWorkflowProgression
         status={formData.quotation_status}
         onStatusChange={(newStatus) => {
-          setFormData((prev) => ({ ...prev, quotation_status: newStatus }));
-          if (errors.quotation_status) {
-            setErrors((prev) => ({ ...prev, quotation_status: "" }));
-          }
+          handleDirectStatusUpdate(newStatus);
         }}
+        onRequestSubmit={() => setSubmitModalOpen(true)}
+        onRequestCancel={() => setCancelModalOpen(true)}
+        saving={saving}
       />
 
       <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
@@ -542,7 +624,7 @@ const EditQuotation = () => {
               inputMode="numeric"
               pattern="[0-9]*"
               name="phone_number"
-              maxLength={10}
+              maxLength={15}
               value={formData.phone_number}
               onChange={handleChange}
               className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-[#1C2C56]"
@@ -645,16 +727,37 @@ const EditQuotation = () => {
             <select
               name="quotation_status"
               value={formData.quotation_status}
-              onChange={handleChange}
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 bg-white outline-none focus:ring-2 focus:ring-[#1C2C56]"
+              disabled={saving}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (!val) return;
+                if (val === "cancelled") {
+                  setCancelModalOpen(true);
+                  return;
+                }
+                if (val === "accepted") {
+                  setSubmitModalOpen(true);
+                  return;
+                }
+                handleDirectStatusUpdate(val);
+              }}
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 bg-white outline-none focus:ring-2 focus:ring-[#1C2C56] disabled:bg-gray-100 disabled:opacity-60"
             >
               <option value="">{t("selectStatus")}</option>
               <option value="pending">{t("statusPending")}</option>
-              <option value="sent">{t("statusSent")}</option>
-              <option value="approved">{t("statusApproved")}</option>
-              <option value="cancelled">{t("statusCancelled")}</option>
-              <option value="accepted">{t("statusAccepted")}</option>
               <option value="received">{t("statusReceived")}</option>
+              <option value="accepted">
+                {t.has?.("statusSubmitted") ? t("statusSubmitted") : t("statusAccepted")}
+              </option>
+              {(currentStatusRaw === "approved" || currentStatusRaw === "sent") && (
+                <option value="approved">{t("statusApproved")}</option>
+              )}
+              {currentStatusRaw === "sent" && (
+                <option value="sent">{t("statusSent")}</option>
+              )}
+              {canCancel && (
+                <option value="cancelled">{t("statusCancelled")}</option>
+              )}
             </select>
             {errors.quotation_status && (
               <p className="text-red-500 text-sm mt-1">
@@ -806,20 +909,48 @@ const EditQuotation = () => {
         />
       </div>
 
-      <div className="flex items-center justify-end gap-4 pb-6">
+      <div className="flex flex-wrap items-center justify-end gap-4 pb-6">
         <button
           type="button"
           onClick={() => router.push("/customer?tab=Quotation+History")}
           className="px-6 py-3 rounded-xl border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition"
         >
-          {t("cancel")}
+          {t.has?.("backToQuotations") ? t("backToQuotations") : t("cancel")}
         </button>
+
+        {/* Cancel button: ONLY shown before Agreed (approved / sent) */}
+        {canCancel && (
+          <button
+            type="button"
+            disabled={saving}
+            onClick={() => setCancelModalOpen(true)}
+            className="px-6 py-3 rounded-xl border border-red-300 bg-white text-red-600 hover:bg-red-50 transition font-medium disabled:opacity-50"
+          >
+            {t.has?.("cancelQuotation")
+              ? t("cancelQuotation")
+              : "Cancel Quotation"}
+          </button>
+        )}
+
+        {(currentStatusRaw === "received" || currentStatusRaw === "quoting") && (
+          <button
+            type="button"
+            disabled={saving}
+            onClick={() => setSubmitModalOpen(true)}
+            className="px-6 py-3 rounded-xl bg-[#1C2C56] text-white hover:bg-[#2a407a] transition font-medium disabled:opacity-50"
+          >
+            {t.has?.("changeToSubmitted")
+              ? t("changeToSubmitted")
+              : "Change to Submitted"}
+          </button>
+        )}
+
 
         <button
           type="button"
           disabled={saving}
           onClick={() => handleSubmit(false)}
-          className="px-6 py-3 rounded-xl border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition disabled:opacity-60 disabled:cursor-not-allowed"
+          className="px-6 py-3 rounded-xl border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition disabled:opacity-60 disabled:cursor-not-allowed font-medium"
         >
           {saving ? t("saving") : t("saveChanges")}
         </button>
@@ -834,6 +965,115 @@ const EditQuotation = () => {
           {saving ? t("sending") : t("sendQuotationResponse")}
         </button>
       </div>
+
+      {/* Modal 1: Change Status to Submitted */}
+      <Dialog
+        isOpen={submitModalOpen}
+        onClose={() => setSubmitModalOpen(false)}
+        onRequestClose={() => setSubmitModalOpen(false)}
+        width={440}
+      >
+        <div className="p-6">
+          <h3 className="text-lg font-bold text-[#1C2C56] mb-2">
+            {t.has?.("confirmSubmitTitle")
+              ? t("confirmSubmitTitle")
+              : "Change Status to Submitted"}
+          </h3>
+          <p className="text-sm text-gray-600 mb-6">
+            {t.has?.("confirmSubmitMessage")
+              ? t("confirmSubmitMessage")
+              : "Are you sure you want to change the status to Submitted? The status will be updated to accepted in the backend."}
+          </p>
+          <div className="flex items-center justify-end gap-3">
+            <button
+              type="button"
+              disabled={saving}
+              onClick={() => setSubmitModalOpen(false)}
+              className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition text-sm font-medium"
+            >
+              {t("cancel")}
+            </button>
+            <button
+              type="button"
+              disabled={saving}
+              onClick={() => handleDirectStatusUpdate("accepted")}
+              className="px-4 py-2 rounded-lg bg-[#1C2C56] text-white hover:bg-[#283d73] transition text-sm font-medium disabled:opacity-50"
+            >
+              {saving
+                ? t("saving")
+                : t.has?.("confirm")
+                  ? t("confirm")
+                  : "Confirm & Submit"}
+            </button>
+          </div>
+        </div>
+      </Dialog>
+
+
+      {/* Modal 3: Cancel Quotation */}
+      <Dialog
+        isOpen={cancelModalOpen}
+        onClose={() => setCancelModalOpen(false)}
+        onRequestClose={() => setCancelModalOpen(false)}
+        width={460}
+      >
+        <div className="p-6">
+          <h3 className="text-lg font-bold text-red-600 mb-2">
+            {t.has?.("confirmCancelTitle")
+              ? t("confirmCancelTitle")
+              : "Cancel Quotation"}
+          </h3>
+          <p className="text-sm text-gray-600 mb-4">
+            {t.has?.("confirmCancelMessage")
+              ? t("confirmCancelMessage")
+              : "Are you sure you want to cancel this quotation? This action cannot be undone."}
+          </p>
+          <div className="mb-6">
+            <label className="block text-xs font-semibold text-gray-700 mb-1">
+              {t.has?.("cancelReasonLabel")
+                ? t("cancelReasonLabel")
+                : "Cancellation Reason (Optional)"}
+            </label>
+            <textarea
+              rows={3}
+              value={cancelReasonInput}
+              onChange={(e) => setCancelReasonInput(e.target.value)}
+              placeholder={
+                t.has?.("cancelReasonPlaceholder")
+                  ? t("cancelReasonPlaceholder")
+                  : "Enter reason for cancellation..."
+              }
+              className="w-full rounded-lg border border-gray-300 p-2.5 text-sm outline-none focus:ring-2 focus:ring-red-400"
+            />
+          </div>
+          <div className="flex items-center justify-end gap-3">
+            <button
+              type="button"
+              disabled={saving}
+              onClick={() => setCancelModalOpen(false)}
+              className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition text-sm font-medium"
+            >
+              {t.has?.("keepQuotation") ? t("keepQuotation") : "Keep Quotation"}
+            </button>
+            <button
+              type="button"
+              disabled={saving}
+              onClick={() =>
+                handleDirectStatusUpdate("cancelled", {
+                  cancel_reason: cancelReasonInput,
+                })
+              }
+              className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition text-sm font-medium disabled:opacity-50"
+            >
+              {saving
+                ? t("saving")
+                : t.has?.("confirmCancellation")
+                  ? t("confirmCancellation")
+                  : "Confirm Cancellation"}
+            </button>
+          </div>
+        </div>
+      </Dialog>
     </div>
   );
 };

@@ -34,7 +34,7 @@ const validationSchema = z.object({
     phone_number: z
         .string({ required_error: 'Please enter phone number' })
         .min(1, { message: 'Please enter phone number' })
-        .regex(/^[0-9]{10}$/, { message: 'Please enter a valid 10-digit phone number' }),
+        .regex(/^[0-9]{8,15}$/, { message: 'Please enter a valid phone number (8-15 digits)' }),
     item_type: z
         .string({ error: 'Please enter item type' })
         .min(1, { message: 'Please enter item type' }),
@@ -290,10 +290,10 @@ const DeliveryRequestForm = () => {
                                             inputMode="numeric"
                                             autoComplete="tel"
                                             placeholder="Phone Number"
-                                            maxLength={10}
+                                            maxLength={15}
                                             {...field}
                                             onChange={(e) => {
-                                                const value = e.target.value.replace(/\D/g, '').slice(0, 10)
+                                                const value = e.target.value.replace(/\D/g, '').slice(0, 15)
                                                 field.onChange(value)
                                             }}
                                             onKeyDown={(e) => {

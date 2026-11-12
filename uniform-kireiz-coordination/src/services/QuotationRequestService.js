@@ -109,3 +109,45 @@ export async function apiCancelQuotation(id, data, token) {
         },
     });
 }
+
+/**
+ * Approves a quotation proposal by quotation UUID.
+ * URL: /api/v1/userhub/quotation/approve/<uuid:quotation_id>/
+ * Method: PATCH
+ *
+ * @param {string|number} id - Quotation UUID to approve.
+ * @param {Object} [data] - Approval payload.
+ * @param {string} token - User authentication Bearer token.
+ * @returns {Promise<Object>} API response confirming quotation approval.
+ */
+export async function apiApproveQuotation(id, data = {}, token) {
+    return ApiService.fetchDataWithAxios({
+        url: `/v1/userhub/quotation/approve/${id}/`,
+        method: "patch",
+        data,
+        headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+        },
+    });
+}
+
+/**
+ * Updates quotation request (e.g. agreed / approved).
+ *
+ * @param {string|number} id - Quotation request UUID.
+ * @param {Object} data - Update data payload.
+ * @param {string} token - User authentication Bearer token.
+ * @returns {Promise<Object>} API response confirming quotation update.
+ */
+export async function apiUpdateQuotationRequest(id, data, token) {
+    return ApiService.fetchDataWithAxios({
+        url: `/v1/uniformAdmin/quotation-request/${id}/update/`,
+        method: "put",
+        data,
+        headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+        },
+    });
+}

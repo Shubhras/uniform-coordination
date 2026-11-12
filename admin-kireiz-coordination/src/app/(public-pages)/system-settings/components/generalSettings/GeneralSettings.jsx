@@ -166,10 +166,11 @@ const GeneralSettings = () => {
                 className="h-10 w-full rounded-xl border border-[#E9DDD4] px-4 text-sm outline-none"
                 type="text"
                 inputMode="numeric"
+                maxLength={15}
                 value={settings.contact_number || ""}
                 readOnly={!isEditing}
                 onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, "").slice(0, 10);
+                  const value = e.target.value.replace(/\D/g, "").slice(0, 15);
                   setSettings({
                     ...settings,
                     contact_number: value,
