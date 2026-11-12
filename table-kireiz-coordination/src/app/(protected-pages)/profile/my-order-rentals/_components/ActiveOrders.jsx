@@ -15,6 +15,7 @@ import Dialog from '@/components/ui/Dialog'
 import toast from '@/components/ui/toast'
 import Spinner from '@/components/ui/Spinner'
 import { HiCheck } from 'react-icons/hi'
+import RentalTimelineModal from '@/components/shared/RentalTimelineModal'
 
 // Order image component with fallback pattern
 const OrderImage = ({ src, alt }) => (
@@ -58,6 +59,8 @@ const ActiveOrders = ({ onTotalCountChange }) => {
     const [orderToCancel, setOrderToCancel] = useState(null)
     const [cancelReason, setCancelReason] = useState('')
     const [cancelling, setCancelling] = useState(false)
+    const [trackingOrder, setTrackingOrder] = useState(null)
+    const [trackingModalOpen, setTrackingModalOpen] = useState(false)
     const pageSize = 5
 
     // Fetch active orders list
@@ -453,11 +456,14 @@ const ActiveOrders = ({ onTotalCountChange }) => {
                                             View Details
                                         </button>
 
-                                        {/* Track Delivery: only show for active/paid orders that are not pending or cancelled */}
+                                        {/* Track Delivery: open rental timeline modal */}
                                         {!(order.status?.toLowerCase() === 'pending' && !order.is_paid) && order.status?.toLowerCase() !== 'cancelled' && (
                                             <button
                                                 type="button"
-                                                onClick={() => handleViewDetails(order.order_id)}
+                                                onClick={() => {
+                                                    setTrackingOrder(order)
+                                                    setTrackingModalOpen(true)
+                                                }}
                                                 className="rounded-md border border-[#E4B292] bg-white px-4 py-2 text-sm font-medium text-[#B66636] hover:bg-[#FAF6F4] transition"
                                             >
                                                 Track Delivery
@@ -574,6 +580,14 @@ const ActiveOrders = ({ onTotalCountChange }) => {
                     </div>
                 </div>
             </Dialog>
+
+            {/* Rental Timeline Tracking Modal */}
+            <RentalTimelineModal
+                isOpen={trackingModalOpen}
+                onClose={() => setTrackingModalOpen(false)}
+                orderId={trackingOrder?.order_id}
+                initialOrder={trackingOrder}
+            />
         </div>
     )
 }

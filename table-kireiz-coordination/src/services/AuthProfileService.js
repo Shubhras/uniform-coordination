@@ -42,14 +42,13 @@ export async function apiGetProfile(token) {
 export async function apiUpdateProfile(token, payload) {
     const formData = new FormData()
 
-    formData.append('firstName', payload.firstName)
-    formData.append('lastName', payload.lastName)
-    formData.append('phone', payload.phone)
+    formData.append('firstName', payload.firstName || '')
+    formData.append('lastName', payload.lastName || '')
+    formData.append('phone', payload.phone || '')
 
-    if (payload.profileImage instanceof File) {
-        formData.append('profileImage', payload.profileImage)
+    if (payload.profileImage && (payload.profileImage instanceof File || payload.profileImage instanceof Blob)) {
+        formData.append('profileImage', payload.profileImage, payload.profileImage.name || 'avatar.jpg')
     }
-
 
     return ApiService.fetchDataWithAxios({
         url: '/v1/space/userhub/profile/update/',
@@ -245,4 +244,26 @@ export async function apiGetFavouritesList(token, params = {}) {
         }
         throw err
     }
+}
+
+/**
+ * Triggers sending or resending a verification email for the current user.
+ * 
+ * @param {string} token - User authentication Bearer token.
+ * @param {Object} [data={}] - Optional request payload (e.g. { force: true }).
+ * @returns {Promise<Object>} API response confirming email dispatch or verified status.
+ */
+export async function apiResendVerificationEmail(token, data = {}) {
+    const payload = {
+        ...data,
+        frontend_url: typeof window !== 'undefined' ? window.location.origin : undefined,
+    }
+    return ApiService.fetchDataWithAxios({
+        url: '/v1/space/userhub/verify-email/resend/',
+        method: 'post',
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+        data: payload,
+    })
 }

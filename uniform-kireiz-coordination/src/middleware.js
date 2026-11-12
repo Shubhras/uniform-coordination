@@ -33,7 +33,10 @@ export default auth((req) => {
     if (isApiAuthRoute) return
 
     if (isAuthRoute) {
-        if (isSignedIn) {
+        // If the user was redirected to sign-in (e.g. token expired, forced relogin),
+        // do not bounce them back to authenticatedEntryPath to prevent infinite redirect loops.
+        const hasRedirectParam = nextUrl.searchParams.has(REDIRECT_URL_KEY) || nextUrl.searchParams.has('redirectTo')
+        if (isSignedIn && !hasRedirectParam) {
             /** Redirect to authenticated entry path if signed in & path is auth route */
             return Response.redirect(
                 new URL(BASE_PATH + appConfig.authenticatedEntryPath, nextUrl),

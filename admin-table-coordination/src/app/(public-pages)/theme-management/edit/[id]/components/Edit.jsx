@@ -48,8 +48,8 @@ const Edit = () => {
   const [selectedSectionId, setSelectedSectionId] = useState(null);
 
   const [coverImages, setCoverImages] = useState([]);
-
   const [newCoverImages, setNewCoverImages] = useState([]);
+  const [deletedCoverImageIds, setDeletedCoverImageIds] = useState([]);
   const [errors, setErrors] = useState({});
 
   const [categoryList, setCategoryList] = useState([]);
@@ -149,6 +149,13 @@ const Edit = () => {
         formData.append("cover_images", file);
       });
 
+      if (deletedCoverImageIds.length > 0) {
+        formData.append(
+          "deleted_cover_image_ids",
+          JSON.stringify(deletedCoverImageIds)
+        );
+      }
+
       const res = await apiUpdateTheme(accessToken, id, formData);
 
       if (res?.status) {
@@ -242,8 +249,25 @@ const Edit = () => {
     e.target.value = "";
   };
 
-  const handleRemoveGalleryImage = (id) => {
-    setCoverImages((prev) => prev.filter((img) => img.id !== id));
+  const handleRemoveGalleryImage = (targetImage) => {
+    if (targetImage?.file) {
+      // Newly uploaded file: remove from coverImages and newCoverImages
+      setCoverImages((prev) =>
+        prev.filter((img) => img !== targetImage && img.id !== targetImage.id)
+      );
+      setNewCoverImages((prev) =>
+        prev.filter((file) => file !== targetImage.file)
+      );
+      try {
+        URL.revokeObjectURL(targetImage.image);
+      } catch (e) {}
+    } else {
+      // Existing server-stored image: remove from visible list and queue ID for deletion
+      setCoverImages((prev) => prev.filter((img) => img.id !== targetImage.id));
+      if (targetImage?.id) {
+        setDeletedCoverImageIds((prev) => [...prev, targetImage.id]);
+      }
+    }
   };
 
   const handleAddItem = (selectedProducts) => {
@@ -611,7 +635,7 @@ const Edit = () => {
               {coverImages.map((img) => (
                 <div
                   key={img.id}
-                  className="relative w-[105px] h-[105px] rounded-xl overflow-hidden border border-[#EFE5DD] bg-[#FAF8F6] flex items-center justify-center p-1"
+                  className="group relative w-[105px] h-[105px] rounded-xl overflow-hidden border border-[#EFE5DD] bg-[#FAF8F6] flex items-center justify-center p-1"
                 >
                   <img
                     src={img.image}
@@ -619,8 +643,17 @@ const Edit = () => {
                     className="w-full h-full object-contain"
                   />
 
-                  <button className="absolute top-1 right-1 w-5 h-5 rounded-full bg-white flex items-center justify-center shadow">
-                    <FiX size={10} />
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleRemoveGalleryImage(img);
+                    }}
+                    title="Remove photo"
+                    className="absolute top-1 right-1 w-5 h-5 rounded-full bg-white hover:bg-red-50 text-gray-500 hover:text-red-600 flex items-center justify-center shadow transition-colors cursor-pointer z-10"
+                  >
+                    <FiX size={11} />
                   </button>
                 </div>
               ))}

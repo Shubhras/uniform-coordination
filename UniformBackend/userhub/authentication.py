@@ -16,8 +16,10 @@ class CustomUserJWTAuthentication(BaseAuthentication):
     Both kinds are signed with SECRET_KEY and use the same `user_id` claim, and the two
     tables have independent ids. Looking an id up in the "other" table would sign the
     caller in as a different person (e.g. customer 5 as AdminUser 5), so a token is
-    never resolved against the table it was not issued for.
     """
+
+    def authenticate_header(self, request):
+        return 'Bearer'
 
     def authenticate(self, request):
         auth_header = request.headers.get("Authorization")

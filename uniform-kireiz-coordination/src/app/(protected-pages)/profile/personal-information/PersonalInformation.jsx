@@ -1,7 +1,6 @@
 'use client'
-import { useMemo, useEffect, useState } from 'react'
+import { useMemo, useEffect, useState, useRef } from 'react'
 import Button from '@/components/ui/Button'
-import Upload from '@/components/ui/Upload'
 import Input from '@/components/ui/Input'
 import Select, { Option as DefaultOption } from '@/components/ui/Select'
 import Avatar from '@/components/ui/Avatar'
@@ -38,8 +37,7 @@ const validationSchema = z.object({
         .regex(/^[0-9]{8,15}$/, {
             message: 'Phone number must be between 8 and 15 digits',
         }),
-    position: z.string().min(1, { message: 'Position required' }),
-    //img: z.string(),
+    position: z.string().optional(),
     img: z.any().optional(),
 })
 
@@ -83,24 +81,19 @@ const PersonalInformation = () => {
     const { data: session } = useSession()
     const [loading, setLoading] = useState(false)
     const [removingImage, setRemovingImage] = useState(false)
+    const [imagePreview, setImagePreview] = useState('')
+    const [selectedFile, setSelectedFile] = useState(null)
+    const fileInputRef = useRef(null)
+
     const {
         handleSubmit,
         reset,
+        setValue,
         formState: { errors, isSubmitting },
         control,
     } = useForm({
         resolver: zodResolver(validationSchema),
     })
-
-    // const { data, mutate } = useSWR(
-    //     '/api/settings/profile/',
-    //     () => apiGetSettingsProfile(),
-    //     {
-    //         revalidateOnFocus: false,
-    //         revalidateIfStale: false,
-    //         revalidateOnReconnect: false,
-    //     },
-    // )
 
     const dialCodeList = useMemo(() => {
         const newCountryList = JSON.parse(JSON.stringify(countryList))
@@ -111,98 +104,59 @@ const PersonalInformation = () => {
         })
     }, [])
 
-    const beforeUpload = (files) => {
-        const allowedFileType = ['image/jpeg', 'image/png']
+    const handleFileSelect = (e) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+
         const maxFileSize = 5 * 1024 * 1024 // 5 MB
-
-        if (!files || files.length === 0) {
-            return true
-        }
-
-        const file = files[0]
-
-        // File type validation
-        if (!allowedFileType.includes(file.type)) {
-            toast.push(
-                <Notification title="Invalid File" type="danger">
-                    Please upload only JPG or PNG images.
-                </Notification>
-            )
-            return false
-        }
-
-        // File size validation
         if (file.size > maxFileSize) {
             toast.push(
                 <Notification title="File Too Large" type="danger">
                     Image size must not exceed 5 MB.
                 </Notification>
             )
-            return false
+            if (fileInputRef.current) fileInputRef.current.value = ''
+            return
         }
 
-        // Image dimensions validation
-        return new Promise((resolve) => {
-            const img = new window.Image()
-            const objectUrl = URL.createObjectURL(file)
+        if (!file.type.startsWith('image/')) {
+            toast.push(
+                <Notification title="Invalid File" type="danger">
+                    Please upload a valid image (JPG, PNG, WEBP).
+                </Notification>
+            )
+            if (fileInputRef.current) fileInputRef.current.value = ''
+            return
+        }
 
-            img.onload = () => {
-                URL.revokeObjectURL(objectUrl)
-
-                if (img.width !== 500 || img.height !== 500) {
-                    toast.push(
-                        <Notification title="Invalid Dimensions" type="danger">
-                            Image dimensions must be exactly 500 × 500 pixels.
-                        </Notification>
-                    )
-                    resolve(false)
-                    return
-                }
-
-                resolve(true)
-            }
-
-            img.onerror = () => {
-                URL.revokeObjectURL(objectUrl)
-
-                toast.push(
-                    <Notification title="Invalid Image" type="danger">
-                        Please upload a valid JPG or PNG image.
-                    </Notification>
-                )
-
-                resolve(false)
-            }
-
-            img.src = objectUrl
-        })
+        const previewUrl = URL.createObjectURL(file)
+        setImagePreview(previewUrl)
+        setSelectedFile(file)
+        setValue('img', file, { shouldDirty: true })
     }
 
-    // useEffect(() => {
-    //     if (data) {
-    //         reset(data)
-    //     }
-    //     // eslint-disable-next-line react-hooks/exhaustive-deps
-    // }, [data])
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                if (!session?.accessToken) return
+                const token = session?.accessToken || session?.user?.accessToken
+                if (!token) return
                 setLoading(true)
-                const res = await apiGetProfile(session.accessToken)
-                //console.log(res);
+                const res = await apiGetProfile(token)
 
                 const profile = res?.data
-                //console.log(profile);
+                if (profile?.profileImage) {
+                    setImagePreview(profile.profileImage)
+                } else {
+                    setImagePreview('')
+                }
 
-                // ✅ Map API response to form fields
                 reset({
-                    firstName: profile.firstName || '',
-                    lastName: profile.lastName || '',
-                    email: profile.email || '',
-                    position: profile.roleName || '',
-                    img: profile.profileImage || '',
-                    phoneNumber: profile.phone || '',
+                    firstName: profile?.firstName || '',
+                    lastName: profile?.lastName || '',
+                    email: profile?.email || '',
+                    position: profile?.roleName || '',
+                    img: profile?.profileImage || '',
+                    phoneNumber: profile?.phone || '',
                 })
             } catch (error) {
                 console.error('Failed to fetch profile:', error)
@@ -212,40 +166,47 @@ const PersonalInformation = () => {
         }
 
         fetchProfile()
-    }, [reset])
-    // const onSubmit = async (values) => {
-    //     console.log('Form Data:', values) // <-- log all form data
-    //     await sleep(500)
-    //     if (data) {
-    //         mutate({ ...data, ...values }, false)
-    //     }
-    // }
+    }, [session?.accessToken, session?.user?.accessToken, reset])
+
     const onSubmit = async (values) => {
         setLoading(true)
         try {
-            if (!session?.accessToken) return
-
-            setLoading(true)
+            const token = session?.accessToken || session?.user?.accessToken
+            if (!token) return
 
             const payload = {
                 firstName: values.firstName,
                 lastName: values.lastName,
-                phone: values.phoneNumber || null,
-                // profileImage: values.img || null,
-                profileImage: values.img instanceof File ? values.img : values.img || "",
+                phone: values.phoneNumber || '',
             }
-            if (values.img instanceof File) {
-                payload.profileImage = values.img
+            if (selectedFile) {
+                payload.profileImage = selectedFile
             }
-            //console.log('call',payload);
-            await apiUpdateProfile(session.accessToken, payload)
+
+            const res = await apiUpdateProfile(token, payload)
+            if (res?.status === false) {
+                toast.push(
+                    <Notification title="Profile update failed" type="danger">
+                        {res?.message || 'Unable to update profile.'}
+                    </Notification>
+                )
+                return
+            }
+            if (res?.data?.profileImage) {
+                setImagePreview(res.data.profileImage)
+                setSelectedFile(null)
+                setValue('img', res.data.profileImage)
+            } else if (res?.profileImage) {
+                setImagePreview(res.profileImage)
+                setSelectedFile(null)
+                setValue('img', res.profileImage)
+            }
+
             toast.push(
                 <Notification title="Profile success!" type="success">
                     Profile updated successfully
                 </Notification>,
             )
-            //console.log('Profile updated successfully')
-
         } catch (error) {
             console.error('Profile update failed:', error)
 
@@ -264,17 +225,29 @@ const PersonalInformation = () => {
         }
     }
 
-    const handleRemoveImage = async (field) => {
+    const handleRemoveImage = async () => {
+        if (selectedFile) {
+            setSelectedFile(null)
+            setImagePreview('')
+            setValue('img', '', { shouldDirty: true })
+            if (fileInputRef.current) fileInputRef.current.value = ''
+            return
+        }
+
         const token = session?.accessToken || session?.user?.accessToken
         if (!token) {
-            field.onChange(null)
+            setImagePreview('')
+            setValue('img', '', { shouldDirty: true })
             return
         }
 
         setRemovingImage(true)
         try {
             await apiDeleteProfileImage(token)
-            field.onChange(null)
+            setImagePreview('')
+            setSelectedFile(null)
+            setValue('img', '', { shouldDirty: true })
+            if (fileInputRef.current) fileInputRef.current.value = ''
             toast.push(
                 <Notification title="Success" type="success">
                     Profile image removed successfully
@@ -302,82 +275,49 @@ const PersonalInformation = () => {
                 <h4 className="text-[#003562] mb-6 sm:mb-8 text-base sm:text-lg font-semibold">Personal information</h4>
                 <Form onSubmit={handleSubmit(onSubmit)}>
                     <div className="mb-8">
-                        <Controller
-                            name="img"
-                            control={control}
-                            render={({ field }) => (
-                                <div className="flex flex-col sm:flex-row items-center gap-4 p-4 sm:p-5 rounded-lg bg-[#1C4FA81F]">
-                                    {/* <Avatar
-                                        size={100}
-                                        className="border border-white bg-gray-100 text-gray-300 shadow-lg"
-                                        icon={<CiUser />}
-                                        src={field.value}
-                                    /> */}
-                                    <Avatar
-                                        size={100}
-                                        className="border border-white bg-gray-100 text-gray-300 shadow-lg"
-                                        icon={<CiUser />}
-                                        src={
-                                            field.value instanceof File
-                                                ? URL.createObjectURL(field.value) // preview new upload
-                                                : field.value // show existing URL
-                                        }
+                        <div className="flex flex-col sm:flex-row items-center gap-4 p-4 sm:p-5 rounded-lg bg-[#1C4FA81F]">
+                            <Avatar
+                                size={100}
+                                shape="circle"
+                                className="border border-white bg-gray-100 text-gray-300 shadow-lg object-cover rounded-full overflow-hidden"
+                                icon={<CiUser />}
+                                src={imagePreview || undefined}
+                            />
+                            <div className="flex flex-col items-center sm:items-start gap-3 w-full">
+                                <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                                    <input
+                                        ref={fileInputRef}
+                                        type="file"
+                                        accept="image/png, image/jpeg, image/jpg, image/webp"
+                                        className="hidden"
+                                        onClick={(e) => {
+                                            e.target.value = ''
+                                        }}
+                                        onChange={handleFileSelect}
                                     />
-                                    <div className="flex flex-col items-center sm:items-start gap-3 w-full">
-                                        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                                            {/* <Upload
-                                                showList={false}
-                                                uploadLimit={1}
-                                                beforeUpload={beforeUpload}
-                                                onChange={(files) => {
-                                                    if (files.length > 0) {
-                                                        field.onChange(
-                                                            URL.createObjectURL(
-                                                                files[0],
-                                                            ),
-                                                        )
-                                                    }
-                                                }}
-                                            > */}
-                                            <Upload
-                                                showList={false}
-                                                uploadLimit={1}
-                                                beforeUpload={beforeUpload}
-                                                showError={false}
-                                                onChange={(files) => {
-                                                    if (files.length > 0) {
-                                                        field.onChange(files[0]) // store the File object
-                                                    } else {
-                                                        field.onChange(null)
-                                                    }
-                                                }}
-                                            >
-                                                <Button
-                                                    variant="solid"
-                                                    size="sm"
-                                                    type="button"
-                                                    // icon={<TbPlus />}
-                                                    className=" bg-[#1C2C56] hover:bg-[#1C2C56] text-white py-2 rounded-md px-6 w-full sm:w-auto "
-                                                >
-                                                    Upload Image
-                                                </Button>
-                                            </Upload>
-                                            <Button
-                                                size="sm"
-                                                type="button"
-                                                loading={removingImage}
-                                                disabled={removingImage}
-                                                className="border px-6 py-2 rounded-md"
-                                                onClick={() => handleRemoveImage(field)}
-                                            >
-                                                Remove
-                                            </Button>
-                                        </div>
-                                        <p className='text-[#5175B2] text-center text-xs'>Recommended: 500x500px (Max 5MB), JPG/PNG</p>
-                                    </div>
+                                    <Button
+                                        variant="solid"
+                                        size="sm"
+                                        type="button"
+                                        className="bg-[#1C2C56] hover:bg-[#1C2C56] text-white py-2 rounded-md px-6 w-full sm:w-auto"
+                                        onClick={() => fileInputRef.current?.click()}
+                                    >
+                                        Upload Image
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        type="button"
+                                        loading={removingImage}
+                                        disabled={removingImage}
+                                        className="border px-6 py-2 rounded-md"
+                                        onClick={handleRemoveImage}
+                                    >
+                                        Remove
+                                    </Button>
                                 </div>
-                            )}
-                        />
+                                <p className='text-[#5175B2] text-center text-xs'>Supported: JPG/PNG/WEBP up to 5MB (auto-cropped to circle)</p>
+                            </div>
+                        </div>
                     </div>
                     <div className="grid md:grid-cols-2 gap-4">
                         <FormItem
@@ -519,6 +459,7 @@ const PersonalInformation = () => {
                             type="button"
                             size="sm"
                             className="w-full sm:w-auto border px-6 py-2 rounded-md"
+                            onClick={() => router.back()}
                         >
                             Cancel
                         </Button>

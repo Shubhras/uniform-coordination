@@ -301,6 +301,20 @@ class TableThemeUpdateAPIView(APIView):
                 if serializer.is_valid():
                     theme = serializer.save()
                     
+                    # Handle deletion of removed cover images
+                    deleted_cover_image_ids = request.data.get('deleted_cover_image_ids')
+                    if deleted_cover_image_ids:
+                        try:
+                            if isinstance(deleted_cover_image_ids, str):
+                                del_ids = json.loads(deleted_cover_image_ids)
+                            elif isinstance(deleted_cover_image_ids, (list, tuple)):
+                                del_ids = deleted_cover_image_ids
+                            else:
+                                del_ids = [deleted_cover_image_ids]
+                            ThemeCoverImage.objects.filter(theme=theme, id__in=del_ids).delete()
+                        except Exception as e:
+                            pass
+
                     # Handle cover images append/replace
                     cover_images = request.FILES.getlist('cover_images')
                     if cover_images:
@@ -472,4 +486,39 @@ class TableThemeDeleteAPIView(APIView):
                 "status": False,
                 "message": "Something went wrong.",
                 "error": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class TableThemeCoverImageDeleteAPIView(APIView):
+    authentication_classes = [StaffJWTAuthentication]
+    @extend_schema(
+        tags=["Table Theme"],
+        summary="Delete Table Theme Cover Image",
+        description="Delete a single theme cover image by ID.",
+        responses={
+            200: OpenApiResponse(description="Cover image deleted successfully"),
+            404: OpenApiResponse(description="Cover image not found"),
+        },
+    )
+    def delete(self, request, image_id):
+        try:
+            cover_img = ThemeCoverImage.objects.filter(id=image_id).first()
+            if not cover_img:
+                return Response({
+                    "status": False,
+                    "statusCode": 404,
+                    "message": "Cover image not found"
+                }, status=status.HTTP_404_NOT_FOUND)
+
+            cover_img.delete()
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "Cover image deleted successfully"
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

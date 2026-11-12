@@ -16,6 +16,7 @@ urlpatterns = [
     path("reset-password/", ResetPasswordAPIView.as_view(), name="reset_password"),
     path("update-password/", UpdatePasswordAPIView.as_view(), name="update-password"),
     path("verify-user/", VerifyUserAPIView.as_view(), name="verify-user"),
+    path("verify-email/resend/", ResendVerificationEmailAPIView.as_view(), name="resend-verification-email"),
     path("notifications/get-list/", UserNotificationListAPIView.as_view(), name="user-notifications-list"),
     # path('favourite/toggle/', ToggleFavouriteAPIView.as_view(), name='toggle-favourite'),
 
@@ -42,6 +43,7 @@ urlpatterns = [
     path('quotationrequest/get-list/',QuotationRequestsListAPIView.as_view(), name = 'get-list'),
     
     path("quotation/cancel/<uuid:quotation_id>/",CancelQuotationRequestAPIView.as_view(),name="cancel-quotation-request",),
+    path("quotation/approve/<uuid:quotation_id>/",ApproveQuotationRequestAPIView.as_view(),name="approve-quotation-request",),
     
     path('quotations/<str:pk>/', QuotationDetailView.as_view(), name='quotation-detail'),
     path('quotations/<str:pk>/pdf/', QuotationPDFView.as_view(), name='quotation-pdf'),

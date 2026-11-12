@@ -4,6 +4,9 @@ import React, { useEffect, useRef, useState } from "react";
 import Avatar from "@/components/ui/Avatar";
 import Button from "@/components/ui/Button";
 import Spinner from "@/components/ui/Spinner";
+import Dialog from "@/components/ui/Dialog";
+import toast from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import {
@@ -14,6 +17,7 @@ import {
   FiEdit2,
   FiFileText,
   FiLock,
+  FiMail,
 } from "react-icons/fi";
 import { HiCheckCircle } from "react-icons/hi";
 import { CiUser } from "react-icons/ci";
@@ -23,8 +27,12 @@ import {
   apiGetQuotation,
   apiSimulationExportPdf,
   apiSimulationHistory,
+  apiResendVerificationEmail,
 } from "@/services/AuthProfileService";
-import { apiGetUserQuotationDetail } from "@/services/QuotationRequestService";
+import {
+  apiGetUserQuotationDetail,
+  apiGetQuotationRequestDetail,
+} from "@/services/QuotationRequestService";
 
 const normalizePdfUrl = (rawUrl) => {
   if (!rawUrl || typeof rawUrl !== "string") {
@@ -127,6 +135,9 @@ const MyProfile = () => {
   const [pdfLoadingId, setPdfLoadingId] = useState(null);
   const [quotationDetailLoadingId, setQuotationDetailLoadingId] =
     useState(null);
+  const [viewDesignLoading, setViewDesignLoading] = useState(false);
+  const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false);
+  const [verifyEmailLoading, setVerifyEmailLoading] = useState(false);
   const activeQuotation = quotationData?.[0] || null;
   const visibleRecentSimulations = simulationData.slice(0, 3);
 
@@ -292,6 +303,121 @@ const MyProfile = () => {
     router.push(`/profile/my-profile/${quotationId}`);
   };
 
+  const handleViewDesign = async () => {
+    try {
+      setViewDesignLoading(true);
+
+      // 1. Direct check from activeQuotation
+      const quotationDesignId =
+        activeQuotation?.customupdatemodel?.id ||
+        activeQuotation?.customupdatemodel_id ||
+        (typeof activeQuotation?.customupdatemodel === "number" ||
+        (typeof activeQuotation?.customupdatemodel === "string" &&
+          !isNaN(activeQuotation?.customupdatemodel) &&
+          activeQuotation?.customupdatemodel.trim() !== "")
+          ? activeQuotation.customupdatemodel
+          : null) ||
+        activeQuotation?.custom_update_model?.id ||
+        activeQuotation?.custom_update_model ||
+        activeQuotation?.customUpdateModel?.id ||
+        activeQuotation?.simulation_id ||
+        activeQuotation?.simulationId ||
+        activeQuotation?.model_info?.id;
+
+      if (quotationDesignId) {
+        router.push(`/dashboards/design-result/${quotationDesignId}`);
+        return;
+      }
+
+      // 2. Fetch quotation request detail if customupdatemodel wasn't in activeQuotation
+      const qId =
+        activeQuotation?.quotation_id ||
+        activeQuotation?.quotationNo ||
+        activeQuotation?.uuids ||
+        activeQuotation?.uuid ||
+        activeQuotation?.id;
+
+      if (qId && session?.accessToken) {
+        try {
+          const detailRes = await apiGetQuotationRequestDetail(
+            qId,
+            session.accessToken,
+          );
+          const data = detailRes?.data || detailRes;
+          const fetchedDesignId =
+            data?.customupdatemodel?.id ||
+            data?.customupdatemodel_id ||
+            (typeof data?.customupdatemodel === "number"
+              ? data.customupdatemodel
+              : null) ||
+            data?.custom_update_model?.id ||
+            data?.simulation_id;
+
+          if (fetchedDesignId) {
+            router.push(`/dashboards/design-result/${fetchedDesignId}`);
+            return;
+          }
+        } catch (detailErr) {
+          console.warn(
+            "Could not fetch quotation request detail for design:",
+            detailErr,
+          );
+        }
+      }
+
+      // 3. Fallback: most recent simulation from user's simulationData
+      if (simulationData?.length > 0 && simulationData[0]?.id) {
+        router.push(`/dashboards/design-result/${simulationData[0].id}`);
+        return;
+      }
+
+      // 4. Default fallback: 3D design studio dashboard
+      router.push("/dashboards/uniform-3d-design");
+    } finally {
+      setViewDesignLoading(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    const userEmail = profile?.email || session?.user?.email || "-";
+    try {
+      setVerifyEmailLoading(true);
+      if (!session?.accessToken) {
+        toast.push(
+          <Notification title="Notice" type="info">
+            Session token not available. Please sign in again.
+          </Notification>
+        );
+        return;
+      }
+
+      const res = await apiResendVerificationEmail(session.accessToken, { force: true });
+      if (res?.status) {
+        toast.push(
+          <Notification title="Verification Email Sent" type="success">
+            {res?.message || `A verification email has been sent to ${userEmail}. Please check your inbox.`}
+          </Notification>
+        );
+        setIsVerifyModalOpen(false);
+      } else {
+        toast.push(
+          <Notification title="Notice" type="info">
+            {res?.message || `Your email (${userEmail}) is verified.`}
+          </Notification>
+        );
+      }
+    } catch (err) {
+      console.error("Failed to resend verification email:", err);
+      toast.push(
+        <Notification title="Failed to Send" type="danger">
+          {err?.response?.data?.message || "Failed to send verification email. Please try again."}
+        </Notification>
+      );
+    } finally {
+      setVerifyEmailLoading(false);
+    }
+  };
+
   if (profileLoading) {
     return (
       <section className="relative mt-15 mx-auto w-full bg-white px-5 md:px-8 lg:px-12">
@@ -366,20 +492,20 @@ const MyProfile = () => {
                 <div>
                   <p className="text-xs text-[#94A3B8]">First Name</p>
                   <p className="mt-1 text-sm font-medium text-[#1F2937]">
-                    {profile?.firstName || "John"}
+                    {profile?.firstName || "-"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-[#94A3B8]">Last Name</p>
                   <p className="mt-1 text-sm font-medium text-[#1F2937]">
-                    {profile?.lastName || "Doe"}
+                    {profile?.lastName || "-"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-[#94A3B8]">Email Address</p>
                   <div className="mt-1 flex items-center gap-1">
                     <p className="text-sm font-medium text-[#1F2937] break-all">
-                      {profile?.email || "john@company.com"}
+                      {profile?.email || "-"}
                     </p>
                     <HiCheckCircle
                       size={14}
@@ -390,13 +516,13 @@ const MyProfile = () => {
                 <div>
                   <p className="text-xs text-[#94A3B8]">Phone Number</p>
                   <p className="mt-1 text-sm font-medium text-[#1F2937]">
-                    {profile?.phone || "+81 90-234-5678"}
+                    {profile?.phone || "-"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-[#94A3B8]">Position</p>
                   <p className="mt-1 text-sm font-medium text-[#1F2937]">
-                    {profile?.roleName || "Manager"}
+                    {profile?.roleName || "-"}
                   </p>
                 </div>
               </div>
@@ -421,6 +547,14 @@ const MyProfile = () => {
           >
             Change Password
           </Button>
+          <Button
+            size="sm"
+            icon={<FiMail size={13} />}
+            className="h-8 whitespace-nowrap rounded-md border border-[#E5E7EB] px-3.5 text-xs font-medium text-[#475569] hover:border-[#1C4FA8] hover:text-[#1C4FA8]"
+            onClick={() => setIsVerifyModalOpen(true)}
+          >
+            Verify Email
+          </Button>
         </div>
       </div>
 
@@ -440,7 +574,12 @@ const MyProfile = () => {
             </p>
           </div>
 
-          <Button className="rounded-md h-8 bg-[#003560] px-4 py-1 text-xs md:text-sm text-white hover:bg-[#002a49]">
+          <Button
+            loading={viewDesignLoading}
+            disabled={viewDesignLoading}
+            className="rounded-md h-8 bg-[#003560] px-4 py-1 text-xs md:text-sm text-white hover:bg-[#002a49]"
+            onClick={handleViewDesign}
+          >
             View Design
           </Button>
         </div>
@@ -645,8 +784,69 @@ const MyProfile = () => {
           </div>
         </div>
       </div>
+
+      {/* Email Verification Dialog */}
+      <Dialog
+        isOpen={isVerifyModalOpen}
+        onClose={() => setIsVerifyModalOpen(false)}
+        onRequestClose={() => setIsVerifyModalOpen(false)}
+        className="w-full max-w-lg mx-auto"
+      >
+        <div className="flex flex-col p-2">
+          {/* Header */}
+          <div className="flex items-center gap-3 border-b border-[#E5E7EB] pb-4">
+            <div className="w-10 h-10 rounded-full bg-[#1C4FA8]/10 flex items-center justify-center text-[#1C4FA8]">
+              <FiMail size={20} />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-[#1F2937]">Email Verification</h3>
+              <p className="text-xs text-[#6B7280]">Manage and confirm your account email address</p>
+            </div>
+          </div>
+
+          {/* Body */}
+          <div className="py-6 space-y-4">
+            <div className={`rounded-xl border p-4 flex items-start gap-3 ${profile?.is_verify === true ? "border-green-200 bg-green-50/70" : "border-yellow-200 bg-yellow-50/70"}`}>
+              <HiCheckCircle size={22} className={`mt-0.5 shrink-0 ${profile?.is_verify === true ? "text-green-600" : "text-yellow-600"}`} />
+              <div>
+                <h4 className={`text-sm font-semibold ${profile?.is_verify === true ? "text-green-900" : "text-yellow-900"}`}>
+                  {profile?.is_verify === true ? "Email Address is Verified" : "Verification Pending"}
+                </h4>
+                <p className={`text-xs mt-1 ${profile?.is_verify === true ? "text-green-700" : "text-yellow-700"}`}>
+                  Your registered email address <span className="font-semibold underline">{profile?.email || session?.user?.email || "-"}</span> {profile?.is_verify === true ? "is verified and active on your Kireiz account." : "has not been verified yet. Please check your inbox or resend the verification email."}
+                </p>
+              </div>
+            </div>
+
+            <p className="text-xs text-[#6B7280] leading-relaxed">
+              All official quotation updates, order confirmations, simulation schedules, and notifications are sent directly to this address.
+            </p>
+          </div>
+
+          {/* Footer Actions */}
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#E5E7EB]">
+            <Button
+              size="sm"
+              variant="plain"
+              onClick={() => setIsVerifyModalOpen(false)}
+              className="rounded-lg text-[#6B7280]"
+            >
+              Close
+            </Button>
+            <Button
+              size="sm"
+              loading={verifyEmailLoading}
+              onClick={handleResendVerification}
+              className="rounded-lg bg-[#1C4FA8] hover:bg-[#163e85] text-white font-medium flex items-center gap-2"
+            >
+              <FiMail /> Resend Verification Email
+            </Button>
+          </div>
+        </div>
+      </Dialog>
     </div>
   );
 };
 
 export default MyProfile;
+

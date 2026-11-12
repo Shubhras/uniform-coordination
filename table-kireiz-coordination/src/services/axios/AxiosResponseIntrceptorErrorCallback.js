@@ -5,6 +5,28 @@ import { getRefreshToken, setTokens, clearTokens } from './tokenManager'
 
 let isRefreshing = false
 let failedQueue = []
+let isRedirecting = false
+
+const handleRedirectToLogin = async () => {
+    if (isRedirecting) return
+    isRedirecting = true
+    clearTokens()
+    if (typeof window !== 'undefined') {
+        if (window.location.pathname.includes('/sign-in')) {
+            isRedirecting = false
+            return
+        }
+        try {
+            await Promise.race([
+                signOut({ redirect: false }),
+                new Promise((resolve) => setTimeout(resolve, 800)),
+            ])
+        } catch (err) {
+            console.error('Error during signOut:', err)
+        }
+        window.location.href = appConfig.unAuthenticatedEntryPath || '/sign-in'
+    }
+}
 
 /**
  * Resolves or rejects queued requests waiting for a refreshed token.
@@ -35,22 +57,24 @@ const processQueue = (error, token = null) => {
 const AxiosResponseIntrceptorErrorCallback = async (error, axiosInstance) => {
     const originalRequest = error?.config
 
-    // If there is no response or error is not 401, reject immediately
-    if (error?.response?.status !== 401 || !originalRequest) {
+    const status = error?.response?.status
+    const errorDetail = error?.response?.data?.detail || ''
+    const isAuthError =
+        status === 401 ||
+        (status === 403 &&
+            typeof errorDetail === 'string' &&
+            (errorDetail.toLowerCase().includes('signature') ||
+             errorDetail.toLowerCase().includes('token') ||
+             errorDetail.toLowerCase().includes('credential')))
+
+    // If there is no response or error is not an authentication error, reject immediately
+    if (!isAuthError || !originalRequest) {
         return Promise.reject(error)
     }
 
-    // If the 401 error is from the refresh token API itself, both tokens are expired/invalid
+    // If the auth error is from the refresh token API itself, both tokens are expired/invalid
     if (originalRequest?.url?.includes('/token/refresh/')) {
-        clearTokens()
-        if (typeof window !== 'undefined') {
-            try {
-                await signOut({ redirect: false })
-            } catch (err) {
-                console.error('Error during signOut:', err)
-            }
-            window.location.href = appConfig.unAuthenticatedEntryPath || '/sign-in'
-        }
+        await handleRedirectToLogin()
         return Promise.reject(error)
     }
 
@@ -146,16 +170,7 @@ const AxiosResponseIntrceptorErrorCallback = async (error, axiosInstance) => {
     } catch (refreshError) {
         // Both tokens expired or refresh token invalid -> clear session and navigate to login
         processQueue(refreshError, null)
-        clearTokens()
-
-        if (typeof window !== 'undefined') {
-            try {
-                await signOut({ redirect: false })
-            } catch (err) {
-                console.error('Error during signOut:', err)
-            }
-            window.location.href = appConfig.unAuthenticatedEntryPath || '/sign-in'
-        }
+        await handleRedirectToLogin()
 
         return Promise.reject(refreshError)
     } finally {
