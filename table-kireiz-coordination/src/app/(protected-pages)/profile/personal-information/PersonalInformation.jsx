@@ -475,6 +475,7 @@ const PersonalInformation = () => {
                             type="button"
                             size="sm"
                             className="w-full sm:w-auto border px-6 py-2 rounded-md"
+                            onClick={() => router.back()}
                         >
                             Cancel
                         </Button>

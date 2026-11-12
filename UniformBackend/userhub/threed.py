@@ -1243,5 +1243,75 @@ class CancelQuotationRequestAPIView(APIView):
                 "message": "Something went wrong.",
                 "error": str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            
-              
+
+
+class ApproveQuotationRequestAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        tags=["Quotation Request"],
+        summary="Approve Quotation Request",
+        description="Allows the logged-in user to approve their own quotation request when status is 'accepted'.",
+        responses={
+            200: OpenApiResponse(description="Quotation approved successfully"),
+            400: OpenApiResponse(description="Validation error"),
+            404: OpenApiResponse(description="Quotation not found"),
+        },
+    )
+    @transaction.atomic
+    def patch(self, request, quotation_id):
+        try:
+            try:
+                quotation = QuotationRequest.objects.get(
+                    uuids=quotation_id,
+                    customupdatemodel__user=request.user,
+                    isDeleted=False
+                )
+            except QuotationRequest.DoesNotExist:
+                return Response({
+                    "status": False,
+                    "statusCode": 404,
+                    "message": "Quotation not found."
+                }, status=status.HTTP_404_NOT_FOUND)
+
+            if quotation.quotation_status == "approved":
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": "Quotation is already approved."
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            if quotation.quotation_status != "accepted":
+                return Response({
+                    "status": False,
+                    "statusCode": 400,
+                    "message": f"Only quotations with status 'accepted' can be approved. Current status is '{quotation.quotation_status}'."
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            quotation.quotation_status = "approved"
+            quotation.save(update_fields=["quotation_status"])
+
+            return Response({
+                "status": True,
+                "statusCode": 200,
+                "message": "Quotation approved successfully.",
+                "data": {
+                    "quotation_id": str(quotation.uuids),
+                    "quotation_status": quotation.quotation_status,
+                }
+            }, status=status.HTTP_200_OK)
+
+        except Http404:
+            return Response({
+                "status": False,
+                "statusCode": 404,
+                "message": "Quotation not found."
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        except Exception as e:
+            return Response({
+                "status": False,
+                "statusCode": 500,
+                "message": "Something went wrong.",
+                "error": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

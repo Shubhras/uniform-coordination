@@ -492,20 +492,20 @@ const MyProfile = () => {
                 <div>
                   <p className="text-xs text-[#94A3B8]">First Name</p>
                   <p className="mt-1 text-sm font-medium text-[#1F2937]">
-                    {profile?.firstName || "John"}
+                    {profile?.firstName || "-"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-[#94A3B8]">Last Name</p>
                   <p className="mt-1 text-sm font-medium text-[#1F2937]">
-                    {profile?.lastName || "Doe"}
+                    {profile?.lastName || "-"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-[#94A3B8]">Email Address</p>
                   <div className="mt-1 flex items-center gap-1">
                     <p className="text-sm font-medium text-[#1F2937] break-all">
-                      {profile?.email || "john@company.com"}
+                      {profile?.email || "-"}
                     </p>
                     <HiCheckCircle
                       size={14}
@@ -516,13 +516,13 @@ const MyProfile = () => {
                 <div>
                   <p className="text-xs text-[#94A3B8]">Phone Number</p>
                   <p className="mt-1 text-sm font-medium text-[#1F2937]">
-                    {profile?.phone || "+81 90-234-5678"}
+                    {profile?.phone || "-"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-[#94A3B8]">Position</p>
                   <p className="mt-1 text-sm font-medium text-[#1F2937]">
-                    {profile?.roleName || "Manager"}
+                    {profile?.roleName || "-"}
                   </p>
                 </div>
               </div>
@@ -806,14 +806,14 @@ const MyProfile = () => {
 
           {/* Body */}
           <div className="py-6 space-y-4">
-            <div className="rounded-xl border border-green-200 bg-green-50/70 p-4 flex items-start gap-3">
-              <HiCheckCircle size={22} className="text-green-600 mt-0.5 shrink-0" />
+            <div className={`rounded-xl border p-4 flex items-start gap-3 ${profile?.is_verify === true ? "border-green-200 bg-green-50/70" : "border-yellow-200 bg-yellow-50/70"}`}>
+              <HiCheckCircle size={22} className={`mt-0.5 shrink-0 ${profile?.is_verify === true ? "text-green-600" : "text-yellow-600"}`} />
               <div>
-                <h4 className="text-sm font-semibold text-green-900">
-                  {profile?.is_verify ?? true ? "Email Address is Verified" : "Verification Pending"}
+                <h4 className={`text-sm font-semibold ${profile?.is_verify === true ? "text-green-900" : "text-yellow-900"}`}>
+                  {profile?.is_verify === true ? "Email Address is Verified" : "Verification Pending"}
                 </h4>
-                <p className="text-xs text-green-700 mt-1">
-                  Your registered email address <span className="font-semibold underline">{profile?.email || session?.user?.email || "-"}</span> is verified and active on your Kireiz account.
+                <p className={`text-xs mt-1 ${profile?.is_verify === true ? "text-green-700" : "text-yellow-700"}`}>
+                  Your registered email address <span className="font-semibold underline">{profile?.email || session?.user?.email || "-"}</span> {profile?.is_verify === true ? "is verified and active on your Kireiz account." : "has not been verified yet. Please check your inbox or resend the verification email."}
                 </p>
               </div>
             </div>

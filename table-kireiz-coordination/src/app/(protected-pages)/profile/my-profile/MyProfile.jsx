@@ -365,52 +365,58 @@ const MyProfile = () => {
             </button>
           </div>
 
-          <div className="px-6 py-5 border-b border-[#D6B8A6]">
-            <div className="flex justify-between items-center mb-3 border-b border-[#D6B8A6] pb-2">
-              <div>
-                <p className="text-[11px] text-[#A0A0A0]">Order Number</p>
-                <p className="text-sm font-semibold text-[#545454]">
-                  {ordersList[0]?.order_id}
-                </p>
+          {ordersList.length > 0 ? (
+            <div className="px-6 py-5 border-b border-[#D6B8A6]">
+              <div className="flex justify-between items-center mb-3 border-b border-[#D6B8A6] pb-2">
+                <div>
+                  <p className="text-[11px] text-[#A0A0A0]">Order Number</p>
+                  <p className="text-sm font-semibold text-[#545454]">
+                    {ordersList[0]?.order_id}
+                  </p>
+                </div>
+                <span className="text-[11px] bg-green-100 text-green-700 px-3 py-1 rounded-full">
+                  {ordersList[0]?.status}
+                </span>
               </div>
-              <span className="text-[11px] bg-green-100 text-green-700 px-3 py-1 rounded-full">
-                {ordersList[0]?.status}
-              </span>
-            </div>
 
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              <div>
-                <p className="text-[11px] text-[#A0A0A0]">Date</p>
-                <p className="text-sm font-medium text-[#545454]">
-                  {formatDate(ordersList[0]?.created_at)}
-                </p>
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <p className="text-[11px] text-[#A0A0A0]">Date</p>
+                  <p className="text-sm font-medium text-[#545454]">
+                    {formatDate(ordersList[0]?.created_at)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[11px] text-[#A0A0A0]">Total Amount</p>
+                  <p className="text-sm font-medium text-[#545454]">
+                    ${Number(ordersList[0]?.total_amount || 0).toLocaleString()}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-[11px] text-[#A0A0A0]">Total Amount</p>
-                <p className="text-sm font-medium text-[#545454]">
-                  ${Number(ordersList[0]?.total_amount || 0).toLocaleString()}
-                </p>
-              </div>
-            </div>
 
-            <div className="flex gap-3">
-              <Button
-                size="sm"
-                className="bg-[#A0522D] hover:bg-[#8B4513] text-white w-full rounded-lg"
-                onClick={() => handleViewDetails(ordersList[0]?.order_id)}
-              >
-                View Details
-              </Button>
-              <Button
-                size="sm"
-                variant="default"
-                className="border border-[#A0522D] text-[#A0522D] hover:bg-[#FAF4EF] w-full rounded-lg transition"
-                onClick={() => handleOpenTrack(ordersList[0])}
-              >
-                Track
-              </Button>
+              <div className="flex gap-3">
+                <Button
+                  size="sm"
+                  className="bg-[#A0522D] hover:bg-[#8B4513] text-white w-full rounded-lg"
+                  onClick={() => handleViewDetails(ordersList[0]?.order_id)}
+                >
+                  View Details
+                </Button>
+                <Button
+                  size="sm"
+                  variant="default"
+                  className="border border-[#A0522D] text-[#A0522D] hover:bg-[#FAF4EF] w-full rounded-lg transition"
+                  onClick={() => handleOpenTrack(ordersList[0])}
+                >
+                  Track
+                </Button>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="px-6 py-8 border-b border-[#D6B8A6] text-center text-[11px] text-[#9CA3AF]">
+              No recent orders found
+            </div>
+          )}
 
           {/* Linked Orders List */}
           <div className="px-6 py-4">
@@ -562,7 +568,7 @@ const MyProfile = () => {
               <HiCheckCircle size={22} className="text-green-600 mt-0.5 shrink-0" />
               <div>
                 <h4 className="text-sm font-semibold text-green-900">
-                  {profile?.is_verify ?? true ? "Email Address is Verified" : "Verification Pending"}
+                  {profile?.is_verify === true ? "Email Address is Verified" : "Verification Pending"}
                 </h4>
                 <p className="text-xs text-green-700 mt-1">
                   Your registered email address <span className="font-semibold underline">{profile?.email || session?.user?.email || "-"}</span> is verified and active on your Kireiz account.
