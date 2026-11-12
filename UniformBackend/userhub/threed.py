@@ -1285,7 +1285,7 @@ class ApproveQuotationRequestAPIView(APIView):
                 return Response({
                     "status": False,
                     "statusCode": 400,
-                    "message": f"Only quotations with status 'accepted' can be approved. Current status is '{quotation.quotation_status}'."
+                    "message": f"Only quotations with status 'Submitted' can be approved. Current status is '{quotation.quotation_status}'."
                 }, status=status.HTTP_400_BAD_REQUEST)
 
             quotation.quotation_status = "approved"

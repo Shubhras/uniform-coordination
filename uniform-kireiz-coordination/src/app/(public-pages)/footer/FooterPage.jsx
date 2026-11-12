@@ -1,8 +1,12 @@
+'use client'
+
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { PiPhone, PiInstagramLogoFill } from "react-icons/pi";
 import { FaLinkedin, FaInstagram, FaYoutube, FaTiktok } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
+import toast from '@/components/ui/toast'
+import Notification from '@/components/ui/Notification'
 
 /**
  * FooterPage Component.
@@ -22,6 +26,14 @@ const FooterPage = ({ mode }) => {
      */
     const handlePreview = () => {
         router.push('/kireiz-form')
+    }
+
+    const handleSocialClick = (platform) => {
+        toast.push(
+            <Notification title="Coming soon!" type="info">
+                {platform} channel will be available soon.
+            </Notification>
+        )
     }
 
     return (
@@ -48,7 +60,14 @@ const FooterPage = ({ mode }) => {
                             </div>
                             <div className="flex items-center gap-2 text-sm mt-2">
                                 <span className="text-lg">@</span>
-                                <p>support@mm.com</p>
+                                <a
+                                    href="https://mail.google.com/mail/?view=cm&fs=1&to=saksri.s@eqho.com"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="hover:underline hover:text-gray-300 transition-colors"
+                                >
+                                    saksri.s@eqho.com
+                                </a>
                             </div>
                         </div>
                         <div className="flex flex-col justify-center max-w-[350px]">
@@ -56,19 +75,39 @@ const FooterPage = ({ mode }) => {
                                 Contact Channels
                             </h3>
                             <div className="flex flex-wrap gap-3">
-                                <button className="border-[1px] border-[#737373] px-4 py-2 rounded-full flex items-center gap-2 text-sm">
+                                <button
+                                    type="button"
+                                    onClick={() => handleSocialClick('LinkedIn')}
+                                    className="border-[1px] border-[#737373] px-4 py-2 rounded-full flex items-center gap-2 text-sm hover:bg-white/10 transition-colors"
+                                >
                                     <FaLinkedin className='text-lg' /> LinkedIn
                                 </button>
-                                <button className="border-[1px] border-[#737373] px-4 py-2 rounded-full flex items-center gap-2 text-sm">
+                                <button
+                                    type="button"
+                                    onClick={() => handleSocialClick('Instagram')}
+                                    className="border-[1px] border-[#737373] px-4 py-2 rounded-full flex items-center gap-2 text-sm hover:bg-white/10 transition-colors"
+                                >
                                     <PiInstagramLogoFill size={20} /> Instagram
                                 </button>
-                                <button className="border-[1px] border-[#737373] px-4 py-2 rounded-full flex items-center gap-2 text-sm">
+                                <button
+                                    type="button"
+                                    onClick={() => handleSocialClick('X')}
+                                    className="border-[1px] border-[#737373] px-4 py-2 rounded-full flex items-center gap-2 text-sm hover:bg-white/10 transition-colors"
+                                >
                                     <FaXTwitter className='text-lg' /> X
                                 </button>
-                                <button className="border-[1px] border-[#737373] px-4 py-2 rounded-full flex items-center gap-2 text-sm">
+                                <button
+                                    type="button"
+                                    onClick={() => handleSocialClick('YouTube')}
+                                    className="border-[1px] border-[#737373] px-4 py-2 rounded-full flex items-center gap-2 text-sm hover:bg-white/10 transition-colors"
+                                >
                                     <FaYoutube className='text-lg' /> Youtube
                                 </button>
-                                <button className="border-[1px] border-[#737373] px-4 py-2 rounded-full flex items-center gap-2 text-sm">
+                                <button
+                                    type="button"
+                                    onClick={() => handleSocialClick('G2')}
+                                    className="border-[1px] border-[#737373] px-4 py-2 rounded-full flex items-center gap-2 text-sm hover:bg-white/10 transition-colors"
+                                >
                                     <img
                                         src="/img/logo/icone-g2.png"
                                         alt="G2"
@@ -76,7 +115,11 @@ const FooterPage = ({ mode }) => {
                                     />
                                     G2
                                 </button>
-                                <button className="border-[1px] border-[#737373] px-4 py-2 rounded-full flex items-center gap-2 text-sm">
+                                <button
+                                    type="button"
+                                    onClick={() => handleSocialClick('TikTok')}
+                                    className="border-[1px] border-[#737373] px-4 py-2 rounded-full flex items-center gap-2 text-sm hover:bg-white/10 transition-colors"
+                                >
                                     <FaTiktok className='text-lg' /> TikTok
                                 </button>
                             </div>
@@ -118,7 +161,14 @@ const FooterPage = ({ mode }) => {
                             </div>
                             <div className="flex items-center gap-2 text-sm mt-2">
                                 <span className="text-lg">@</span>
-                                <p>support@mm.com</p>
+                                <a
+                                    href="https://mail.google.com/mail/?view=cm&fs=1&to=saksri.s@eqho.com"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="hover:underline hover:text-gray-300 transition-colors"
+                                >
+                                    saksri.s@eqho.com
+                                </a>
                             </div>
                         </div>
                         <div className="flex flex-col justify-center max-w-[350px]">
@@ -126,19 +176,39 @@ const FooterPage = ({ mode }) => {
                                 Contact Channels
                             </h3>
                             <div className="flex flex-wrap gap-3">
-                                <button className="border-[1px] border-[#737373] px-4 py-2 rounded-full flex items-center gap-2 text-sm">
+                                <button
+                                    type="button"
+                                    onClick={() => handleSocialClick('LinkedIn')}
+                                    className="border-[1px] border-[#737373] px-4 py-2 rounded-full flex items-center gap-2 text-sm hover:bg-white/10 transition-colors"
+                                >
                                     <FaLinkedin className='text-lg' /> LinkedIn
                                 </button>
-                                <button className="border-[1px] border-[#737373] px-4 py-2 rounded-full flex items-center gap-2 text-sm">
+                                <button
+                                    type="button"
+                                    onClick={() => handleSocialClick('Instagram')}
+                                    className="border-[1px] border-[#737373] px-4 py-2 rounded-full flex items-center gap-2 text-sm hover:bg-white/10 transition-colors"
+                                >
                                     <PiInstagramLogoFill size={20} /> Instagram
                                 </button>
-                                <button className="border-[1px] border-[#737373] px-4 py-2 rounded-full flex items-center gap-2 text-sm">
+                                <button
+                                    type="button"
+                                    onClick={() => handleSocialClick('X')}
+                                    className="border-[1px] border-[#737373] px-4 py-2 rounded-full flex items-center gap-2 text-sm hover:bg-white/10 transition-colors"
+                                >
                                     <FaXTwitter className='text-lg' /> X
                                 </button>
-                                <button className="border-[1px] border-[#737373] px-4 py-2 rounded-full flex items-center gap-2 text-sm">
+                                <button
+                                    type="button"
+                                    onClick={() => handleSocialClick('YouTube')}
+                                    className="border-[1px] border-[#737373] px-4 py-2 rounded-full flex items-center gap-2 text-sm hover:bg-white/10 transition-colors"
+                                >
                                     <FaYoutube className='text-lg' /> Youtube
                                 </button>
-                                <button className="border-[1px] border-[#737373] px-4 py-2 rounded-full flex items-center gap-2 text-sm">
+                                <button
+                                    type="button"
+                                    onClick={() => handleSocialClick('G2')}
+                                    className="border-[1px] border-[#737373] px-4 py-2 rounded-full flex items-center gap-2 text-sm hover:bg-white/10 transition-colors"
+                                >
                                     <img
                                         src="/img/logo/icone-g2.png"
                                         alt="G2"
@@ -146,7 +216,11 @@ const FooterPage = ({ mode }) => {
                                     />
                                     G2
                                 </button>
-                                <button className="border-[1px] border-[#737373] px-4 py-2 rounded-full flex items-center gap-2 text-sm">
+                                <button
+                                    type="button"
+                                    onClick={() => handleSocialClick('TikTok')}
+                                    className="border-[1px] border-[#737373] px-4 py-2 rounded-full flex items-center gap-2 text-sm hover:bg-white/10 transition-colors"
+                                >
                                     <FaTiktok className='text-lg' /> TikTok
                                 </button>
                             </div>
