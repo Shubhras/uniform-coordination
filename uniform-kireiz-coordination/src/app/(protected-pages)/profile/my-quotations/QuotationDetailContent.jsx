@@ -613,7 +613,6 @@ const QuotationDetailContent = ({
                         type="button"
                         onClick={onBack}
                         className="flex h-8 w-8 items-center justify-center rounded-full border border-[#E5E7EB] text-[#4B5563] hover:bg-[#F3F4F6] transition-colors"
-                        title="Back to Quotations"
                     >
                         <FiArrowLeft size={18} />
                     </button>

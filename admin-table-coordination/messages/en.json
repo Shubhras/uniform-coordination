@@ -1844,7 +1844,7 @@
         "orderIdLabel": "Order ID:",
         "paymentMethodLabel": "Payment Method:",
         "statusLabel": "Status:",
-        "amountPaid": "Amount Paid:",
+        "amountPaid": "Amount:",
         "paidTimestamp": "Paid Timestamp:",
         "close": "Close",
         "downloadInvoice": "Download Invoice",

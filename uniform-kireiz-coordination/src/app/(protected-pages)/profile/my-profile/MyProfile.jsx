@@ -312,9 +312,9 @@ const MyProfile = () => {
         activeQuotation?.customupdatemodel?.id ||
         activeQuotation?.customupdatemodel_id ||
         (typeof activeQuotation?.customupdatemodel === "number" ||
-        (typeof activeQuotation?.customupdatemodel === "string" &&
-          !isNaN(activeQuotation?.customupdatemodel) &&
-          activeQuotation?.customupdatemodel.trim() !== "")
+          (typeof activeQuotation?.customupdatemodel === "string" &&
+            !isNaN(activeQuotation?.customupdatemodel) &&
+            activeQuotation?.customupdatemodel.trim() !== "")
           ? activeQuotation.customupdatemodel
           : null) ||
         activeQuotation?.custom_update_model?.id ||
@@ -534,7 +534,7 @@ const MyProfile = () => {
           <Button
             size="sm"
             icon={<FiEdit2 size={13} />}
-            className="h-8 whitespace-nowrap rounded-md border border-[#E5E7EB] px-3.5 text-xs font-medium text-[#475569]"
+            className="h-8 whitespace-nowrap rounded-md border border-[#E5E7EB] px-3.5 text-xs font-medium text-[#475569] hover:bg-[#EFF6FF] hover:text-[#2563EB]"
             onClick={() => router.push("/profile/personal-information")}
           >
             Edit Profile
@@ -542,7 +542,7 @@ const MyProfile = () => {
           <Button
             size="sm"
             icon={<FiLock size={13} />}
-            className="h-8 whitespace-nowrap rounded-md border border-[#E5E7EB] px-3.5 text-xs font-medium text-[#475569]"
+            className="h-8 whitespace-nowrap rounded-md border border-[#E5E7EB] px-3.5 text-xs font-medium text-[#475569] hover:bg-[#EFF6FF] hover:text-[#2563EB]"
             onClick={() => router.push("/profile/change-password")}
           >
             Change Password
@@ -550,7 +550,7 @@ const MyProfile = () => {
           <Button
             size="sm"
             icon={<FiMail size={13} />}
-            className="h-8 whitespace-nowrap rounded-md border border-[#E5E7EB] px-3.5 text-xs font-medium text-[#475569] hover:border-[#1C4FA8] hover:text-[#1C4FA8]"
+            className="h-8 whitespace-nowrap rounded-md border border-[#E5E7EB] px-3.5 text-xs font-medium text-[#475569] hover:bg-[#EFF6FF] hover:text-[#2563EB]"
             onClick={() => setIsVerifyModalOpen(true)}
           >
             Verify Email

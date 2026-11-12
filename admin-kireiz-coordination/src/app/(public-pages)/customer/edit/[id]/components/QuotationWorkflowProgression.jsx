@@ -4,38 +4,6 @@ import React from "react";
 import { useTranslations } from "next-intl";
 import { FiCheck, FiX } from "react-icons/fi";
 
-const STAGES = [
-  {
-    key: "received",
-    title: "Received",
-    subtitle: "Request submitted",
-    statusValue: "pending",
-  },
-  {
-    key: "quoting",
-    title: "Quoting",
-    subtitle: "Preparing proposal",
-    statusValue: "received",
-  },
-  {
-    key: "submitted",
-    title: "Submitted",
-    subtitle: "Proposal ready",
-    statusValue: "accepted",
-  },
-  {
-    key: "agreed",
-    title: "Agreed",
-    subtitle: "Contract finalized",
-    statusValue: "approved",
-  },
-  {
-    key: "sent",
-    title: "Sent",
-    subtitle: "Quotation sent",
-    statusValue: "sent",
-  },
-];
 
 export default function QuotationWorkflowProgression({
   status = "",
@@ -49,6 +17,49 @@ export default function QuotationWorkflowProgression({
   const t = useTranslations(
     "customerSalesRep.quotationHistory.editQuotationPage"
   );
+
+  const stages = [
+    {
+      key: "received",
+      title: t.has?.("stageReceived") ? t("stageReceived") : "Received",
+      subtitle: t.has?.("stageReceivedSub")
+        ? t("stageReceivedSub")
+        : "Request submitted",
+      statusValue: "pending",
+    },
+    {
+      key: "quoting",
+      title: t.has?.("stageQuoting") ? t("stageQuoting") : "Quoting",
+      subtitle: t.has?.("stageQuotingSub")
+        ? t("stageQuotingSub")
+        : "Preparing proposal",
+      statusValue: "received",
+    },
+    {
+      key: "submitted",
+      title: t.has?.("stageSubmitted") ? t("stageSubmitted") : "Submitted",
+      subtitle: t.has?.("stageSubmittedSub")
+        ? t("stageSubmittedSub")
+        : "Proposal ready",
+      statusValue: "accepted",
+    },
+    {
+      key: "agreed",
+      title: t.has?.("stageAgreed") ? t("stageAgreed") : "Agreed",
+      subtitle: t.has?.("stageAgreedSub")
+        ? t("stageAgreedSub")
+        : "Contract finalized",
+      statusValue: "approved",
+    },
+    {
+      key: "sent",
+      title: t.has?.("stageSent") ? t("stageSent") : "Sent",
+      subtitle: t.has?.("stageSentSub")
+        ? t("stageSentSub")
+        : "Quotation sent",
+      statusValue: "sent",
+    },
+  ];
 
   // Use quotation status as the primary source of truth from the form
   const raw = String(status || currentStatus || workflowStatus || "")
@@ -77,7 +88,7 @@ export default function QuotationWorkflowProgression({
     ? (t.has?.("statusCancelled") ? t("statusCancelled") : "Cancelled")
     : isSent
       ? (t.has?.("statusSent") ? t("statusSent") : "Sent")
-      : STAGES[activeIndex]?.title || "Received";
+      : stages[activeIndex]?.title || "Received";
 
   return (
     <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-6">
@@ -96,13 +107,12 @@ export default function QuotationWorkflowProgression({
           <div className="text-xs sm:text-sm text-gray-500 font-normal">
             {t.has?.("currentStage") ? t("currentStage") : "Current Stage:"}{" "}
             <span
-              className={`font-bold ml-1 ${
-                activeIndex >= 3 && !isCancelled
+              className={`font-bold ml-1 ${activeIndex >= 3 && !isCancelled
                   ? "text-[#10B981]"
                   : isCancelled
                     ? "text-red-600"
                     : "text-[#1C2C56]"
-              }`}
+                }`}
             >
               {currentStageLabel}
             </span>
@@ -136,6 +146,24 @@ export default function QuotationWorkflowProgression({
             </button>
           )}
 
+          {/* Action: When at Agreed (approved), allow changing to Sent */}
+          {(raw === "approved" || raw === "agreed") && onStatusChange && (
+            <button
+              type="button"
+              onClick={() => onStatusChange("sent")}
+              disabled={saving}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-[#10B981] text-white hover:bg-[#059669] transition shadow-sm disabled:opacity-50"
+            >
+              {saving
+                ? t.has?.("sending")
+                  ? t("sending")
+                  : "Sending..."
+                : t.has?.("changeToSent")
+                  ? t("changeToSent")
+                  : "Change to Sent"}
+            </button>
+          )}
+
           {/* Cancel Quotation: ONLY allowed before Agreed */}
           {canCancel && onRequestCancel && (
             <button
@@ -156,17 +184,21 @@ export default function QuotationWorkflowProgression({
       <div className="overflow-x-auto">
         <div className="min-w-[720px] pt-7 pb-3 px-6 sm:px-12">
           <div className="relative flex items-start justify-between">
-            {STAGES.map((stage, idx) => {
+            {stages.map((stage, idx) => {
               const isCompleted = idx < activeIndex;
               const isActive = idx === activeIndex;
-              const isClickableSent =
-                idx === 4 && (raw === "approved" || raw === "agreed");
 
               const stageTitle =
-                idx === 4 && isCancelled ? "Cancelled" : stage.title;
+                idx === 4 && isCancelled
+                  ? t.has?.("stageCancelled")
+                    ? t("stageCancelled")
+                    : "Cancelled"
+                  : stage.title;
               const stageSubtitle =
                 idx === 4 && isCancelled
-                  ? "Request cancelled"
+                  ? t.has?.("stageCancelledSub")
+                    ? t("stageCancelledSub")
+                    : "Request cancelled"
                   : stage.subtitle;
 
               return (
@@ -175,7 +207,7 @@ export default function QuotationWorkflowProgression({
                   className="relative flex-1 flex flex-col items-center text-center"
                 >
                   {/* Connecting Line to next step */}
-                  {idx < STAGES.length - 1 && (
+                  {idx < stages.length - 1 && (
                     <div
                       className={`absolute top-5 left-1/2 w-full h-[2px] -translate-y-1/2 ${
                         idx < activeIndex
@@ -187,23 +219,9 @@ export default function QuotationWorkflowProgression({
                     />
                   )}
 
-                  {/* Step Circle Button */}
-                  <button
-                    type="button"
-                    onClick={
-                      isClickableSent
-                        ? () => {
-                            if (isCancelled || saving) return;
-                            onStatusChange?.("sent");
-                          }
-                        : undefined
-                    }
-                    disabled={!isClickableSent || isCancelled || saving}
-                    className={`relative z-10 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 ${
-                      isClickableSent && !saving
-                        ? "cursor-pointer hover:scale-105"
-                        : "cursor-default"
-                    } ${
+                  {/* Step Circle */}
+                  <div
+                    className={`relative z-10 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 cursor-default ${
                       isCompleted
                         ? idx >= 3
                           ? "bg-[#10B981] text-white shadow-sm"
@@ -214,15 +232,8 @@ export default function QuotationWorkflowProgression({
                             : idx >= 3
                               ? "bg-[#10B981] text-white ring-4 ring-[#D1FAE5] shadow-sm"
                               : "bg-[#0F2F57] text-white ring-4 ring-blue-100 shadow-sm"
-                          : isClickableSent
-                            ? "bg-white border-2 border-emerald-500 text-emerald-600 ring-2 ring-emerald-100 hover:bg-emerald-50"
-                            : "bg-white border-2 border-gray-300 text-gray-400"
+                          : "bg-white border-2 border-gray-300 text-gray-400"
                     }`}
-                    title={
-                      isClickableSent
-                        ? "Click to mark as Sent"
-                        : `Stage: ${stageTitle}`
-                    }
                   >
                     {isCompleted ? (
                       <FiCheck size={18} strokeWidth={2.5} className="text-white" />
@@ -233,13 +244,9 @@ export default function QuotationWorkflowProgression({
                         <FiCheck size={18} strokeWidth={2.5} className="text-white" />
                       )
                     ) : (
-                      <div
-                        className={`w-2.5 h-2.5 rounded-full ${
-                          isClickableSent ? "bg-emerald-500" : "bg-gray-300"
-                        }`}
-                      />
+                      <div className="w-2.5 h-2.5 rounded-full bg-gray-300" />
                     )}
-                  </button>
+                  </div>
 
                   {/* Labels */}
                   <div className="mt-3 flex flex-col items-center">
@@ -255,9 +262,7 @@ export default function QuotationWorkflowProgression({
                             ? idx >= 3
                               ? "text-[#10B981]"
                               : "text-[#1C2C56]"
-                            : isClickableSent
-                              ? "text-emerald-600"
-                              : "text-gray-400"
+                            : "text-gray-400"
                       }`}
                     >
                       {stageTitle}
@@ -278,24 +283,14 @@ export default function QuotationWorkflowProgression({
                               : "bg-blue-50 text-[#1C4FA8]"
                         }`}
                       >
-                        {isCancelled ? "Cancelled" : "Active"}
+                        {isCancelled
+                          ? t.has?.("cancelledBadge")
+                            ? t("cancelledBadge")
+                            : "Cancelled"
+                          : t.has?.("activeBadge")
+                            ? t("activeBadge")
+                            : "Active"}
                       </span>
-                    )}
-
-                    {/* Next Action Pill Badge for Sent when at Agreed */}
-                    {isClickableSent && (
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (isCancelled || saving) return;
-                          onStatusChange?.("sent");
-                        }}
-                        disabled={saving}
-                        className="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition shadow-xs cursor-pointer disabled:opacity-50"
-                      >
-                        {saving ? "Sending..." : "Click to send"}
-                      </button>
                     )}
                   </div>
                 </div>

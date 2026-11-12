@@ -216,8 +216,8 @@ const FavouritesList = () => {
                                     type="button"
                                     onClick={() => setActiveTab('all')}
                                     className={`px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium transition ${activeTab === 'all'
-                                            ? 'bg-[#A0614D] text-white shadow-xs'
-                                            : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
+                                        ? 'bg-[#A0614D] text-white shadow-xs'
+                                        : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
                                         }`}
                                 >
                                     All ({favourites.length})
@@ -226,8 +226,8 @@ const FavouritesList = () => {
                                     type="button"
                                     onClick={() => setActiveTab('products')}
                                     className={`px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium transition ${activeTab === 'products'
-                                            ? 'bg-[#A0614D] text-white shadow-xs'
-                                            : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
+                                        ? 'bg-[#A0614D] text-white shadow-xs'
+                                        : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
                                         }`}
                                 >
                                     Products ({productCount})
@@ -236,8 +236,8 @@ const FavouritesList = () => {
                                     type="button"
                                     onClick={() => setActiveTab('themes')}
                                     className={`px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium transition ${activeTab === 'themes'
-                                            ? 'bg-[#A0614D] text-white shadow-xs'
-                                            : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
+                                        ? 'bg-[#A0614D] text-white shadow-xs'
+                                        : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
                                         }`}
                                 >
                                     Themes ({themeCount})

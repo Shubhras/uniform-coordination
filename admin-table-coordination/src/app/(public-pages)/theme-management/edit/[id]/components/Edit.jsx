@@ -46,6 +46,7 @@ const Edit = () => {
   const [thumbnailPreview, setThumbnailPreview] = useState("");
   const [showInventoryModal, setShowInventoryModal] = useState(false);
   const [selectedSectionId, setSelectedSectionId] = useState(null);
+  const [replacingItem, setReplacingItem] = useState(null);
 
   const [coverImages, setCoverImages] = useState([]);
   const [newCoverImages, setNewCoverImages] = useState([]);
@@ -260,7 +261,7 @@ const Edit = () => {
       );
       try {
         URL.revokeObjectURL(targetImage.image);
-      } catch (e) {}
+      } catch (e) { }
     } else {
       // Existing server-stored image: remove from visible list and queue ID for deletion
       setCoverImages((prev) => prev.filter((img) => img.id !== targetImage.id));
@@ -295,14 +296,49 @@ const Edit = () => {
           };
         });
 
+        let finalItems = updatedItems;
+        if (replacingItem) {
+          const replaceProdId = String(
+            replacingItem.product_details?.id || replacingItem.id,
+          );
+          const originalIndex = section.items.findIndex(
+            (item) =>
+              String(item.product_details?.id || item.id) === replaceProdId,
+          );
+
+          if (originalIndex !== -1) {
+            const existingIds = new Set(
+              section.items
+                .filter(
+                  (item) =>
+                    String(item.product_details?.id || item.id) !==
+                    replaceProdId,
+                )
+                .map((item) => String(item.product_details?.id || item.id)),
+            );
+            const newlyAdded = updatedItems.filter(
+              (item) =>
+                !existingIds.has(String(item.product_details?.id || item.id)),
+            );
+            const remainingExisting = updatedItems.filter((item) =>
+              existingIds.has(String(item.product_details?.id || item.id)),
+            );
+
+            const before = remainingExisting.slice(0, originalIndex);
+            const after = remainingExisting.slice(originalIndex);
+            finalItems = [...before, ...newlyAdded, ...after];
+          }
+        }
+
         return {
           ...section,
-          items: updatedItems,
-          count: updatedItems.length,
+          items: finalItems,
+          count: finalItems.length,
         };
       }),
     );
 
+    setReplacingItem(null);
     setShowInventoryModal(false);
   };
   const [category, setCategory] = useState(null);
@@ -708,8 +744,10 @@ const Edit = () => {
                   </div>
 
                   <button
+                    type="button"
                     onClick={() => {
                       setSelectedSectionId(section.id);
+                      setReplacingItem(null);
                       setShowInventoryModal(true);
                     }}
                     className="flex items-center gap-2 border border-[#E8D8CC] rounded-lg px-4 py-2 text-[#A85A32] text-[14px] bg-[#FAF5F2]"
@@ -722,40 +760,9 @@ const Edit = () => {
                 {section.open && (
                   <div className="border-t border-[#F2ECE8]">
                     {/* Toolbar */}
-                    <div className="flex flex-wrap items-center justify-between gap-4 p-5">
-                      <div className="flex items-center gap-3 flex-1">
-                        <div className="relative w-full max-w-xs">
-                          <input
-                            type="text"
-                            placeholder="Search themes by name..."
-                            className="w-full h-10 rounded-lg border border-[#E8DDD4] pl-10 pr-4 text-sm outline-none focus:border-[#A85A32]"
-                          />
-
-                          <svg
-                            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                            width="15"
-                            height="15"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                          >
-                            <circle cx="7" cy="7" r="5" />
-                            <path d="M11 11l3 3" />
-                          </svg>
-                        </div>
-                        {/* 
-                            <select className="h-10 rounded-lg border border-[#E8DDD4] px-4 text-sm outline-none">
-                              <option>Categories</option>
-                              <option>Tableware</option>
-                              <option>Furniture</option>
-                              <option>Decor</option>
-                            </select> */}
-                      </div>
-                    </div>
-
                     {/* Items */}
 
-                    <div className="px-5 pb-5 space-y-3">
+                    <div className="px-5 p-3 space-y-3">
                       {section.items.length > 0 ? (
                         section.items.map((item) => (
                           <div
@@ -789,7 +796,15 @@ const Edit = () => {
                             {/* Right */}
 
                             <div className="flex items-center gap-6">
-                              <button className="flex items-center gap-1 text-[#0088FF] text-sm">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSelectedSectionId(section.id);
+                                  setReplacingItem(item);
+                                  setShowInventoryModal(true);
+                                }}
+                                className="flex items-center gap-1 text-[#0088FF] text-sm hover:underline cursor-pointer"
+                              >
                                 <FiRefreshCw size={14} strokeWidth={1.8} />
                                 Replace
                               </button>
@@ -837,11 +852,23 @@ const Edit = () => {
         </div>
       </div>
       <InventoryItemsModal
+        key={`${selectedSectionId}-${replacingItem ? (replacingItem.product_details?.id || replacingItem.id) : "add"}-${showInventoryModal}`}
         isOpen={showInventoryModal}
-        onClose={() => setShowInventoryModal(false)}
+        onClose={() => {
+          setShowInventoryModal(false);
+          setReplacingItem(null);
+        }}
         onAdd={handleAddItem}
         initialSelected={
-          sections.find((s) => s.id === selectedSectionId)?.items || []
+          replacingItem
+            ? (
+              sections.find((s) => s.id === selectedSectionId)?.items || []
+            ).filter(
+              (i) =>
+                String(i.product_details?.id || i.id) !==
+                String(replacingItem.product_details?.id || replacingItem.id),
+            )
+            : sections.find((s) => s.id === selectedSectionId)?.items || []
         }
         sectionTitle={
           sections.find((s) => s.id === selectedSectionId)?.title || ""

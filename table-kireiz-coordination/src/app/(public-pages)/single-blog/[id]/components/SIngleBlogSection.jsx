@@ -1,8 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useParams } from "next/navigation";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { FiArrowLeft } from "react-icons/fi";
 import { apiGetBlogDetail } from "@/services/BlogService";
 import { formatISODate as formatDate } from "@/utils/formatDate";
 
@@ -13,6 +15,7 @@ import { formatISODate as formatDate } from "@/utils/formatDate";
  */
 const SingleBlogSection = () => {
   const { id } = useParams();
+  const router = useRouter();
   const [blogData, setBlogData] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -43,22 +46,42 @@ const SingleBlogSection = () => {
   }, [id]);
 
   return (
-    <section className="relative w-full bg-white mx-auto px-5 md:px-8 lg:px-12 mt-15">
-      <div className="py-10 md:py-8">
-        {/* Header */}
-        <div className="text-center mb-10">
-          <h2 className="lg:text-4xl text-3xl font-semibold">
-            Blog
-          </h2>
-          <div className="w-24 h-1 rounded-full bg-[#E8B4A9] mx-auto mt-2" />
-          <p className="text-[#6B7280] text-sm mt-4 max-w-xl mx-auto">
-            Discover the latest news, updates, and articles.
-          </p>
+    <section className="relative w-full bg-white mx-auto px-4 sm:px-6 md:px-8 lg:px-12 mt-15 py-8 md:py-12">
+      <div>
+        {/* Back / Breadcrumbs Navigation */}
+        <div className="flex items-center gap-2 mb-4 sm:mb-6 text-sm text-[#7B3C1D]">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="text-[#7B3C1D] hover:text-[#1C4FA8] transition-colors p-1 cursor-pointer flex items-center"
+            title="Go back"
+          >
+            <FiArrowLeft size={18} />
+          </button>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <Link
+              href="/table-form"
+              className="hover:underline hover:text-[#1C4FA8] cursor-pointer"
+            >
+              Home
+            </Link>
+            <span>/</span>
+            <Link
+              href="/blog"
+              className="hover:underline hover:text-[#1C4FA8] cursor-pointer"
+            >
+              Blog
+            </Link>
+            {blogData?.title && (
+              <>
+                <span>/</span>
+                <span className="text-[#7B3C1D]/80 truncate max-w-xs sm:max-w-md">
+                  {blogData.title}
+                </span>
+              </>
+            )}
+          </div>
         </div>
-
-        <h2 className="text-center mb-5 lg:text-4xl text-3xl font-semibold">
-          Our Latest Blog Posts
-        </h2>
 
         {/* Blog Content */}
         {loading ? (
@@ -70,34 +93,42 @@ const SingleBlogSection = () => {
             Blog not found
           </div>
         ) : (
-          <div className="w-full rounded-3xl p-3">
-            {/* Image */}
-            <div className="mb-6">
-              <Image
-                src={blogData.img}
-                alt={blogData.title}
-                width={900}
-                height={450}
-                className="w-full lg:h-[600px] lg:object-cover object-contain rounded-2xl"
-                unoptimized
-              />
+          <div className="w-full bg-[#F8F9FC] rounded-3xl p-6 sm:p-10 md:p-12 shadow-xs">
+            {/* Title */}
+            <div className="text-center mb-8 sm:mb-10">
+              <div className="inline-block relative">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
+                  {blogData.title}
+                </h1>
+                <span className="block w-12 h-[3px] bg-[#60a5fa] rounded-full ml-auto mt-2" />
+              </div>
             </div>
 
-            {/* Title + Date */}
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-              <h1 className="text-2xl md:text-3xl font-semibold">
-                {blogData.title}
-              </h1>
-              <p className="text-sm text-gray-500">
-                {blogData.date}
-              </p>
-            </div>
+            {/* 2-Column Grid: Left Image, Right Content */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+              {/* Left Image */}
+              <div className="relative w-full h-[280px] sm:h-[360px] md:h-[420px] lg:h-[460px] rounded-2xl overflow-hidden bg-gray-100 shadow-sm">
+                <Image
+                  src={blogData.img}
+                  alt={blogData.title || "Blog Image"}
+                  fill
+                  className="object-cover rounded-2xl"
+                  unoptimized
+                />
+              </div>
 
-            {/* Description */}
-            <div
-              className="text-gray-700 text-sm md:text-base leading-relaxed space-y-4"
-              dangerouslySetInnerHTML={{ __html: blogData.description }}
-            />
+              {/* Right: Description + Divider + Date */}
+              <div className="flex flex-col justify-start">
+                <div
+                  className="text-gray-600 text-sm sm:text-base leading-relaxed space-y-3"
+                  dangerouslySetInnerHTML={{ __html: blogData.description }}
+                />
+                <div className="border-b border-gray-200/80 my-4 sm:my-5 w-full" />
+                <p className="text-xs sm:text-sm text-gray-400 font-normal">
+                  {blogData.date}
+                </p>
+              </div>
+            </div>
           </div>
         )}
       </div>

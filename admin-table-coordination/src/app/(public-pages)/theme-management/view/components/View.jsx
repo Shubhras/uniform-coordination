@@ -7,6 +7,8 @@ import {
   FiChevronDown,
   FiChevronUp,
   FiPackage,
+  FiChevronLeft,
+  FiChevronRight,
 } from "react-icons/fi";
 
 const bannerImages = [
@@ -53,6 +55,14 @@ const PreviewTheme = () => {
         item.id === id ? { ...item, open: !item.open } : item,
       ),
     );
+  };
+
+  const handlePrevImage = () => {
+    setActiveImage((prev) => Math.max(0, prev - 1));
+  };
+
+  const handleNextImage = () => {
+    setActiveImage((prev) => Math.min(bannerImages.length - 1, prev + 1));
   };
 
   return (
@@ -102,6 +112,39 @@ const PreviewTheme = () => {
               Preset Look
             </span>
           </div>
+
+          {/* Navigation Arrows */}
+          {bannerImages.length > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={handlePrevImage}
+                disabled={activeImage === 0}
+                aria-label="Previous image"
+                className={`absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full flex items-center justify-center transition shadow-md ${
+                  activeImage === 0
+                    ? "bg-white/40 text-gray-400 cursor-not-allowed opacity-50"
+                    : "bg-white/90 hover:bg-white text-[#24160E] hover:scale-105 active:scale-95 cursor-pointer"
+                }`}
+              >
+                <FiChevronLeft size={22} />
+              </button>
+
+              <button
+                type="button"
+                onClick={handleNextImage}
+                disabled={activeImage === bannerImages.length - 1}
+                aria-label="Next image"
+                className={`absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full flex items-center justify-center transition shadow-md ${
+                  activeImage === bannerImages.length - 1
+                    ? "bg-white/40 text-gray-400 cursor-not-allowed opacity-50"
+                    : "bg-white/90 hover:bg-white text-[#24160E] hover:scale-105 active:scale-95 cursor-pointer"
+                }`}
+              >
+                <FiChevronRight size={22} />
+              </button>
+            </>
+          )}
 
           {/* Slider dots */}
 

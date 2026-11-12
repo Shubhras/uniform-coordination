@@ -18,79 +18,21 @@ import {
   apiMarkNotificationRead,
   apiDeleteNotification
 } from "@/services/AuthProfileService"
-
-// Default fallbacks matching user's requested notification modules
-const defaultNotifications = [
-  {
-    id: 'def-1',
-    title: 'Shipping Notification',
-    message: 'Your order #ORD26-00005 has been shipped and is on its way to your location.',
-    notification_type: 'shipping',
-    created_at: new Date(Date.now() - 3600000 * 2).toISOString(),
-    is_read: false,
-  },
-  {
-    id: 'def-2',
-    title: 'Return Reminder Notification',
-    message: 'Reminder: Rental return date for order #ORD26-00005 is approaching in 2 days.',
-    notification_type: 'return_reminder',
-    created_at: new Date(Date.now() - 3600000 * 12).toISOString(),
-    is_read: false,
-  },
-  {
-    id: 'def-3',
-    title: 'Return Received Notification',
-    message: 'We have received your returned rental items for order #ORD26-00004.',
-    notification_type: 'return_received',
-    created_at: new Date(Date.now() - 3600000 * 24).toISOString(),
-    is_read: true,
-  },
-  {
-    id: 'def-4',
-    title: 'Return Not Received Notification',
-    message: 'Action Required: Return deadline passed for order #ORD26-00003. Please dispatch return items.',
-    notification_type: 'return_not_received',
-    created_at: new Date(Date.now() - 3600000 * 36).toISOString(),
-    is_read: false,
-  },
-  {
-    id: 'def-5',
-    title: 'Late Fee Notification',
-    message: 'A late fee invoice #INV-LF-001 has been generated for overdue rental items.',
-    notification_type: 'late_fee',
-    created_at: new Date(Date.now() - 3600000 * 48).toISOString(),
-    is_read: false,
-  },
-  {
-    id: 'def-6',
-    title: 'Lost Item Notification',
-    message: 'Item inspection completed: 1 napkin reported missing in order #ORD26-00002.',
-    notification_type: 'lost_item',
-    created_at: new Date(Date.now() - 3600000 * 60).toISOString(),
-    is_read: true,
-  },
-  {
-    id: 'def-7',
-    title: 'Compensation Charge Notice',
-    message: 'A compensation charge notice of $4,500 has been issued for item damage inspection.',
-    notification_type: 'compensation_charge',
-    created_at: new Date(Date.now() - 3600000 * 72).toISOString(),
-    is_read: false,
-  },
-]
+import Pagination from "@/components/ui/Pagination"
+import Spinner from "@/components/ui/Spinner"
 
 const ITEMS_PER_PAGE = 5
 
 const NotificationSetting = () => {
   const { data: session } = useSession()
-  const token = session?.user?.accessToken
+  const token = session?.accessToken || session?.user?.accessToken
   const [notifications, setNotifications] = useState([])
   const [loading, setLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
 
   const fetchNotifications = async () => {
     if (!token) {
-      setNotifications(defaultNotifications)
+      setNotifications([])
       setLoading(false)
       return
     }
@@ -100,12 +42,18 @@ const NotificationSetting = () => {
       const res = await apiGetUserNotifications(token)
       if (res?.status && Array.isArray(res?.data)) {
         setNotifications(res.data)
+      } else if (Array.isArray(res?.data?.results)) {
+        setNotifications(res.data.results)
+      } else if (Array.isArray(res?.data)) {
+        setNotifications(res.data)
+      } else if (Array.isArray(res)) {
+        setNotifications(res)
       } else {
-        setNotifications(defaultNotifications)
+        setNotifications([])
       }
     } catch (err) {
       console.error("Failed to fetch notifications:", err)
-      setNotifications(defaultNotifications)
+      setNotifications([])
     } finally {
       setLoading(false)
     }
@@ -233,7 +181,9 @@ const NotificationSetting = () => {
 
       {/* Notifications List */}
       {loading ? (
-        <div className="py-12 text-center text-gray-400">Loading notifications...</div>
+        <div className="py-20 flex justify-center items-center">
+          <Spinner size={40} customColorClass="text-[#A85A32]" />
+        </div>
       ) : currentNotifications.length === 0 ? (
         <div className="py-12 text-center text-gray-400">No notifications found</div>
       ) : (
@@ -244,18 +194,16 @@ const NotificationSetting = () => {
             return (
               <div
                 key={item.id}
-                className={`p-4 rounded-xl border transition-all duration-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 ${
-                  item.is_read
-                    ? 'bg-gray-50/60 border-gray-200 opacity-80'
-                    : 'bg-[#FAF6F3] border-[#A85A3230] shadow-sm'
-                }`}
+                className={`p-4 rounded-xl border transition-all duration-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 ${item.is_read
+                  ? 'bg-gray-50/60 border-gray-200 opacity-80'
+                  : 'bg-[#FAF6F3] border-[#A85A3230] shadow-sm'
+                  }`}
               >
                 <div className="flex items-start gap-3.5 flex-1">
                   {/* Icon */}
                   <div
-                    className={`h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                      item.is_read ? 'bg-gray-200 text-gray-600' : 'bg-[#A85A32] text-white shadow-sm'
-                    }`}
+                    className={`h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 ${item.is_read ? 'bg-gray-200 text-gray-600' : 'bg-[#A85A32] text-white shadow-sm'
+                      }`}
                   >
                     <BadgeIcon size={20} />
                   </div>
@@ -315,29 +263,14 @@ const NotificationSetting = () => {
       )}
 
       {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between text-sm text-gray-500 pt-4 border-t border-[#E2E8F0]">
-          <span>
-            Page {currentPage} of {totalPages}
-          </span>
-
-          <div className="flex gap-2">
-            <button
-              onClick={handlePrev}
-              disabled={currentPage === 1}
-              className="h-8 w-8 flex items-center justify-center rounded-md border border-gray-200 text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              <IoChevronBack size={16} />
-            </button>
-
-            <button
-              onClick={handleNext}
-              disabled={currentPage === totalPages}
-              className="h-8 w-8 flex items-center justify-center rounded-md border border-gray-200 text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              <IoChevronForward size={16} />
-            </button>
-          </div>
+      {!loading && notifications.length > 0 && totalPages > 1 && (
+        <div className="mt-6 flex justify-end pt-4 border-t border-[#E2E8F0]">
+          <Pagination
+            currentPage={currentPage}
+            pageSize={ITEMS_PER_PAGE}
+            total={notifications.length}
+            onChange={(page) => setCurrentPage(page)}
+          />
         </div>
       )}
     </div>

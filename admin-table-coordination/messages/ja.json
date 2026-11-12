@@ -1827,7 +1827,7 @@
         "orderIdLabel": "注文ID:",
         "paymentMethodLabel": "支払方法:",
         "statusLabel": "ステータス:",
-        "amountPaid": "支払金額:",
+        "amountPaid": "お支払い金額：",
         "paidTimestamp": "支払日時:",
         "close": "閉じる",
         "downloadInvoice": "請求書をダウンロード",

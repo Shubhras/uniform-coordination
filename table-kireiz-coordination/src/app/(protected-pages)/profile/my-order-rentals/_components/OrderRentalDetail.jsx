@@ -23,6 +23,7 @@ import {
     FiRefreshCw,
     FiAlertTriangle,
     FiX,
+    FiClock, FiTruck
 } from 'react-icons/fi'
 
 // Order item image preview component
@@ -208,6 +209,13 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
         router.push(backPath)
     }
 
+    // View timeline handler
+    const handleViewTimeline = () => {
+        const targetId = orderData?.order_id || orderId
+        if (!targetId) return
+        router.push(`/profile/my-order-rentals/${targetId}/timeline`)
+    }
+
     const orderData = Array.isArray(orderDetailData?.data)
         ? orderDetailData.data[0]
         : orderDetailData?.data || orderDetailData
@@ -246,11 +254,13 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
                         <h2 className="text-2xl font-bold text-[#2C1810]">
                             {orderData?.item_name || `Order ${orderData?.order_id || orderId}`}
                         </h2>
-                        {orderData?.created_at && (
-                            <p className="text-sm text-[#8D7769] font-medium">
-                                Ordered On {formatDate(orderData.created_at)}
-                            </p>
-                        )}
+                        <div className="flex items-center gap-3">
+                            {orderData?.created_at && (
+                                <p className="text-sm text-[#8D7769] font-medium">
+                                    Ordered On {formatDate(orderData.created_at)}
+                                </p>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -377,6 +387,14 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
                                     </div>
                                     {/* Action Buttons */}
                                     <div className="mt-5 flex flex-col gap-2.5">
+                                        <button
+                                            type="button"
+                                            onClick={handleViewTimeline}
+                                            className="w-full rounded-md border border-[#E4B292] bg-white px-4 py-2.5 text-sm font-medium text-[#B66636] hover:bg-[#FAF6F4] transition flex items-center justify-center gap-1.5 shadow-xs"
+                                        >
+                                            <FiTruck size={15} />
+                                            Track Order
+                                        </button>
                                         {/* If pending and unpaid */}
                                         {orderData?.status?.toLowerCase() === 'pending' && !orderData?.is_paid ? (
                                             <>
@@ -414,13 +432,13 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
                                         ) : (
                                             <>
                                                 <div className="flex gap-3">
-                                                    <button
+                                                    {/* <button
                                                         type="button"
-                                                        onClick={() => setTrackingModalOpen(true)}
-                                                        className="flex-1 rounded-md border border-[#E4B292] bg-white px-4 py-2 text-sm font-medium text-[#B66636] hover:bg-[#FAF6F4] transition"
+                                                        onClick={handleViewTimeline}
+                                                        className="flex-1 rounded-md border border-[#E4B292] bg-white px-4 py-2 text-sm font-medium text-[#B66636] hover:bg-[#FAF6F4] transition flex items-center justify-center gap-1.5"
                                                     >
                                                         Track Order
-                                                    </button>
+                                                    </button> */}
                                                     <button
                                                         type="button"
                                                         onClick={() => handleReorder(orderData?.order_id || orderId)}

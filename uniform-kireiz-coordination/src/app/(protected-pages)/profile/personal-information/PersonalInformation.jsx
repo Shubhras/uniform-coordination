@@ -1,5 +1,6 @@
 'use client'
 import { useMemo, useEffect, useState, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import Select, { Option as DefaultOption } from '@/components/ui/Select'
@@ -78,6 +79,7 @@ const CustomControl = ({ children, ...props }) => {
 }
 
 const PersonalInformation = () => {
+    const router = useRouter()
     const { data: session } = useSession()
     const [loading, setLoading] = useState(false)
     const [removingImage, setRemovingImage] = useState(false)
@@ -315,7 +317,7 @@ const PersonalInformation = () => {
                                         Remove
                                     </Button>
                                 </div>
-                                <p className='text-[#5175B2] text-center text-xs'>Supported: JPG/PNG/WEBP up to 5MB (auto-cropped to circle)</p>
+                                <p className='text-[#5175B2] text-center text-xs'>Supported: JPG/PNG/WEBP up to 5MB</p>
                             </div>
                         </div>
                     </div>
