@@ -117,6 +117,8 @@ export function getStoredRefreshToken() {
     return null
 }
 
+let isRedirecting = false
+
 /**
  * Clears all stored tokens across memory, localStorage, and cookies.
  */
@@ -136,18 +138,38 @@ export function clearStoredTokens() {
 
         deleteCookie(ACCESS_TOKEN_KEY)
         deleteCookie(REFRESH_TOKEN_KEY)
+        deleteCookie('uniform-kireiz.session-token')
+        deleteCookie('uniform-kireiz.csrf-token')
+        deleteCookie('uniform-kireiz.callback-url')
+        deleteCookie('authjs.session-token')
+        deleteCookie('__Secure-authjs.session-token')
     }
 }
 
 /**
  * Handles complete logout and redirection to login page when both tokens expire.
+ * Uses concurrency lock to prevent multiple simultaneous redirects or signOut calls.
  */
 export async function redirectToLogin() {
+    if (isRedirecting) {
+        return
+    }
+    isRedirecting = true
+
     clearStoredTokens()
 
     if (typeof window !== 'undefined') {
+        if (window.location.pathname.includes('/sign-in')) {
+            isRedirecting = false
+            return
+        }
+
         try {
-            await signOut({ redirect: false })
+            // Give signOut up to 800ms; if blocked or 404'd by reverse proxy, proceed anyway
+            await Promise.race([
+                signOut({ redirect: false }),
+                new Promise((resolve) => setTimeout(resolve, 800)),
+            ])
         } catch (e) {
             // Ignore signOut errors if any
         }

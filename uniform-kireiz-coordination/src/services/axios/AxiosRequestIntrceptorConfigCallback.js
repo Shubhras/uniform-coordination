@@ -10,6 +10,11 @@ const PUBLIC_AUTH_ENDPOINTS = [
     '/v1/userhub/reset-password/',
     '/v1/userhub/verify-user/',
     '/v1/userhub/token/refresh/',
+    '/v1/uniformAdmin/uniform-home/',
+    '/v1/uniformAdmin/blogs/',
+    '/v1/uniformAdmin/faqs/',
+    '/v1/uniformAdmin/privacy-policy/',
+    '/v1/uniformAdmin/category/',
 ]
 
 /**

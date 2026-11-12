@@ -5,6 +5,28 @@ import { getRefreshToken, setTokens, clearTokens } from './tokenManager'
 
 let isRefreshing = false
 let failedQueue = []
+let isRedirecting = false
+
+const handleRedirectToLogin = async () => {
+    if (isRedirecting) return
+    isRedirecting = true
+    clearTokens()
+    if (typeof window !== 'undefined') {
+        if (window.location.pathname.includes('/sign-in')) {
+            isRedirecting = false
+            return
+        }
+        try {
+            await Promise.race([
+                signOut({ redirect: false }),
+                new Promise((resolve) => setTimeout(resolve, 800)),
+            ])
+        } catch (err) {
+            console.error('Error during signOut:', err)
+        }
+        window.location.href = appConfig.unAuthenticatedEntryPath || '/sign-in'
+    }
+}
 
 /**
  * Resolves or rejects queued requests waiting for a refreshed token.
@@ -52,15 +74,7 @@ const AxiosResponseIntrceptorErrorCallback = async (error, axiosInstance) => {
 
     // If the auth error is from the refresh token API itself, both tokens are expired/invalid
     if (originalRequest?.url?.includes('/token/refresh/')) {
-        clearTokens()
-        if (typeof window !== 'undefined') {
-            try {
-                await signOut({ redirect: false })
-            } catch (err) {
-                console.error('Error during signOut:', err)
-            }
-            window.location.href = appConfig.unAuthenticatedEntryPath || '/sign-in'
-        }
+        await handleRedirectToLogin()
         return Promise.reject(error)
     }
 
@@ -156,16 +170,7 @@ const AxiosResponseIntrceptorErrorCallback = async (error, axiosInstance) => {
     } catch (refreshError) {
         // Both tokens expired or refresh token invalid -> clear session and navigate to login
         processQueue(refreshError, null)
-        clearTokens()
-
-        if (typeof window !== 'undefined') {
-            try {
-                await signOut({ redirect: false })
-            } catch (err) {
-                console.error('Error during signOut:', err)
-            }
-            window.location.href = appConfig.unAuthenticatedEntryPath || '/sign-in'
-        }
+        await handleRedirectToLogin()
 
         return Promise.reject(refreshError)
     } finally {

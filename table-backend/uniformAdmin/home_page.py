@@ -33,6 +33,8 @@ def build_media_url(request, file_field):
     return f"{domain.rstrip('/')}{file_field.url}"
     
 class HomePageAPIView(APIView):
+    authentication_classes = []
+    permission_classes = []
 
     def get(self, request):
 
