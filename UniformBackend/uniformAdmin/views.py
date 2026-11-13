@@ -2997,11 +2997,12 @@ class AdminSavedSimulationsAPIView(APIView):
                     Q(user__userName__icontains=search) |
                     Q(user__email__icontains=search) |
                     Q(model_info__product__productName__icontains=search) |
-                    Q(model_info__product__productCode__icontains=search) |
                     Q(model_info__product__category__categoryName__icontains=search)
                 )
                 if search.isdigit():
                     search_q |= Q(id=int(search))
+                elif search.upper().startswith("PROD-") and search[5:].isdigit():
+                    search_q |= Q(id=int(search[5:]))
                 product_customs = product_customs.filter(search_q)
 
             total_count = product_customs.count()

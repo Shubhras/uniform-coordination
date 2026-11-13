@@ -3520,7 +3520,6 @@ class AdminSavedSimulationsAPIView(APIView):
                     Q(user__userName__icontains=search) |
                     Q(user__email__icontains=search) |
                     Q(model_info__product__productName__icontains=search) |
-                    Q(model_info__product__productCode__icontains=search) |
                     Q(model_info__product__category__categoryName__icontains=search)
                 )
                 theme_q = (
@@ -3534,6 +3533,10 @@ class AdminSavedSimulationsAPIView(APIView):
                 if search.isdigit():
                     search_q |= Q(id=int(search))
                     theme_q |= Q(id=int(search))
+                elif search.upper().startswith("PROD-") and search[5:].isdigit():
+                    search_q |= Q(id=int(search[5:]))
+                elif search.upper().startswith("THEME-") and search[6:].isdigit():
+                    theme_q |= Q(id=int(search[6:]))
                 product_customs = product_customs.filter(search_q)
                 theme_customs = theme_customs.filter(theme_q)
 
