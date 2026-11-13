@@ -194,22 +194,20 @@ export default function RentalTimelineModal({
                       {/* Vertical Connecting Line */}
                       {!isLast && (
                         <div
-                          className={`absolute left-[19px] top-10 w-[2px] h-[calc(100%-12px)] transition-colors duration-300 ${
-                            index < currentStep
-                              ? "bg-[#C96B34]"
-                              : "bg-[#E5E5E5]"
-                          }`}
+                          className={`absolute left-[19px] top-10 w-[2px] h-[calc(100%-12px)] transition-colors duration-300 ${index < currentStep
+                            ? "bg-[#C96B34]"
+                            : "bg-[#E5E5E5]"
+                            }`}
                         />
                       )}
 
                       <div className="flex gap-3 sm:gap-4 min-w-0">
                         {/* Circle Icon */}
                         <div
-                          className={`w-10 h-10 rounded-full flex items-center justify-center text-sm z-10 shrink-0 transition-all ${
-                            completed
-                              ? "bg-[#B8663A] text-white shadow-sm"
-                              : "bg-white border border-[#D9D9D9] text-[#999]"
-                          }`}
+                          className={`w-10 h-10 rounded-full flex items-center justify-center text-sm z-10 shrink-0 transition-all ${completed
+                            ? "bg-[#B8663A] text-white shadow-sm"
+                            : "bg-white border border-[#D9D9D9] text-[#999]"
+                            }`}
                         >
                           {step.icon}
                         </div>
@@ -217,17 +215,15 @@ export default function RentalTimelineModal({
                         {/* Title & Description */}
                         <div className="min-w-0 pt-0.5">
                           <h3
-                            className={`font-semibold text-sm ${
-                              completed ? "text-[#2D241C]" : "text-[#B8B8B8]"
-                            }`}
+                            className={`font-semibold text-sm ${completed ? "text-[#2D241C]" : "text-[#B8B8B8]"
+                              }`}
                           >
                             {step.title}
                           </h3>
 
                           <p
-                            className={`text-xs mt-1 leading-snug ${
-                              completed ? "text-[#8D857D]" : "text-[#C6C6C6]"
-                            }`}
+                            className={`text-xs mt-1 leading-snug ${completed ? "text-[#8D857D]" : "text-[#C6C6C6]"
+                              }`}
                           >
                             {step.desc}
                           </p>
@@ -236,9 +232,8 @@ export default function RentalTimelineModal({
 
                       {/* Right Tag */}
                       <span
-                        className={`text-xs shrink-0 whitespace-nowrap pt-1 font-medium ${
-                          completed ? "text-[#8B8B8B]" : "text-[#BEBEBE]"
-                        }`}
+                        className={`text-xs shrink-0 whitespace-nowrap pt-1 font-medium ${completed ? "text-[#8B8B8B]" : "text-[#BEBEBE]"
+                          }`}
                       >
                         {completed ? "Completed" : "Pending"}
                       </span>
@@ -268,13 +263,6 @@ export default function RentalTimelineModal({
                     <span className="text-[#8C8177] shrink-0">Company</span>
                     <span className="font-semibold text-xs text-[#1A1714] text-right truncate max-w-[170px]">
                       {customerName}
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between items-center gap-3">
-                    <span className="text-[#8C8177] shrink-0">Type</span>
-                    <span className="px-2 py-0.5 rounded bg-[#F0F9FF] border border-[#B8E6FE] text-[#0069A8] text-[11px] font-semibold shrink-0">
-                      {order?.order_type?.toUpperCase() || "B2C"}
                     </span>
                   </div>
 

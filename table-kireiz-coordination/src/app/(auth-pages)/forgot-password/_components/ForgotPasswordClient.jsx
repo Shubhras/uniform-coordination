@@ -44,21 +44,6 @@ const ForgotPasswordClient = () => {
 
         setEmailSent(true);
       }
-      //     const resetLink = response?.resetLink;
-      //     console.log(response?.resetLink)
-
-      //     if (!resetLink) {
-      //         console.error("Reset link missing");
-      //         return;
-      //     }
-
-      //     if (resetLink.startsWith("http")) {
-      //         const url = new URL(resetLink);
-      //         router.push(url.pathname + url.search);
-      //     } else {
-      //         router.push(resetLink);
-      //     }
-      // }
     } catch (error) {
       const errorMessage =
         error?.response?.data?.message || "No account found with this email";

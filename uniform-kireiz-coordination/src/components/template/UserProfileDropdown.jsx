@@ -1,15 +1,17 @@
 'use client'
+import React, { useEffect, useState } from 'react'
 import Avatar from '@/components/ui/Avatar'
 import Dropdown from '@/components/ui/Dropdown'
 import withHeaderItem from '@/utils/hoc/withHeaderItem'
 import Link from 'next/link'
 import signOut from '@/server/actions/auth/handleSignOut'
 import useCurrentSession from '@/utils/hooks/useCurrentSession'
+import { apiGetProfile } from '@/services/AuthProfileService'
 import {
     PiUserDuotone,
     PiGearDuotone,
     PiPulseDuotone,
-    PiSignOutDuotone, 
+    PiSignOutDuotone,
     PiShoppingCartThin
 } from 'react-icons/pi'
 import { IoIosLogOut } from "react-icons/io";
@@ -75,20 +77,94 @@ const dropdownItemList = [
 
 ]
 
+const getValidImageUrl = (rawUrl) => {
+    if (!rawUrl || typeof rawUrl !== 'string') return null
+    const cleaned = rawUrl.trim()
+    if (!cleaned || cleaned === 'null' || cleaned === 'undefined') return null
+
+    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL
+    if (cleaned.startsWith('/')) {
+        if (!baseUrl) return cleaned
+        try {
+            const origin = new URL(baseUrl).origin
+            return new URL(cleaned, origin).toString()
+        } catch {
+            return cleaned
+        }
+    }
+
+    if (baseUrl) {
+        try {
+            const preferredOrigin = new URL(baseUrl).origin
+            const parsed = new URL(cleaned)
+            if (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1') {
+                return new URL(`${parsed.pathname}${parsed.search}${parsed.hash}`, preferredOrigin).toString()
+            }
+        } catch {
+            return cleaned
+        }
+    }
+
+    return cleaned
+}
+
 const _UserDropdown = () => {
     const router = useRouter()
 
     const { session } = useCurrentSession()
     const pathname = usePathname()
 
+    const token = session?.accessToken || session?.user?.accessToken
+    const [profileImage, setProfileImage] = useState(() =>
+        getValidImageUrl(session?.user?.profileImage || session?.user?.image)
+    )
+
+    useEffect(() => {
+        const initial = getValidImageUrl(session?.user?.profileImage || session?.user?.image)
+        if (initial) {
+            setProfileImage(initial)
+        }
+    }, [session?.user?.profileImage, session?.user?.image])
+
+    useEffect(() => {
+        if (!token) return
+
+        let isMounted = true
+        apiGetProfile(token)
+            .then((res) => {
+                if (!isMounted) return
+                const img = res?.data?.profileImage || res?.data?.avatar || res?.data?.image
+                if (img) {
+                    setProfileImage(getValidImageUrl(img))
+                }
+            })
+            .catch(() => {})
+
+        const handleProfileUpdated = () => {
+            apiGetProfile(token)
+                .then((res) => {
+                    const img = res?.data?.profileImage || res?.data?.avatar || res?.data?.image
+                    if (img) {
+                        setProfileImage(getValidImageUrl(img))
+                    }
+                })
+                .catch(() => {})
+        }
+
+        window.addEventListener('profile-updated', handleProfileUpdated)
+        return () => {
+            isMounted = false
+            window.removeEventListener('profile-updated', handleProfileUpdated)
+        }
+    }, [token])
+
     const handleSignOut = async () => {
         await signOut()
     }
 
     const avatarProps = {
-        ...(session?.user?.image
-            ? { src: session?.user?.image }
-            : { icon: <PiUserDuotone /> }),
+        icon: <PiUserDuotone size={20} />,
+        ...(profileImage ? { src: profileImage } : {}),
     }
 
     const handleProfile = () => {
@@ -99,7 +175,12 @@ const _UserDropdown = () => {
             {session?.user?.email && (
                 <>
                     <div className="cursor-pointer flex items-center">
-                        <Avatar size={38} {...avatarProps} onClick={handleProfile} />
+                        <Avatar
+                            size={38}
+                            {...avatarProps}
+                            className="border border-white/20 shadow-xs flex items-center justify-center bg-white text-[#1C2C56]"
+                            onClick={handleProfile}
+                        />
                     </div>
                     <IoIosLogOut className='cursor-pointer z-10' size={25} onClick={handleSignOut} />
                 </>

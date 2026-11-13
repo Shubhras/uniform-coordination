@@ -21,12 +21,44 @@ import { LuPalette } from 'react-icons/lu'
 import { IoNotificationsOutline } from 'react-icons/io5'
 import { usePathname, useRouter } from 'next/navigation'
 import { apiGetCartList } from '@/services/CartSummaryService'
+import { apiGetProfile } from '@/services/AuthProfileService'
 
 const _UserDropdown = () => {
     const router = useRouter()
     const { session } = useCurrentSession()
     const pathname = usePathname()
     const [cartCount, setCartCount] = useState(0)
+    const [profileImage, setProfileImage] = useState(session?.user?.image || '')
+
+    const fetchProfile = useCallback(async () => {
+        const token = session?.accessToken || session?.user?.accessToken
+        if (!token) return
+        try {
+            const res = await apiGetProfile(token)
+            const profileData = res?.data || res
+            const img = profileData?.profileImage || profileData?.profile_image || ''
+            setProfileImage(img || '')
+        } catch (err) {
+            console.error('Failed to fetch user profile for header avatar:', err)
+        }
+    }, [session?.accessToken, session?.user?.accessToken])
+
+    useEffect(() => {
+        fetchProfile()
+
+        const handleProfileUpdated = () => {
+            fetchProfile()
+        }
+
+        if (typeof window !== 'undefined') {
+            window.addEventListener('profileUpdated', handleProfileUpdated)
+        }
+        return () => {
+            if (typeof window !== 'undefined') {
+                window.removeEventListener('profileUpdated', handleProfileUpdated)
+            }
+        }
+    }, [fetchProfile])
 
     const fetchCartCount = useCallback(async () => {
         if (!session?.accessToken) {
@@ -70,10 +102,14 @@ const _UserDropdown = () => {
         await signOut()
     }
 
+    const avatarSrc = profileImage || session?.user?.image || null
+
     const avatarProps = {
-        ...(session?.user?.image
-            ? { src: session?.user?.image }
-            : { icon: <PiUserDuotone /> }),
+        ...(avatarSrc
+            ? { src: avatarSrc }
+            : { icon: <CiUser size={22} className="text-[#1C2C56]" /> }),
+        shape: 'circle',
+        className: 'border border-white bg-white shadow-xs object-cover overflow-hidden',
     }
 
     const handleProfile = () => {

@@ -16,29 +16,6 @@ export async function apiGetProfile(token) {
     })
 }
 
-// export async function apiUpdateProfile(token, payload) {
-//     //console.log('qqq',payload);
-
-//     const formData = new FormData()
-//     formData.append('firstName', payload.firstName || '')
-//     formData.append('lastName', payload.lastName || '')
-//     formData.append('phone', payload.phone || '')
-
-//     // Only append file if it's a new File
-//    // if (payload.profileImage instanceof File) {
-//         formData.append('profileImage', payload.profileImage)
-//     //}
-
-//     return ApiService.fetchDataWithAxios({
-//         url: '/v1/space/userhub/profile/update/',
-//         method: 'put',
-//         data: formData,
-//         headers: {
-//             Authorization: `Bearer ${token}`,
-//             'Content-Type': 'multipart/form-data',
-//         },
-//     })
-// }
 export async function apiUpdateProfile(token, payload) {
     const formData = new FormData()
 
@@ -145,10 +122,11 @@ export async function apiSimulationExportPdf(token, id, isTheme = false) {
         },
     });
 }
-export async function apiGetUserNotifications(token) {
+export async function apiGetUserNotifications(token, params) {
     return ApiService.fetchDataWithAxios({
         url: "/v1/space/userhub/notifications/list/",
         method: "get",
+        params,
         headers: {
             Authorization: `Bearer ${token}`,
         },

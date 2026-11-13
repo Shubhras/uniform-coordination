@@ -372,11 +372,24 @@ const SimulationHistory = () => {
 
       {/* LOADING STATE */}
       {loading && (
-        <section className="relative w-full bg-white mx-auto px-5 md:px-8 lg:px-12 mt-15">
-          <div className="flex justify-center items-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C4FA8]"></div>
-          </div>
-        </section>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 animate-pulse">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <div
+              key={index}
+              className="bg-white border border-[#CBD5E1] rounded-2xl p-6 flex flex-col h-full"
+            >
+              <div className="flex justify-center mb-6">
+                <div className="w-[240px] h-[240px] rounded-full bg-gray-200" />
+              </div>
+              <div className="h-5 w-3/4 rounded bg-gray-200 mb-2" />
+              <div className="h-4 w-1/3 rounded bg-gray-200 mb-4" />
+              <div className="mt-auto pt-6 flex gap-3">
+                <div className="flex-[2] h-9 rounded-md bg-gray-200" />
+                <div className="flex-1 h-9 rounded-md bg-gray-200" />
+              </div>
+            </div>
+          ))}
+        </div>
       )}
 
       {/* EMPTY STATE */}

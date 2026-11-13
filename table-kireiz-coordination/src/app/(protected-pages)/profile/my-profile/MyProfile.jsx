@@ -11,6 +11,7 @@ import Spinner from "@/components/ui/Spinner";
 import Dialog from "@/components/ui/Dialog";
 import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
+import Alert from "@/components/ui/Alert";
 import {
   FiEdit2,
   FiLock,
@@ -44,10 +45,14 @@ const MyProfile = () => {
   // Profile state
   const [profile, setProfile] = useState(null);
   const [image, setImage] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(true);
 
   // Orders state
   const [ordersList, setOrdersList] = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+
+  // Compatibility alias
+  const loading = profileLoading;
 
   // Simulation history state
   const [simulationData, setSimulationData] = useState([]);
@@ -77,13 +82,14 @@ const MyProfile = () => {
 
     const fetchProfile = async () => {
       try {
+        setProfileLoading(true);
         const res = await apiGetProfile(token);
         setProfile(res?.data);
         setImage(res?.data?.profileImage || null);
       } catch (error) {
         console.error("Profile API Error:", error);
       } finally {
-        setLoading(false);
+        setProfileLoading(false);
       }
     };
 
@@ -96,7 +102,7 @@ const MyProfile = () => {
 
     const fetchActiveOrders = async () => {
       try {
-        setLoading(true);
+        setOrdersLoading(true);
         const params = {
           page: 1,
           page_size: 3,
@@ -111,7 +117,7 @@ const MyProfile = () => {
       } catch (err) {
         console.error("Error fetching active orders:", err);
       } finally {
-        setLoading(false);
+        setOrdersLoading(false);
       }
     };
 
@@ -160,13 +166,6 @@ const MyProfile = () => {
     setImage(previewUrl);
   };
 
-  const handleRemoveImage = () => {
-    setImage(null);
-    if (fileRef.current) {
-      fileRef.current.value = "";
-    }
-  };
-
   // Navigation & action handlers
   const handleViewDetails = (orderId) => {
     router.push(`/profile/my-order-rentals/${orderId}`);
@@ -188,11 +187,23 @@ const MyProfile = () => {
       if (res?.status && res?.pdf_url) {
         window.open(res.pdf_url, "_blank");
       } else {
-        setPdfError(res?.message || "PDF URL not found");
+        const errorMsg = res?.message || "PDF URL not found";
+        setPdfError(errorMsg);
+        toast.push(
+          <Notification title="Download Failed" type="danger">
+            {errorMsg}
+          </Notification>
+        );
       }
     } catch (err) {
       console.error("Failed to download PDF:", err);
-      setPdfError("Failed to download PDF. Please try again.");
+      const errorMsg = "Failed to download PDF. Please try again.";
+      setPdfError(errorMsg);
+      toast.push(
+        <Notification title="Download Failed" type="danger">
+          {errorMsg}
+        </Notification>
+      );
     } finally {
       setPdfLoadingId(null);
     }
@@ -237,6 +248,14 @@ const MyProfile = () => {
       setVerifyEmailLoading(false);
     }
   };
+
+  if (profileLoading) {
+    return (
+      <div className="flex justify-center items-center py-24">
+        <Spinner size={40} customColorClass="text-[#A0522D]" />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
@@ -365,7 +384,11 @@ const MyProfile = () => {
             </button>
           </div>
 
-          {ordersList.length > 0 ? (
+          {ordersLoading ? (
+            <div className="flex items-center justify-center py-8 border-b border-[#D6B8A6]">
+              <Spinner size={24} customColorClass="text-[#A0522D]" />
+            </div>
+          ) : ordersList.length > 0 ? (
             <div className="px-6 py-5 border-b border-[#D6B8A6]">
               <div className="flex justify-between items-center mb-3 border-b border-[#D6B8A6] pb-2">
                 <div>
@@ -424,30 +447,40 @@ const MyProfile = () => {
               Linked Orders
             </p>
 
-            <div className="space-y-2">
-              {ordersList.map((item, i) => (
-                <div
-                  key={i}
-                  className="flex justify-between items-center bg-[#F8F3EF] rounded-lg px-4 py-3 cursor-pointer"
-                  onClick={() => handleViewDetails(item.order_id)}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-white rounded-md">
-                      <FiFileText size={16} className="text-[#A0522D]" />
+            {ordersLoading ? (
+              <div className="flex items-center justify-center py-6">
+                <Spinner size={24} customColorClass="text-[#A0522D]" />
+              </div>
+            ) : ordersList.length > 0 ? (
+              <div className="space-y-2">
+                {ordersList.map((item, i) => (
+                  <div
+                    key={item.order_id || item.id || i}
+                    className="flex justify-between items-center bg-[#F8F3EF] rounded-lg px-4 py-3 cursor-pointer"
+                    onClick={() => handleViewDetails(item.order_id)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-white rounded-md">
+                        <FiFileText size={16} className="text-[#A0522D]" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-medium text-[#454545]">
+                          {item.order_id}
+                        </p>
+                        <p className="text-[11px] text-[#535353]">
+                          {item.item_name}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-xs font-medium text-[#454545]">
-                        {item.order_id}
-                      </p>
-                      <p className="text-[11px] text-[#535353]">
-                        {item.item_name}
-                      </p>
-                    </div>
+                    <FiChevronRight className="text-[#8B6A55]" />
                   </div>
-                  <FiChevronRight className="text-[#8B6A55]" />
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center text-[11px] text-[#9CA3AF] py-4">
+                No linked orders found
+              </div>
+            )}
 
             <p
               className="text-xs text-center mt-4 text-[#A0522D] cursor-pointer"
@@ -475,6 +508,18 @@ const MyProfile = () => {
           </div>
 
           <div className="px-6 py-4 space-y-4">
+            {pdfError && (
+              <Alert
+                showIcon
+                closable
+                type="danger"
+                className="mb-2"
+                onClose={() => setPdfError("")}
+              >
+                <span className="text-xs break-all">{pdfError}</span>
+              </Alert>
+            )}
+
             {simulationLoading ? (
               <div className="flex items-center justify-center py-8">
                 <Spinner size={24} />
@@ -482,7 +527,7 @@ const MyProfile = () => {
             ) : simulationData.length > 0 ? (
               <div className="space-y-0">
                 {visibleRecentSimulations.map((item, index) => (
-                  <div key={index} className="flex justify-between items-start">
+                  <div key={item.id || item.simulation_id || index} className="flex justify-between items-start">
                     <div className="flex gap-3 mb-4">
                       <span className="w-3 h-3 rounded-full border border-[#A0522D] mt-1"></span>
                       <div>
@@ -508,8 +553,8 @@ const MyProfile = () => {
                     <div className="text-right">
                       <span
                         className={`text-[11px] px-3 py-1 rounded-md ${item.isActive === true
-                            ? "text-[#7A3E1D] bg-[#E6D2C4]"
-                            : "text-[#8B6A55] bg-[#F5F0EE30]"
+                          ? "text-[#7A3E1D] bg-[#E6D2C4]"
+                          : "text-[#8B6A55] bg-[#F5F0EE30]"
                           }`}
                       >
                         {item.isActive ? "OPEN" : "CLOSED"}

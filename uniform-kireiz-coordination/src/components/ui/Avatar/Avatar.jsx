@@ -17,11 +17,16 @@ const Avatar = (props) => {
 
     let { children } = props
     const [scale, setScale] = useState(1)
+    const [imgError, setImgError] = useState(false)
 
     const avatarChildren = useRef(null)
     const avatarNode = useRef(null)
 
     const avatarMergeRef = useMergedRef(ref, avatarNode)
+
+    useEffect(() => {
+        setImgError(false)
+    }, [src])
 
     const innerScale = () => {
         if (!avatarChildren.current || !avatarNode.current) {
@@ -61,14 +66,15 @@ const Avatar = (props) => {
         className,
     )
 
-    if (src) {
+    if (src && !imgError) {
         children = (
             <img
                 className={`avatar-img avatar-${shape}`}
                 src={src}
                 srcSet={srcSet}
-                alt={alt}
+                alt={alt || 'avatar'}
                 loading="lazy"
+                onError={() => setImgError(true)}
             />
         )
     } else if (icon) {

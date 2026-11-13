@@ -586,8 +586,9 @@
       "inactive": "Inactive"
     },
     "recentOrders": {
-      "recentOrders": "Recent Quotations (Today)",
+      "recentOrders": "Recent Quotations",
       "todayBadge": "{count} Today",
+      "today": "Today",
       "subtitle": "Orders placed by customers today",
       "viewAll": "View All",
       "orderId": "Order ID",

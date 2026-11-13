@@ -90,6 +90,15 @@ const getSizeRange = (quotation) => {
         return Object.keys(quotation.size_quantity).map((size) => ({ label: size }))
     }
 
+    if (typeof quotation?.size_quantity === 'string') {
+        const parts = quotation.size_quantity.split(/[,;\n]+/).map((p) => p.trim()).filter(Boolean)
+        const parsed = parts.map((p) => {
+            const m = p.match(/^([A-Za-z0-9_\-./]+)\s*(?:x|:|-|\*)\s*(\d+)/i)
+            return m ? { label: `${m[1]} (${m[2]} pcs)` } : { label: p }
+        })
+        if (parsed.length > 0) return parsed
+    }
+
     return [{ label: 'XS' }, { label: 'S' }, { label: 'M' }]
 }
 
@@ -386,11 +395,17 @@ const ProfileQuotationDetail = ({ quotationId }) => {
 
     if (loading) {
         return (
-            <section className="relative mx-auto w-full bg-white px-5 md:px-8 lg:px-12">
-                <div className="flex items-center justify-center py-20">
-                    <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-[#1C4FA8]" />
+            <div className="w-full space-y-6 rounded-2xl bg-white p-6 animate-pulse">
+                <div className="flex items-center justify-between border-b border-[#F1F5F9] pb-4">
+                    <div className="h-8 w-8 rounded-full bg-gray-200" />
+                    <div className="h-8 w-24 rounded-lg bg-gray-200" />
                 </div>
-            </section>
+                <div className="space-y-4">
+                    <div className="h-6 w-1/3 rounded bg-gray-200" />
+                    <div className="h-4 w-1/4 rounded bg-gray-200" />
+                </div>
+                <div className="h-64 w-full rounded-2xl bg-gray-100" />
+            </div>
         )
     }
 

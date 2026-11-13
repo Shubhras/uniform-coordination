@@ -82,6 +82,7 @@ export default function Orders() {
     { value: "delivered", label: t("statusDelivered") },
     { value: "returned", label: t("statusReturned") },
     { value: "shipped", label: t("statusShipped") },
+    { value: "cancelled", label: t("statusCancelled") },
   ];
 
   const { session } = useCurrentSession();

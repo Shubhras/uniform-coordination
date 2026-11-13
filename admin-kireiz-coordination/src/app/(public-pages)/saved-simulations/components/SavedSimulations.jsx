@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import {
   FiBookmark,
   FiBox,
@@ -16,7 +16,6 @@ import {
 } from "react-icons/fi";
 import { useTranslations } from "next-intl";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
-import Spinner from "@/components/ui/Spinner";
 import Pagination from "@/components/ui/Pagination";
 import { apiGetSavedSimulations } from "@/services/SimulationAssetService";
 
@@ -27,9 +26,9 @@ const SavedSimulations = () => {
 
   const [loading, setLoading] = useState(true);
   const [simulations, setSimulations] = useState([]);
-  const [counts, setCounts] = useState({ total: 0, product: 0, theme: 0 });
+  const [totalCount, setTotalCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState("all"); // 'all' | 'product' | 'theme'
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
 
@@ -37,69 +36,91 @@ const SavedSimulations = () => {
   const [selectedSimulation, setSelectedSimulation] = useState(null);
   const [copied, setCopied] = useState(false);
 
-  const fetchSavedSimulations = async () => {
+  // Debounce search query (500ms)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setCurrentPage(1);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const fetchSavedSimulations = useCallback(async () => {
     if (!accessToken) return;
     setLoading(true);
     try {
-      const response = await apiGetSavedSimulations(accessToken);
+      const response = await apiGetSavedSimulations(accessToken, {
+        page: currentPage,
+        pageSize,
+        search: debouncedSearch.trim(),
+      });
       if (response?.status && response?.data) {
-        setSimulations(response.data);
-        setCounts({
-          total: response.total_count || response.data.length,
-          product: response.product_count || response.data.filter(s => s.simulation_type === 'product').length,
-          theme: response.theme_count || response.data.filter(s => s.simulation_type === 'theme').length,
-        });
+        const items = Array.isArray(response.data)
+          ? response.data
+          : Array.isArray(response.data?.results)
+            ? response.data.results
+            : [];
+        setSimulations(items);
+        const total =
+          response.total_count ??
+          response.count ??
+          response.pagination?.total_items ??
+          response.total ??
+          items.length;
+        setTotalCount(total);
       }
     } catch (err) {
       console.error("Failed to fetch saved simulations:", err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [accessToken, currentPage, pageSize, debouncedSearch]);
 
   useEffect(() => {
     if (accessToken) {
       fetchSavedSimulations();
     }
-  }, [accessToken]);
+  }, [fetchSavedSimulations]);
 
-  // Filtering
-  const filteredSimulations = useMemo(() => {
-    return simulations.filter((item) => {
-      // Filter by Tab
-      if (activeTab !== "all" && item.simulation_type !== activeTab) {
-        return false;
+  // Display data handling (with fallback if backend returned unpaginated list)
+  const displayData = useMemo(() => {
+    let list = simulations;
+    if (list.length > pageSize) {
+      if (debouncedSearch.trim()) {
+        const q = debouncedSearch.toLowerCase().trim();
+        const clientFiltered = list.filter((item) => {
+          const userName = (item.user_name || "").toLowerCase();
+          const userEmail = (item.user_email || "").toLowerCase();
+          const itemName = (item.item_name || "").toLowerCase();
+          const categoryName = (item.category_name || "").toLowerCase();
+          const itemCode = (item.item_code || "").toLowerCase();
+          return (
+            userName.includes(q) ||
+            userEmail.includes(q) ||
+            itemName.includes(q) ||
+            categoryName.includes(q) ||
+            itemCode.includes(q)
+          );
+        });
+        if (clientFiltered.length < list.length) {
+          list = clientFiltered;
+        }
       }
-      // Filter by Search Query
-      if (searchQuery.trim()) {
-        const query = searchQuery.toLowerCase();
-        const userName = (item.user_name || "").toLowerCase();
-        const userEmail = (item.user_email || "").toLowerCase();
-        const itemName = (item.item_name || "").toLowerCase();
-        const categoryName = (item.category_name || "").toLowerCase();
-        const itemCode = (item.item_code || "").toLowerCase();
+      const start = (currentPage - 1) * pageSize;
+      return list.slice(start, start + pageSize);
+    }
+    return list;
+  }, [simulations, currentPage, pageSize, debouncedSearch]);
 
-        return (
-          userName.includes(query) ||
-          userEmail.includes(query) ||
-          itemName.includes(query) ||
-          categoryName.includes(query) ||
-          itemCode.includes(query)
-        );
-      }
-      return true;
-    });
-  }, [simulations, activeTab, searchQuery]);
-
-  // Pagination slice
-  const paginatedData = useMemo(() => {
-    const start = (currentPage - 1) * pageSize;
-    return filteredSimulations.slice(start, start + pageSize);
-  }, [filteredSimulations, currentPage, pageSize]);
+  const totalItems = useMemo(() => {
+    if (totalCount > 0) return totalCount;
+    return simulations.length;
+  }, [totalCount, simulations.length]);
 
   const handleReset = () => {
     setSearchQuery("");
-    setActiveTab("all");
+    setDebouncedSearch("");
     setCurrentPage(1);
   };
 
@@ -183,43 +204,8 @@ const SavedSimulations = () => {
         </div>
       </div>
 
-      {/* Summary Cards */}
-      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div
-          onClick={() => { setActiveTab("all"); setCurrentPage(1); }}
-          className={`cursor-pointer rounded-2xl border p-5 transition-all duration-200 ${activeTab === "all"
-            ? "border-[#1C2C56] bg-[#F1F5F9] shadow-sm"
-            : "border-[#E2E8F0] bg-white hover:border-[#CBD5E1]"
-            }`}
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-[#64748B]">{t("summaryCards.totalSaved")}</span>
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#E2E8F0] text-[#1C2C56]">
-              <FiBookmark size={20} />
-            </div>
-          </div>
-          <p className="mt-2 text-3xl font-bold text-[#1C2C56]">{counts.total}</p>
-        </div>
-
-        <div
-          onClick={() => { setActiveTab("product"); setCurrentPage(1); }}
-          className={`cursor-pointer rounded-2xl border p-5 transition-all duration-200 ${activeTab === "product"
-            ? "border-[#2563EB] bg-[#EFF6FF] shadow-sm"
-            : "border-[#E2E8F0] bg-white hover:border-[#CBD5E1]"
-            }`}
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-[#64748B]">{t("summaryCards.productCustomizations")}</span>
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#DBEAFE] text-[#2563EB]">
-              <FiBox size={20} />
-            </div>
-          </div>
-          <p className="mt-2 text-3xl font-bold text-[#1C2C56]">{counts.product}</p>
-        </div>
-      </div>
-
       {/* Filter and Search Bar */}
-      <div className="mt-6 mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+      <div className="mt-6 mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         {/* Search Bar */}
         <div className="relative flex-1 max-w-md">
           <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-[#1C2C56] text-sm" />
@@ -227,16 +213,17 @@ const SavedSimulations = () => {
             type="text"
             placeholder={t("searchPlaceholder")}
             value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              setCurrentPage(1);
-            }}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full h-10 rounded-lg border border-[#E2E8F0] text-[#1C2C56] pl-10 pr-4 text-sm outline-none focus:border-[#1C2C56]"
           />
           {searchQuery && (
             <button
               type="button"
-              onClick={() => setSearchQuery("")}
+              onClick={() => {
+                setSearchQuery("");
+                setDebouncedSearch("");
+                setCurrentPage(1);
+              }}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
             >
               <FiX size={16} />
@@ -244,38 +231,15 @@ const SavedSimulations = () => {
           )}
         </div>
 
-        {/* Tab Filters & Reset */}
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-1">
-            <button
-              onClick={() => { setActiveTab("all"); setCurrentPage(1); }}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${activeTab === "all"
-                ? "bg-white text-[#1C2C56] shadow-sm"
-                : "text-[#64748B] hover:text-[#1C2C56]"
-                }`}
-            >
-              {t("tabs.all")} ({counts.total})
-            </button>
-            <button
-              onClick={() => { setActiveTab("product"); setCurrentPage(1); }}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${activeTab === "product"
-                ? "bg-white text-[#2563EB] shadow-sm"
-                : "text-[#64748B] hover:text-[#2563EB]"
-                }`}
-            >
-              {t("tabs.products")} ({counts.product})
-            </button>
-          </div>
-
-          <button
-            type="button"
-            onClick={handleReset}
-            className="flex h-10 items-center gap-2 rounded-lg border border-[#E2E8F0] bg-white px-4 text-sm font-medium text-[#1C2C56] transition hover:bg-[#F8FAFC]"
-          >
-            <FiRotateCcw size={14} />
-            {t("reset")}
-          </button>
-        </div>
+        {/* Reset */}
+        <button
+          type="button"
+          onClick={handleReset}
+          className="flex h-10 items-center gap-2 rounded-lg border border-[#E2E8F0] bg-white px-4 text-sm font-medium text-[#1C2C56] transition hover:bg-[#F8FAFC]"
+        >
+          <FiRotateCcw size={14} />
+          {t("reset")}
+        </button>
       </div>
 
       {/* Main Data Table */}
@@ -293,16 +257,63 @@ const SavedSimulations = () => {
           </thead>
           <tbody className="divide-y divide-[#E2E8F0]">
             {loading ? (
-              <tr>
-                <td colSpan={6} className="py-16 text-center">
-                  <div className="flex flex-col items-center justify-center gap-2">
-                    <Spinner size={36} customColorClass="text-[#1C2C56]" />
-                    <span className="text-sm text-[#64748B]">{t("loading")}</span>
-                  </div>
-                </td>
-              </tr>
-            ) : paginatedData.length > 0 ? (
-              paginatedData.map((item, index) => (
+              Array.from({ length: 5 }).map((_, idx) => (
+                <tr
+                  key={idx}
+                  className={idx % 2 === 0 ? "bg-white" : "bg-[#F8FAFC]"}
+                >
+                  {/* Type Badge */}
+                  <td className="px-4 py-3">
+                    <div className="h-6 w-20 rounded-full bg-gray-200 animate-pulse" />
+                  </td>
+
+                  {/* Customer */}
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="h-8 w-8 rounded-full bg-gray-200 animate-pulse flex-shrink-0" />
+                      <div className="space-y-1.5">
+                        <div className="h-3.5 w-24 rounded bg-gray-200 animate-pulse" />
+                        <div className="h-2.5 w-32 rounded bg-gray-200 animate-pulse" />
+                      </div>
+                    </div>
+                  </td>
+
+                  {/* Item & Category */}
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-lg bg-gray-200 animate-pulse flex-shrink-0" />
+                      <div className="space-y-1.5">
+                        <div className="h-3.5 w-28 rounded bg-gray-200 animate-pulse" />
+                        <div className="h-2.5 w-20 rounded bg-gray-200 animate-pulse" />
+                      </div>
+                    </div>
+                  </td>
+
+                  {/* Custom Specs */}
+                  <td className="px-4 py-3">
+                    <div className="flex flex-wrap gap-1.5">
+                      <div className="h-5 w-16 rounded bg-gray-200 animate-pulse" />
+                      <div className="h-5 w-20 rounded bg-gray-200 animate-pulse" />
+                      <div className="h-5 w-14 rounded bg-gray-200 animate-pulse" />
+                    </div>
+                  </td>
+
+                  {/* Saved Date */}
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-1.5">
+                      <div className="h-3.5 w-3.5 rounded bg-gray-200 animate-pulse" />
+                      <div className="h-3.5 w-24 rounded bg-gray-200 animate-pulse" />
+                    </div>
+                  </td>
+
+                  {/* Action */}
+                  <td className="px-4 py-3 text-right">
+                    <div className="inline-block h-8 w-8 rounded-md bg-gray-200 animate-pulse" />
+                  </td>
+                </tr>
+              ))
+            ) : displayData.length > 0 ? (
+              displayData.map((item, index) => (
                 <tr
                   key={`${item.simulation_type}-${item.id}`}
                   className={`${index % 2 === 0 ? "bg-white" : "bg-[#F8FAFC]"} hover:bg-[#F1F5F9] transition-colors`}
@@ -386,7 +397,6 @@ const SavedSimulations = () => {
                 <td colSpan={6} className="py-12 text-center text-gray-500">
                   <FiBookmark size={28} className="mx-auto mb-2 text-gray-300" />
                   <p className="text-sm font-medium text-gray-600">{t("emptyState.title")}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">{t("emptyState.subtitle")}</p>
                 </td>
               </tr>
             )}
@@ -395,12 +405,12 @@ const SavedSimulations = () => {
       </div>
 
       {/* Pagination */}
-      {filteredSimulations.length > pageSize && (
+      {totalItems > pageSize && (
         <div className="flex justify-end mt-4">
           <Pagination
             currentPage={currentPage}
             pageSize={pageSize}
-            total={filteredSimulations.length}
+            total={totalItems}
             onChange={(page) => setCurrentPage(page)}
           />
         </div>
@@ -505,16 +515,7 @@ const SavedSimulations = () => {
               )}
             </div>
 
-            {/* Modal Footer */}
-            <div className="flex items-center justify-end gap-3 px-6 py-3 border-t border-[#E2E8F0] bg-gray-50">
-              <button
-                type="button"
-                onClick={() => setSelectedSimulation(null)}
-                className="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 text-sm font-semibold hover:bg-gray-300 transition-colors"
-              >
-                {t("modal.close")}
-              </button>
-            </div>
+
           </div>
         </div>
       )}

@@ -52,8 +52,8 @@ const RecentOrdersCard = ({ data }) => {
           <div>
             <h3 className="text-[#1C2C56] font-semibold text-base flex items-center gap-2">
               {t("recentOrders")}
-              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#F4F7FC] text-[#1C2C56]">
-                {t("todayBadge", { count: todayCount })}
+              <span className="text-base font-semibold px-2.5 py-0.5 rounded-full bg-[#F4F7FC] text-[#1C2C56]">
+                {t("today")} {todayCount}
               </span>
             </h3>
             {/* <p className="text-xs text-gray-500">{t("subtitle")}</p> */}

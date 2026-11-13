@@ -13,7 +13,7 @@ import {
 const actions = [
   { labelKey: "uploadNewFabric", icon: FiBox, route: "/products?tab=Fabrics" },
   { labelKey: "viewQuotations", icon: FiBarChart2,route: "/quotation-requests"  },
-  { labelKey: "manageB2bAccount", icon: FiUsers, route: "/customer?tab=B2B Accounts"  },
+  { labelKey: "manageB2bAccount", icon: FiUsers, route: "/customer?tab=Customers" },
   { labelKey: "themesAndTemplates", icon: FiGrid ,route: "/products?tab=Template" },
   { labelKey: "generateReport", icon: FiFileText ,route: "/reports-analytics" },
   { labelKey: "systemSetting", icon: FiSettings ,route: "/system-settings" },
