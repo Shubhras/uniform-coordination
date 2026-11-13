@@ -54,3 +54,16 @@ SERVER_SETUP_NOTES.md
 *.sql
 *.sql.gz
 **/.env
+
+# Uploaded images & media
+blog_images/
+blog_image/
+profile_Image/
+profile_image/
+**/blog_images/
+**/blog_image/
+**/profile_Image/
+**/profile_image/
+.config/
+**/.config/
+

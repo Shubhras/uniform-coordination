@@ -776,35 +776,48 @@ class QuotationRequestListAPIView(APIView):
         email = request.GET.get("email")
 
         # Search (partial match)
-        if search:
-            queryset = queryset.filter(
-                Q(company_name__icontains=search) |
-                Q(email__icontains=search) |
-                Q(item_type__icontains=search) |
-                Q(uuids__icontains=search)   
+        if search and search.strip():
+            clean_search = search.strip()
+            search_filter = (
+                Q(quotation_id__icontains=clean_search) |
+                Q(company_name__icontains=clean_search) |
+                Q(email__icontains=clean_search) |
+                Q(item_type__icontains=clean_search)
             )
+            import uuid
+            try:
+                uuid.UUID(clean_search)
+                search_filter |= Q(uuids=clean_search)
+            except ValueError:
+                pass
+
+            queryset = queryset.filter(search_filter)
 
         #  Status filter
-        if status_param:
-            queryset = queryset.filter(quotation_status=status_param)
+        if status_param and status_param.strip():
+            queryset = queryset.filter(quotation_status=status_param.strip())
 
         #  Email filter
-        if email:
-            queryset = queryset.filter(email__icontains=email)
+        if email and email.strip():
+            queryset = queryset.filter(email__icontains=email.strip())
 
+        total_count = queryset.count()
         paginator = CustomPagination()
         paginated_queryset = paginator.paginate_queryset(queryset, request)
-
 
         serializer = QuotationRequestSerializer(paginated_queryset, many=True)
 
         return Response({
-            'statusCode':200,
+            'statusCode': 200,
             "status": True,
-            'message':'Quotation Request fetch data successfully.',
-            "count": queryset.count(),
+            'message': 'Quotation Request fetch data successfully.',
+            "page": int(request.query_params.get("page", 1)),
+            "page_size": int(request.query_params.get("page_size", paginator.page_size)),
+            "count": total_count,
+            "totalPages": paginator.page.paginator.num_pages if paginator.page else 1,
+            "total_pages": paginator.page.paginator.num_pages if paginator.page else 1,
             "data": serializer.data
-        },status=status.HTTP_200_OK)
+        }, status=status.HTTP_200_OK)
 
 
 class QuotationRequestExportCSVAPIView(APIView):
@@ -926,75 +939,6 @@ class QuotationRequestExportCSVAPIView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
-
-#<---------------------QuotationTemplate--------------------->
-
-
-# class QuotationTemplateCreateAPIView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     @extend_schema(
-#     tags=["Quotation Template"],
-#     summary="Create Quotation Template API",
-#     description="Render a quotation using a selected quotation template.",
-#     request={
-#         "application/json": {
-#             "type": "object",
-#             "required": ["quotation_id", "template_slug"],
-#             "properties": {
-#                 "quotation_id": {
-#                     "type": "string",
-#                     "example": "QTN-1001"
-#                 },
-#                 "template_slug": {
-#                     "type": "string",
-#                     "example": "default-quotation-template"
-#                 }
-#             }
-#         }
-#     },
-#     responses={
-#         200: OpenApiResponse(description="Quotation rendered successfully"),
-#         400: OpenApiResponse(description="Missing required fields"),
-#         404: OpenApiResponse(description="Quotation or Template not found"),
-#     },
-#     )
-#     def post(self, request):
-#         quotation_id = request.data.get("quotation_id")
-#         template_slug = request.data.get("template_slug")
-
-#         if not quotation_id or not template_slug:
-#             return Response(
-#                 {"message": "quotation_id and template_slug are required"},
-#                 status=400
-#             )
-
-#         quotation = QuotationRequest.objects.filter(
-#             quotation_id=quotation_id,
-#             isDeleted=False
-#         ).first()
-
-#         template = QuotationTemplate.objects.filter(
-#             slug=template_slug,
-#             is_active=True,
-#             is_deleted=False
-#         ).first()
-
-#         if not quotation:
-#             return Response({"message": "Quotation not found"}, status=404)
-
-#         if not template:
-#             return Response({"message": "Template not found"}, status=404)
-
-#         rendered_text = render_quotation_template(
-#             template.content,
-#             quotation
-#         )
-
-#         return Response({
-#             "quotation_id": quotation.quotation_id,
-#             "rendered_content": rendered_text
-#         })
 
 class QuotationTemplateCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -3009,45 +2953,6 @@ class AdminOrderUpdateAPIView(APIView):
         }, status=status.HTTP_200_OK)
 
 
-    # def patch(self, request, order_id):
-    #     try:
-    #         order = Order.objects.get(order_id=order_id)
-    #     except Order.DoesNotExist:
-    #         return Response({"status": False, "statusCode": 404, "message": "Order not found"}, status=status.HTTP_404_NOT_FOUND)
-
-    #     new_status = request.data.get('status')
-    #     if not new_status:
-    #         return Response({"status": False, "statusCode": 400, "message": "Status is required"}, status=status.HTTP_400_BAD_REQUEST)
-
-    #     valid_statuses = [choice[0] for choice in Order.STATUS_CHOICE]
-    #     if new_status not in valid_statuses:
-    #         return Response({"status": False, "statusCode": 400, "message": f"Invalid status. Must be one of: {', '.join(valid_statuses)}"}, status=status.HTTP_400_BAD_REQUEST)
-
-    #     order.status = new_status
-    #     if new_status == 'cancelled':
-    #         order.admin_cancel_reason = request.data.get('admin_cancel_reason', '')
-    #         order.cancelled_by = 'admin'
-
-    #     order.save()
-
-    #     # Send Return Received Email
-    #     if new_status == 'returned' and hasattr(order, 'customer') and hasattr(order.customer, 'user'):
-    #         send_return_received_email(order.customer.user, order)
-    #     elif new_status == 'returned' and hasattr(order, 'user'):
-    #         send_return_received_email(order.user, order)
-            
-    #     return Response({
-    #         "status": True,
-    #         "statusCode": 200,
-    #         "message": "Order updated successfully",
-    #         "data": {
-    #             "order_id": order.order_id,
-    #             "status": order.status,
-    #             "user_cancel_reason": order.cancel_reason,
-    #             "admin_cancel_reason": order.admin_cancel_reason,
-    #             "cancelled_by": order.cancelled_by
-    #         }
-    #     }, status=status.HTTP_200_OK)
 
 
 class AdminOrderDetailAPIView(APIView):
@@ -3582,19 +3487,55 @@ class AdminSavedSimulationsAPIView(APIView):
         tags=["Admin Dashboard"],
         summary="List all user saved simulations",
         description="Fetch all user customized products and themes with configurations and specs.",
+        parameters=[
+            OpenApiParameter(name="search", type=OpenApiTypes.STR, location=OpenApiParameter.QUERY, description="Search by customer name, email, product, theme, or category", required=False),
+            OpenApiParameter(name="page", type=OpenApiTypes.INT, location=OpenApiParameter.QUERY, description="Page number", required=False),
+            OpenApiParameter(name="page_size", type=OpenApiTypes.INT, location=OpenApiParameter.QUERY, description="Page size", required=False),
+            OpenApiParameter(name="include_quotations", type=OpenApiTypes.BOOL, location=OpenApiParameter.QUERY, description="Include simulations converted to quotations", required=False),
+        ],
         responses={200: OpenApiResponse(description="Saved simulations fetched successfully")},
     )
     def get(self, request):
         try:
-            # 1. Fetch user custom product models
+            # 1. Fetch user custom product models (only pure simulations, excluding active quotation requests)
             product_customs = CustomUpdateModels.objects.filter(isDeleted=False).select_related(
                 'user', 'model_info', 'model_info__product', 'model_info__product__category'
             ).order_by('-created_at')
+
+            include_quotations = request.query_params.get("include_quotations", "false").lower() == "true"
+            if not include_quotations:
+                product_customs = product_customs.exclude(quotation_requests__isDeleted=False)
 
             # 2. Fetch user custom theme models
             theme_customs = CustomUpdateThemes.objects.filter(isDeleted=False).select_related(
                 'user', 'theme', 'theme__category'
             ).order_by('-created_at')
+
+            # Search filter
+            search = request.query_params.get("search", "").strip()
+            if search:
+                search_q = (
+                    Q(user__firstName__icontains=search) |
+                    Q(user__lastName__icontains=search) |
+                    Q(user__userName__icontains=search) |
+                    Q(user__email__icontains=search) |
+                    Q(model_info__product__productName__icontains=search) |
+                    Q(model_info__product__productCode__icontains=search) |
+                    Q(model_info__product__category__categoryName__icontains=search)
+                )
+                theme_q = (
+                    Q(user__firstName__icontains=search) |
+                    Q(user__lastName__icontains=search) |
+                    Q(user__userName__icontains=search) |
+                    Q(user__email__icontains=search) |
+                    Q(theme__title__icontains=search) |
+                    Q(theme__category__categoryName__icontains=search)
+                )
+                if search.isdigit():
+                    search_q |= Q(id=int(search))
+                    theme_q |= Q(id=int(search))
+                product_customs = product_customs.filter(search_q)
+                theme_customs = theme_customs.filter(theme_q)
 
             saved_simulations = []
 
@@ -3603,7 +3544,13 @@ class AdminSavedSimulationsAPIView(APIView):
                 user_name = ""
                 user_email = ""
                 if user_obj:
-                    user_name = getattr(user_obj, 'name', '') or f"{getattr(user_obj, 'first_name', '')} {getattr(user_obj, 'last_name', '')}".strip() or getattr(user_obj, 'email', '')
+                    user_name = (
+                        f"{getattr(user_obj, 'firstName', '')} {getattr(user_obj, 'lastName', '')}".strip()
+                        or getattr(user_obj, 'name', '')
+                        or f"{getattr(user_obj, 'first_name', '')} {getattr(user_obj, 'last_name', '')}".strip()
+                        or getattr(user_obj, 'userName', '')
+                        or getattr(user_obj, 'email', '')
+                    )
                     user_email = getattr(user_obj, 'email', '') or ""
 
                 prod = p.model_info.product if p.model_info else None
@@ -3643,7 +3590,13 @@ class AdminSavedSimulationsAPIView(APIView):
                 user_name = ""
                 user_email = ""
                 if user_obj:
-                    user_name = getattr(user_obj, 'name', '') or f"{getattr(user_obj, 'first_name', '')} {getattr(user_obj, 'last_name', '')}".strip() or getattr(user_obj, 'email', '')
+                    user_name = (
+                        f"{getattr(user_obj, 'firstName', '')} {getattr(user_obj, 'lastName', '')}".strip()
+                        or getattr(user_obj, 'name', '')
+                        or f"{getattr(user_obj, 'first_name', '')} {getattr(user_obj, 'last_name', '')}".strip()
+                        or getattr(user_obj, 'userName', '')
+                        or getattr(user_obj, 'email', '')
+                    )
                     user_email = getattr(user_obj, 'email', '') or ""
 
                 theme_obj = t.theme
@@ -3676,13 +3629,48 @@ class AdminSavedSimulationsAPIView(APIView):
             # Sort combined list by created_at descending
             saved_simulations.sort(key=lambda x: x["created_at"], reverse=True)
 
+            total_count = len(saved_simulations)
+            product_count = len(product_customs)
+            theme_count = len(theme_customs)
+
+            # Pagination support
+            page_param = request.query_params.get("page")
+            page_size_param = request.query_params.get("page_size")
+
+            if page_param or page_size_param:
+                page_num = max(1, int(page_param or 1))
+                page_size = max(1, min(100, int(page_size_param or 10)))
+                total_pages = (total_count + page_size - 1) // page_size if total_count > 0 else 1
+                start = (page_num - 1) * page_size
+                end = start + page_size
+                data_slice = saved_simulations[start:end]
+
+                return Response({
+                    "status": True,
+                    "statusCode": 200,
+                    "message": "Saved simulations fetched successfully",
+                    "total_count": total_count,
+                    "product_count": product_count,
+                    "theme_count": theme_count,
+                    "count": total_count,
+                    "page": page_num,
+                    "page_size": page_size,
+                    "totalPages": total_pages,
+                    "total_pages": total_pages,
+                    "current_page": page_num,
+                    "next": f"?page={page_num + 1}&page_size={page_size}" if page_num < total_pages else None,
+                    "previous": f"?page={page_num - 1}&page_size={page_size}" if page_num > 1 else None,
+                    "data": data_slice
+                }, status=status.HTTP_200_OK)
+
             return Response({
                 "status": True,
                 "statusCode": 200,
                 "message": "Saved simulations fetched successfully",
-                "total_count": len(saved_simulations),
-                "product_count": len(product_customs),
-                "theme_count": len(theme_customs),
+                "total_count": total_count,
+                "product_count": product_count,
+                "theme_count": theme_count,
+                "count": total_count,
                 "data": saved_simulations
             }, status=status.HTTP_200_OK)
         except Exception as e:

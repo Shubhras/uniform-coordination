@@ -1096,37 +1096,6 @@ class ResendVerificationEmailAPIView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-#-----------------Notification-------------------------
-
-# class NotificationCreateAPIView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     def post(self, request):
-#         try:
-#             serializer = NotificationSerializer(data=request.data)
-#             if serializer.is_valid():
-#                 serializer.save(user=request.user)
-#                 return Response({
-#                     "status": True,
-#                     "statusCode": 200,
-#                     "message": "Notification created successfully",
-#                     "data": serializer.data
-#                 }, status=status.HTTP_200_OK)
-
-#             return Response({
-#                 "status": False,
-#                 "statusCode": 400,
-#                 "message": serializer.errors,
-#                 "data": None
-#             }, status=status.HTTP_400_BAD_REQUEST)
-
-#         except Exception as e:
-#             return Response({
-#                 "status": False,
-#                 "statusCode": 500,
-#                 "message": str(e),
-#                 "data": None
-#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class UserNotificationListAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -1145,14 +1114,25 @@ class UserNotificationListAPIView(APIView):
                 isActive=True
             ).order_by("-created_at")
 
-            serializer = UserNotificationSerializer(notifications, many=True)
+            total_count = notifications.count()
+            unread_count = notifications.filter(is_read=False).count()
+
+            paginator = CustomPagination()
+            page_obj = paginator.paginate_queryset(notifications, request)
+            serializer = UserNotificationSerializer(page_obj, many=True)
 
             return Response({
                 "status": True,
                 "statusCode": 200,
                 "message": "User notifications fetched successfully",
-                "count": notifications.count(),
-                "unread_count": notifications.filter(is_read=False).count(),
+                "count": total_count,
+                "unread_count": unread_count,
+                "page": int(request.query_params.get("page", 1)),
+                "page_size": int(request.query_params.get("page_size", paginator.page_size)),
+                "totalPages": paginator.page.paginator.num_pages if paginator.page else 1,
+                "current_page": paginator.page.number if paginator.page else 1,
+                "next": paginator.get_next_link() if paginator.page else None,
+                "previous": paginator.get_previous_link() if paginator.page else None,
                 "data": serializer.data
             }, status=status.HTTP_200_OK)
 
@@ -1226,13 +1206,7 @@ class UserNotificationDeleteAPIView(APIView):
                 "message": str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-#         except Exception as e:
-#             return Response({
-#                 "status": False,
-#                 "statusCode": 500,
-#                 "message": str(e),
-#                 "data": None
-#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 # ADD TO CART 
 class AddToCartAPIView(APIView):
@@ -1565,12 +1539,6 @@ class UpdateCartItemAPIView(APIView):
 
             quantity = int(quantity)
 
-            # if quantity < 0:
-            #     return Response({
-            #         "status": False,
-            #         "statusCode": 400,
-            #         "message": "Quantity cannot be negative"
-            #     }, status=status.HTTP_400_BAD_REQUEST)
 
             item = CartItem.objects.select_related("product").get(
                 id=id,
@@ -1880,6 +1848,7 @@ class CustomerDetailsRetrieveAPIView(APIView):
 
 
 class CreateOrderAPIView(APIView):
+    permission_classes = [IsAuthenticated]
     @transaction.atomic
     def post(self, request):
         try:
@@ -3835,5 +3804,51 @@ class UserTokenRefreshAPIView(APIView):
                 "message": "Refresh token is invalid or expired",
                 "error": str(e),
             }, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class PublicPaymentMethodsAPIView(APIView):
+    """
+    GET /api/v1/space/userhub/payment-methods/
+    Public API returning active checkout payment methods and public payment info.
+    Does not require admin privileges or strict authentication.
+    """
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        try:
+            settings_obj = SystemSettings.load()
+            return Response(
+                {
+                    "success": True,
+                    "status_code": 200,
+                    "message": "Payment methods fetched successfully",
+                    "data": {
+                        "payment_enable_kakebarai": bool(settings_obj.payment_enable_kakebarai),
+                        "payment_enable_credit_card": bool(settings_obj.payment_enable_credit_card),
+                        "payment_enable_paypay": bool(settings_obj.payment_enable_paypay),
+                        "payment_enable_conbini": bool(settings_obj.payment_enable_conbini),
+                        "payment_enable_bank_transfer": bool(settings_obj.payment_enable_bank_transfer),
+                        "payment_enable_applepay": bool(settings_obj.payment_enable_applepay),
+                        "payment_enable_googlepay": bool(settings_obj.payment_enable_googlepay),
+                        "stripe_publishable_key": settings_obj.stripe_publishable_key or "",
+                        "bank_name": settings_obj.bank_name or "",
+                        "bank_branch": settings_obj.bank_branch or "",
+                        "bank_account_number": settings_obj.bank_account_number or "",
+                        "bank_account_holder": settings_obj.bank_account_holder or "",
+                    },
+                },
+                status=status.HTTP_200_OK,
+            )
+        except Exception as e:
+            return Response(
+                {
+                    "success": False,
+                    "status_code": 500,
+                    "message": "Failed to fetch payment methods",
+                    "error": str(e),
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
 
 

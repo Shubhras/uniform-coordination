@@ -1097,25 +1097,34 @@ class QuotationRequestListAPIView(APIView):
         email = request.GET.get("email")
 
         # Search (partial match)
-        if search:
-            queryset = queryset.filter(
-                Q(company_name__icontains=search) |
-                Q(email__icontains=search) |
-                Q(item_type__icontains=search) |
-                Q(uuids__icontains=search)   
+        if search and search.strip():
+            clean_search = search.strip()
+            search_filter = (
+                Q(quotation_id__icontains=clean_search) |
+                Q(company_name__icontains=clean_search) |
+                Q(email__icontains=clean_search) |
+                Q(item_type__icontains=clean_search)
             )
+            import uuid
+            try:
+                uuid.UUID(clean_search)
+                search_filter |= Q(uuids=clean_search)
+            except ValueError:
+                pass
+
+            queryset = queryset.filter(search_filter)
 
         #  Status filter
-        if status_param:
-            queryset = queryset.filter(quotation_status=status_param)
+        if status_param and status_param.strip():
+            queryset = queryset.filter(quotation_status=status_param.strip())
 
         #  Email filter
-        if email:
-            queryset = queryset.filter(email__icontains=email)
+        if email and email.strip():
+            queryset = queryset.filter(email__icontains=email.strip())
 
+        total_count = queryset.count()
         paginator = CustomPagination()
         paginated_queryset = paginator.paginate_queryset(queryset, request)
-
 
         serializer = QuotationRequestSerializer(paginated_queryset, many=True)
         
@@ -1126,8 +1135,9 @@ class QuotationRequestListAPIView(APIView):
 
             "page": int(request.query_params.get("page", 1)),
             "page_size": int(request.query_params.get("page_size", paginator.page_size)),
-
-            "count": queryset.count(),
+            "count": total_count,
+            "totalPages": paginator.page.paginator.num_pages if paginator.page else 1,
+            "total_pages": paginator.page.paginator.num_pages if paginator.page else 1,
             "data": serializer.data
         }, status=status.HTTP_200_OK)
 
@@ -2958,18 +2968,68 @@ class AdminSavedSimulationsAPIView(APIView):
         tags=["Admin Dashboard"],
         summary="List all user saved simulations",
         description="Fetch all user customized products with configurations and specs.",
+        parameters=[
+            OpenApiParameter(name="search", type=OpenApiTypes.STR, location=OpenApiParameter.QUERY, description="Search by customer name, email, product, or category", required=False),
+            OpenApiParameter(name="page", type=OpenApiTypes.INT, location=OpenApiParameter.QUERY, description="Page number", required=False),
+            OpenApiParameter(name="page_size", type=OpenApiTypes.INT, location=OpenApiParameter.QUERY, description="Page size", required=False),
+            OpenApiParameter(name="include_quotations", type=OpenApiTypes.BOOL, location=OpenApiParameter.QUERY, description="Include simulations converted to quotations", required=False),
+        ],
         responses={200: OpenApiResponse(description="Saved simulations fetched successfully")},
     )
     def get(self, request):
         try:
-            # Fetch user custom product models for uniform
+            # Base query: non-deleted custom product models
             product_customs = CustomUpdateModels.objects.filter(isDeleted=False).select_related(
                 'user', 'model_info', 'model_info__product', 'model_info__product__category'
             ).prefetch_related('quotation_requests').order_by('-created_at')
 
+            # Show only pure simulations (exclude simulations that have an active quotation request)
+            include_quotations = request.query_params.get("include_quotations", "false").lower() == "true"
+            if not include_quotations:
+                product_customs = product_customs.exclude(quotation_requests__isDeleted=False)
+
+            # Search filter
+            search = request.query_params.get("search", "").strip()
+            if search:
+                search_q = (
+                    Q(user__firstName__icontains=search) |
+                    Q(user__lastName__icontains=search) |
+                    Q(user__userName__icontains=search) |
+                    Q(user__email__icontains=search) |
+                    Q(model_info__product__productName__icontains=search) |
+                    Q(model_info__product__productCode__icontains=search) |
+                    Q(model_info__product__category__categoryName__icontains=search)
+                )
+                if search.isdigit():
+                    search_q |= Q(id=int(search))
+                product_customs = product_customs.filter(search_q)
+
+            total_count = product_customs.count()
+
+            # Pagination support
+            page_param = request.query_params.get("page")
+            page_size_param = request.query_params.get("page_size")
+
+            if page_param or page_size_param:
+                paginator = CustomPagination()
+                page_obj = paginator.paginate_queryset(product_customs, request)
+                items_to_serialize = page_obj
+                current_page = paginator.page.number if paginator.page else 1
+                total_pages = paginator.page.paginator.num_pages if paginator.page else 1
+                page_size = paginator.get_page_size(request)
+                next_link = paginator.get_next_link()
+                prev_link = paginator.get_previous_link()
+            else:
+                items_to_serialize = product_customs
+                current_page = 1
+                total_pages = 1
+                page_size = total_count
+                next_link = None
+                prev_link = None
+
             saved_simulations = []
 
-            for p in product_customs:
+            for p in items_to_serialize:
                 user_obj = p.user
                 user_name = ""
                 user_email = ""
@@ -3029,15 +3089,28 @@ class AdminSavedSimulationsAPIView(APIView):
                     "formatted_date": p.created_at.strftime("%b %d, %Y %I:%M %p") if p.created_at else ""
                 })
 
-            return Response({
+            response_data = {
                 "status": True,
                 "statusCode": 200,
                 "message": "Saved simulations fetched successfully",
-                "total_count": len(saved_simulations),
-                "product_count": len(saved_simulations),
+                "total_count": total_count,
+                "product_count": total_count,
                 "theme_count": 0,
+                "count": total_count,
                 "data": saved_simulations
-            }, status=status.HTTP_200_OK)
+            }
+            if page_param or page_size_param:
+                response_data.update({
+                    "page": current_page,
+                    "page_size": page_size,
+                    "totalPages": total_pages,
+                    "total_pages": total_pages,
+                    "current_page": current_page,
+                    "next": next_link,
+                    "previous": prev_link,
+                })
+
+            return Response(response_data, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({
                 "status": False,

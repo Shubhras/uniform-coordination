@@ -42,35 +42,33 @@ const PaymentHero = () => {
 
     useEffect(() => {
         const fetchSettings = async () => {
-            if (session?.accessToken) {
-                try {
-                    const res = await apiGetSystemSettings(session.accessToken)
-                    if (res?.success && res?.data) {
-                        setSettings(res.data)
-                        const data = res.data
-                        if (data.payment_enable_credit_card) {
-                            setPaymentMethod('card')
-                        } else if (data.payment_enable_paypay) {
-                            setPaymentMethod('paypal')
-                        } else if (data.payment_enable_kakebarai) {
-                            setPaymentMethod('kakebarai')
-                        } else if (data.payment_enable_bank_transfer) {
-                            setPaymentMethod('bank')
-                        } else if (data.payment_enable_applepay) {
-                            setPaymentMethod('apple')
-                        } else if (data.payment_enable_googlepay) {
-                            setPaymentMethod('googlepay')
-                        } else if (data.payment_enable_conbini) {
-                            setPaymentMethod('conbini')
-                        }
+            try {
+                const res = await apiGetSystemSettings(session?.accessToken)
+                if (res?.success && res?.data) {
+                    setSettings(res.data)
+                    const data = res.data
+                    if (data.payment_enable_credit_card) {
+                        setPaymentMethod('card')
+                    } else if (data.payment_enable_paypay) {
+                        setPaymentMethod('paypal')
+                    } else if (data.payment_enable_kakebarai) {
+                        setPaymentMethod('kakebarai')
+                    } else if (data.payment_enable_bank_transfer) {
+                        setPaymentMethod('bank')
+                    } else if (data.payment_enable_applepay) {
+                        setPaymentMethod('apple')
+                    } else if (data.payment_enable_googlepay) {
+                        setPaymentMethod('googlepay')
+                    } else if (data.payment_enable_conbini) {
+                        setPaymentMethod('conbini')
                     }
-                } catch (err) {
-                    console.error('Failed to fetch system settings:', err)
                 }
+            } catch (err) {
+                console.error('Failed to fetch system settings:', err)
             }
         }
         fetchSettings()
-    }, [session])
+    }, [session?.accessToken])
 
     const handleElementChange = (event) => {
         if (event.error) {
@@ -187,40 +185,43 @@ const PaymentHero = () => {
         }
     }
 
-    const allowedMethods = []
-    if (settings) {
-        if (settings.payment_enable_credit_card) {
-            allowedMethods.push({ id: 'card', label: 'Credit Card' })
-        }
-        if (settings.payment_enable_paypay) {
-            allowedMethods.push({ id: 'paypal', label: 'PayPal' })
-        }
-        if (settings.payment_enable_kakebarai) {
-            allowedMethods.push({ id: 'kakebarai', label: 'NP Kakebarai' })
-        }
-        if (settings.payment_enable_bank_transfer) {
-            allowedMethods.push({ id: 'bank', label: 'Bank Transfer' })
-        }
-        if (settings.payment_enable_applepay) {
-            allowedMethods.push({ id: 'apple', label: 'Apple Pay' })
-        }
-        if (settings.payment_enable_googlepay) {
-            allowedMethods.push({ id: 'googlepay', label: 'Google Pay' })
-        }
-        if (settings.payment_enable_conbini) {
-            allowedMethods.push({ id: 'conbini', label: 'Convenience Store' })
-        }
-    } else {
-        // Fallback default
-        allowedMethods.push(
-            { id: 'card', label: 'Credit Card' },
-            { id: 'paypal', label: 'PayPal' },
-            { id: 'kakebarai', label: 'NP Kakebarai' },
-            { id: 'bank', label: 'Bank Transfer' },
-            { id: 'apple', label: 'Apple Pay' },
-            { id: 'googlepay', label: 'Google Pay' }
-        )
-    }
+    const paymentMethods = [
+        {
+            id: 'card',
+            label: 'Credit Card',
+            enabled: settings ? Boolean(settings.payment_enable_credit_card) : true,
+        },
+        {
+            id: 'paypal',
+            label: 'PayPal',
+            enabled: settings ? Boolean(settings.payment_enable_paypay) : false,
+        },
+        {
+            id: 'kakebarai',
+            label: 'NP Kakebarai',
+            enabled: settings ? Boolean(settings.payment_enable_kakebarai) : true,
+        },
+        {
+            id: 'bank',
+            label: 'Bank Transfer',
+            enabled: settings ? Boolean(settings.payment_enable_bank_transfer) : true,
+        },
+        {
+            id: 'apple',
+            label: 'Apple Pay',
+            enabled: settings ? Boolean(settings.payment_enable_applepay) : false,
+        },
+        {
+            id: 'googlepay',
+            label: 'Google Pay',
+            enabled: settings ? Boolean(settings.payment_enable_googlepay) : false,
+        },
+        {
+            id: 'conbini',
+            label: 'Convenience Store',
+            enabled: settings ? Boolean(settings.payment_enable_conbini) : false,
+        },
+    ]
 
     return (
         <>
@@ -231,29 +232,43 @@ const PaymentHero = () => {
 
                         {/* PAYMENT METHODS */}
                         <div className="flex flex-wrap items-center gap-4">
-                            {allowedMethods.map((method) => (
-                                <label
-                                    key={method.id}
-                                    className={`flex items-center gap-2.5 border rounded-xl px-4 py-3 cursor-pointer transition ${paymentMethod === method.id
-                                        ? 'border-[#8B4513] bg-[#FAF6F4]/60'
-                                        : 'border-gray-200 hover:border-gray-300'
+                            {paymentMethods.map((method) => {
+                                const isEnabled = method.enabled
+                                const isSelected = paymentMethod === method.id
+                                return (
+                                    <label
+                                        key={method.id}
+                                        className={`flex items-center gap-2.5 border rounded-xl px-4 py-3 transition ${
+                                            !isEnabled
+                                                ? 'border-gray-200 bg-gray-50/70 text-gray-400 opacity-50 cursor-not-allowed select-none'
+                                                : isSelected
+                                                    ? 'border-[#8B4513] bg-[#FAF6F4]/60 cursor-pointer'
+                                                    : 'border-gray-200 hover:border-gray-300 cursor-pointer'
                                         }`}
-                                >
-                                    <input
-                                        type="radio"
-                                        name="payment_method"
-                                        checked={paymentMethod === method.id}
-                                        onChange={() => {
-                                            setPaymentMethod(method.id)
-                                            setError(null)
-                                        }}
-                                        className="w-4 h-4 accent-[#8B4513] cursor-pointer"
-                                    />
-                                    <span className="text-base font-medium text-[#374151] whitespace-nowrap">
-                                        {method.label}
-                                    </span>
-                                </label>
-                            ))}
+                                    >
+                                        <input
+                                            type="radio"
+                                            name="payment_method"
+                                            disabled={!isEnabled}
+                                            checked={isSelected && isEnabled}
+                                            onChange={() => {
+                                                if (isEnabled) {
+                                                    setPaymentMethod(method.id)
+                                                    setError(null)
+                                                }
+                                            }}
+                                            className={`w-4 h-4 accent-[#8B4513] ${
+                                                !isEnabled ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'
+                                            }`}
+                                        />
+                                        <span className={`text-base font-medium whitespace-nowrap ${
+                                            !isEnabled ? 'text-gray-400' : 'text-[#374151]'
+                                        }`}>
+                                            {method.label}
+                                        </span>
+                                    </label>
+                                )
+                            })}
                         </div>
 
                         {/* STRIPE CARD UI */}

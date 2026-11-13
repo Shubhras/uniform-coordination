@@ -1523,71 +1523,6 @@ class UpdateCartItemAPIView(APIView):
                 "details": str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
    
-# Delete
-# class RemoveCartItemAPIView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     @extend_schema(
-#     summary="RemoveCartItem API",
-#     tags=["Payment Gateway"],
-#     request={
-#         "application/json": {
-#             "type": "object",
-#             "properties": {
-#                 "item_id": {"type": "integer"}
-#             },
-#             "required": ["item_id"]
-#         }
-#     },
-#     responses={
-#         200: OpenApiTypes.OBJECT,
-#         404: OpenApiTypes.OBJECT,
-#     },
-#     )
-#     def delete(self, request, id):
-#         try:
-#             if not id:
-#                 return Response({
-#                     "status": False,
-#                     "statusCode": 400,
-#                     "message": "Item ID is required"
-#                 }, status=status.HTTP_400_BAD_REQUEST)
-
-#             item = CartItem.objects.get(
-#                 id=id,
-#                 cart__user=request.user,
-#                 cart__is_active=True,
-#                 is_active=True  
-#             )
-
-#             product = item.product
-#             product.available_quantity += item.quantity
-#             product.save()
-
-#             item.is_active = False
-#             item.deleted_at = timezone.now()
-#             item.save()
-
-#             return Response({
-#                 "status": True,
-#                 "statusCode": 200,
-#                 "message": "Item removed from cart successfully"
-#             }, status=status.HTTP_200_OK)
-
-#         except CartItem.DoesNotExist:
-#             return Response({
-#                 "status": False,
-#                 "statusCode": 404,
-#                 "message": "Item not found"
-#             }, status=status.HTTP_404_NOT_FOUND)
-
-#         except Exception as e:
-#             return Response({
-#                 "status": False,
-#                 "statusCode": 500,
-#                 "error": "Something went wrong",
-#                 "details": str(e)
-#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class RemoveCartItemAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -1787,6 +1722,7 @@ class ItemSummaryAPIView(APIView):
         
     
 class CreateOrderAPIView(APIView):
+    permission_classes = [IsAuthenticated]
     @transaction.atomic
     def post(self, request):
         try:
@@ -1864,47 +1800,8 @@ class CreateOrderAPIView(APIView):
                         address_line_2=delivery.get("address_line_2"),
                         city=delivery.get("city"),
                         postal_code=delivery.get("postal_code"),
-                        country=delivery.get("country"),
-                    )
-                    
-                #     customer, created = CustomerDetails.objects.get_or_create(
-                #     user=user,
-                #     defaults={
-                #         "email": customer_data.get("email"),
-                #         "first_name": customer_data.get("first_name"),
-                #         "last_name": customer_data.get("last_name"),
-                #         "phone": customer_data.get("phone"),
-                #         "address_line_1": delivery.get("address_line1"),
-                #         "address_line_2": delivery.get("address_line2"),
-                #         "city": delivery.get("city"),
-                #         "postal_code": delivery.get("postal_code"),
-                #         "country": delivery.get("country"),
-                #     }
-                # )
-
-                # if not created:
-                #     customer.email = customer_data.get("email")
-                #     customer.first_name = customer_data.get("first_name")
-                #     customer.last_name = customer_data.get("last_name")
-                #     customer.phone = customer_data.get("phone")
-                #     customer.address_line_1 = delivery.get("address_line1")
-                #     customer.address_line_2 = delivery.get("address_line2")
-                #     customer.city = delivery.get("city")
-                #     customer.postal_code = delivery.get("postal_code")
-                #     customer.country = delivery.get("country")
-                #     customer.save()
-                    # customer = CustomerDetails.objects.create(
-                    #     user=user,
-                    #     email=customer_data.get("email"),
-                    #     first_name=customer_data.get("first_name"),
-                    #     last_name=customer_data.get("last_name"),
-                    #     phone=customer_data.get("phone"),
-                    #     address_line_1=customer_data.get("address_line1"),
-                    #     address_line_2=customer_data.get("address_line2"),
-                    #     city=customer_data.get("city"),
-                    #     postal_code=customer_data.get("postal_code"),
-                    #     country=customer_data.get("country"),
-                    # )
+                        country=delivery.get("trcouny"),
+                    )     
             else:
                 return Response({
                     "status": False,
@@ -2844,6 +2741,7 @@ class UserNotificationListAPIView(APIView):
     def get(self, request):
         try:
             notifications = UserNotification.objects.filter(user=request.user)
+            unread_count = notifications.filter(is_read=False).count()
             paginator = NotificationPagination()
             page = paginator.paginate_queryset(notifications, request)
             serializer = UserNotificationSerializer(page, many=True)
@@ -2851,9 +2749,15 @@ class UserNotificationListAPIView(APIView):
                 "statusCode": 200,
                 "status": True,
                 "message": "Notifications fetched successfully",
-                "count": paginator.page.paginator.count,
-                "page": paginator.page.number,
-                "total_pages": paginator.page.paginator.num_pages,
+                "count": paginator.page.paginator.count if paginator.page else notifications.count(),
+                "unread_count": unread_count,
+                "page": paginator.page.number if paginator.page else 1,
+                "current_page": paginator.page.number if paginator.page else 1,
+                "total_pages": paginator.page.paginator.num_pages if paginator.page else 1,
+                "totalPages": paginator.page.paginator.num_pages if paginator.page else 1,
+                "page_size": paginator.get_page_size(request),
+                "next": paginator.get_next_link() if paginator.page else None,
+                "previous": paginator.get_previous_link() if paginator.page else None,
                 "data": serializer.data,
             }, status=status.HTTP_200_OK)
         except Exception as e:

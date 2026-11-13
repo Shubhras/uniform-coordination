@@ -36,17 +36,19 @@ export async function apiPaymentDetail(token, paymentId) {
 }
 
 /**
- * Fetches system settings (including enabled payment gateways).
+ * Fetches active checkout payment methods (Credit Card, PayPay, Bank Transfer, etc.).
  * 
- * @param {string} token - User authentication Bearer token.
- * @returns {Promise<Object>} API response with system settings.
+ * @param {string} [token] - Optional user authentication Bearer token.
+ * @returns {Promise<Object>} API response with enabled payment methods.
  */
 export async function apiGetSystemSettings(token) {
+  const headers = {};
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
   return ApiService.fetchDataWithAxios({
-    url: "/v1/space/uniformAdmin/settings/system/",
+    url: "/v1/space/userhub/payment-methods/",
     method: "get",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    headers,
   });
 }

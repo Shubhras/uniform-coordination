@@ -81,6 +81,7 @@ urlpatterns = [
 
 
     #<-------------------Payment API------------------------------->
+    path('payment-methods/', PublicPaymentMethodsAPIView.as_view(), name='public-payment-methods'),
     path("payments/create-intent/",CreatePaymentAPIView.as_view()),
     path("payments/", UserPaymentListAPIView.as_view(), name="user-payment-list"),
     path("payments/detail/<str:payment_id>/", UserPaymentDetailAPIView.as_view(), name="user-payment-detail"),

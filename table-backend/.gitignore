@@ -69,6 +69,13 @@ Thumbs.db
 # Node / Frontend (if present later)
 node_modules/
 
+# Uploaded images & media
+blog_images/
+blog_image/
+profile_Image/
+profile_image/
+.config/
+
 # Django migrations
 # */migrations/
 # !*/migrations/__init__.py
