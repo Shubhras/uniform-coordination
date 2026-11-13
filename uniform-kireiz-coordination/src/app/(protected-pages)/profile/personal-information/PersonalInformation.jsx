@@ -81,7 +81,7 @@ const CustomControl = ({ children, ...props }) => {
 const PersonalInformation = () => {
     const router = useRouter()
     const { data: session } = useSession()
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(true)
     const [removingImage, setRemovingImage] = useState(false)
     const [imagePreview, setImagePreview] = useState('')
     const [selectedFile, setSelectedFile] = useState(null)
@@ -204,6 +204,10 @@ const PersonalInformation = () => {
                 setValue('img', res.profileImage)
             }
 
+            if (typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('profile-updated'))
+            }
+
             toast.push(
                 <Notification title="Profile success!" type="success">
                     Profile updated successfully
@@ -250,6 +254,9 @@ const PersonalInformation = () => {
             setSelectedFile(null)
             setValue('img', '', { shouldDirty: true })
             if (fileInputRef.current) fileInputRef.current.value = ''
+            if (typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('profile-updated'))
+            }
             toast.push(
                 <Notification title="Success" type="success">
                     Profile image removed successfully
@@ -269,6 +276,52 @@ const PersonalInformation = () => {
         } finally {
             setRemovingImage(false)
         }
+    }
+
+    if (loading) {
+        return (
+            <div className="bg-[#E8EEF842] p-4 sm:p-5 md:p-8 rounded-2xl max-w-7xl mx-auto shadow-md animate-pulse">
+                <div className="h-6 w-48 bg-gray-200 rounded mb-8" />
+                <div className="mb-8 p-4 sm:p-5 rounded-lg bg-[#1C4FA81F] flex flex-col sm:flex-row items-center gap-4">
+                    <div className="w-[100px] h-[100px] rounded-full bg-gray-200" />
+                    <div className="flex flex-col gap-3 w-full sm:w-auto">
+                        <div className="flex gap-3">
+                            <div className="h-9 w-32 bg-gray-200 rounded-md" />
+                            <div className="h-9 w-24 bg-gray-200 rounded-md" />
+                        </div>
+                        <div className="h-3 w-48 bg-gray-200 rounded" />
+                    </div>
+                </div>
+                <div className="grid md:grid-cols-2 gap-4 mb-4">
+                    <div className="space-y-2">
+                        <div className="h-4 w-20 bg-gray-200 rounded" />
+                        <div className="h-10 w-full bg-gray-200 rounded-md" />
+                    </div>
+                    <div className="space-y-2">
+                        <div className="h-4 w-20 bg-gray-200 rounded" />
+                        <div className="h-10 w-full bg-gray-200 rounded-md" />
+                    </div>
+                </div>
+                <div className="space-y-2 mb-4">
+                    <div className="h-4 w-16 bg-gray-200 rounded" />
+                    <div className="h-10 w-full bg-gray-200 rounded-md" />
+                </div>
+                <div className="grid md:grid-cols-2 gap-4 mb-6">
+                    <div className="space-y-2">
+                        <div className="h-4 w-28 bg-gray-200 rounded" />
+                        <div className="h-10 w-full bg-gray-200 rounded-md" />
+                    </div>
+                    <div className="space-y-2">
+                        <div className="h-4 w-20 bg-gray-200 rounded" />
+                        <div className="h-10 w-full bg-gray-200 rounded-md" />
+                    </div>
+                </div>
+                <div className="flex justify-end gap-3">
+                    <div className="h-9 w-24 bg-gray-200 rounded-md" />
+                    <div className="h-9 w-32 bg-gray-200 rounded-md" />
+                </div>
+            </div>
+        )
     }
 
     return (

@@ -76,15 +76,6 @@ const BlogSection = () => {
   return (
     <section className="w-full bg-white px-5 md:px-8 lg:px-12 py-20 md:py-24">
       <div className="bg-[#F5F7FB] rounded-3xl px-4 md:px-10 lg:px-8 py-10 md:py-8">
-        {/* <div className="text-center mb-10">
-          <h2 className="text-[#1C2C56] lg:text-4xl text-3xl font-semibold">
-            Blog
-          </h2>
-          <div className="w-24 h-1 rounded-full bg-[#87CEEB] mx-auto mt-2" />
-          <p className="text-[#6B7280] text-sm mt-4 max-w-xl mx-auto">
-            Read our latest updates and insights
-          </p>
-        </div> */}
         <div className="text-center lg:mb-7 md:mb-10">
           <div className="text-center mb-1">
             <div className="inline-flex flex-col items-end">
@@ -102,43 +93,58 @@ const BlogSection = () => {
           Our Latest Blog Posts
         </h2>
         {loading ? (
-          <section className="relative w-full bg-white mx-auto px-5 md:px-8 lg:px-12 mt-15">
-            <div className="flex justify-center items-center py-20">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C4FA8]"></div>
-            </div>
-          </section>
-        ) : null}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {blogs.map((post, index) => (
-            <div
-              key={post.id}
-              className="bg-white rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden cursor-pointer"
-              onClick={() => handleClick(post.id)}
-            >
-              <div className="p-3">
-                <Image
-                  src={post.image}
-                  alt={post.title || "Blog Image"}
-                  width={500}
-                  height={300}
-                  className="rounded-xl object-cover object-center w-full h-[200px]"
-                  unoptimized
-                />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {Array.from({ length: 8 }).map((_, index) => (
+              <div
+                key={index}
+                className="bg-white rounded-2xl shadow-sm overflow-hidden animate-pulse"
+              >
+                <div className="p-3">
+                  <div className="w-full h-[200px] rounded-xl bg-gray-200" />
+                </div>
+                <div className="px-5 pb-6 flex flex-col gap-3">
+                  <div className="h-3 w-1/2 bg-gray-200 rounded mb-1" />
+                  <div className="h-4 w-4/5 bg-gray-200 rounded" />
+                  <div className="h-4 w-2/3 bg-gray-200 rounded" />
+                  <div className="h-3 w-full bg-gray-200 rounded mt-1" />
+                  <div className="h-3 w-3/4 bg-gray-200 rounded" />
+                </div>
               </div>
-              <div className="px-5 pb-6 flex flex-col gap-3">
-                <p className="text-xs text-gray-500 mb-2">
-                  {post.date} &nbsp;&nbsp; {post.category}
-                </p>
-                <h3 className="font-semibold text-[#1C2C56] text-base leading-snug">
-                  {trimText(post.title, 10)}
-                </h3>
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  {trimText(post.desc, 15)}
-                </p>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {blogs.map((post) => (
+              <div
+                key={post.id}
+                className="bg-white rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden cursor-pointer"
+                onClick={() => handleClick(post.id)}
+              >
+                <div className="p-3">
+                  <Image
+                    src={post.image}
+                    alt={post.title || "Blog Image"}
+                    width={500}
+                    height={300}
+                    className="rounded-xl object-cover object-center w-full h-[200px]"
+                    unoptimized
+                  />
+                </div>
+                <div className="px-5 pb-6 flex flex-col gap-3">
+                  <p className="text-xs text-gray-500 mb-2">
+                    {post.date} &nbsp;&nbsp; {post.category}
+                  </p>
+                  <h3 className="font-semibold text-[#1C2C56] text-base leading-snug">
+                    {trimText(post.title, 10)}
+                  </h3>
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    {trimText(post.desc, 15)}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
         {!loading && blogs.length === 0 && (
           <p className="text-center text-gray-500 mt-10">No blogs available</p>
         )}

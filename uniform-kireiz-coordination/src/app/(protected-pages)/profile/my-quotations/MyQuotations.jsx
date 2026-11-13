@@ -4,8 +4,9 @@ import React, { useEffect, useState } from "react";
 import Spinner from "@/components/ui/Spinner";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
+import Tooltip from "@/components/ui/Tooltip";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { FiEye, FiSearch } from "react-icons/fi";
 import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 import { HiCheck } from "react-icons/hi";
@@ -61,7 +62,6 @@ const statusFilterOptions = [
   { value: "submitted", label: "Submitted" },
   { value: "received", label: "Received" },
   { value: "cancelled", label: "Cancelled" },
-  { value: "declined", label: "Declined" },
 ];
 
 // const getNormalizedStatus = (quotation) => {
@@ -151,7 +151,8 @@ const normalizeQuotation = (quotation, index) => {
       quotation?.id ||
       quotation?.quotation_id ||
       quotation?.quotationNo ||
-      `RQ-2025-019${index + 1}`,
+      quotation?.uuid ||
+      "",
     quotationId:
       quotation?.uuid ||
       quotation?.quotation_uuid ||
@@ -161,7 +162,8 @@ const normalizeQuotation = (quotation, index) => {
     requestId:
       quotation?.quotationNo ||
       quotation?.quotation_id ||
-      `RQ-2025-019${index + 1}`,
+      quotation?.request_id ||
+      "-",
     productName:
       quotation?.product_name ||
       quotation?.item_type ||
@@ -228,6 +230,7 @@ const CustomStatusOption = (props) => {
 
 const MyQuotations = () => {
   const router = useRouter();
+  const pathname = usePathname();
   const { data: session } = useSession();
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -238,6 +241,24 @@ const MyQuotations = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [detailLoadingId, setDetailLoadingId] = useState("");
+
+  // Reset loading state on pathname change or back navigation
+  useEffect(() => {
+    setDetailLoadingId("");
+  }, [pathname]);
+
+  useEffect(() => {
+    const handleNavigationReset = () => {
+      setDetailLoadingId("");
+    };
+
+    window.addEventListener("pageshow", handleNavigationReset);
+    window.addEventListener("popstate", handleNavigationReset);
+    return () => {
+      window.removeEventListener("pageshow", handleNavigationReset);
+      window.removeEventListener("popstate", handleNavigationReset);
+    };
+  }, []);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -296,6 +317,10 @@ const MyQuotations = () => {
 
     setDetailLoadingId(quotation.id);
     router.push(`/profile/my-quotations/${quotationId}`);
+
+    setTimeout(() => {
+      setDetailLoadingId("");
+    }, 1500);
   };
 
   const filteredQuotations = statusFilter
@@ -399,11 +424,61 @@ const MyQuotations = () => {
         ) : null}
 
         {loading ? (
-          <section className="relative w-full bg-white mx-auto px-5 md:px-8 lg:px-12 mt-15">
-            <div className="flex justify-center items-center py-20">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C4FA8]"></div>
+          <div className="overflow-hidden rounded-xl border border-[#EEF2F7]">
+            <div className="overflow-x-auto">
+              <table className="min-w-full">
+                <thead className="bg-[#F2F5FB]">
+                  <tr>
+                    <th className="px-4 py-4 text-left text-sm font-medium text-[#4B5563]">
+                      Request ID
+                    </th>
+                    <th className="px-4 py-4 text-left text-sm font-medium text-[#4B5563]">
+                      Product Name
+                    </th>
+                    <th className="px-4 py-4 text-left text-sm font-medium text-[#4B5563]">
+                      Quantity
+                    </th>
+                    <th className="px-4 py-4 text-left text-sm font-medium text-[#4B5563]">
+                      Status
+                    </th>
+                    <th className="px-4 py-4 text-left text-sm font-medium text-[#4B5563]">
+                      Submitted on
+                    </th>
+                    <th className="px-4 py-4 text-left text-sm font-medium text-[#4B5563]">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="animate-pulse">
+                  {Array.from({ length: 6 }).map((_, index) => (
+                    <tr
+                      key={index}
+                      className={`${index % 2 === 0 ? "bg-white" : "bg-[#F7F9FC]"} border-b border-[#EEF2F7] last:border-b-0`}
+                    >
+                      <td className="px-4 py-4">
+                        <div className="h-4 w-24 rounded bg-gray-200" />
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="h-4 w-40 rounded bg-gray-200" />
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="h-4 w-14 rounded bg-gray-200" />
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="h-6 w-20 rounded-md bg-gray-200" />
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="h-4 w-24 rounded bg-gray-200" />
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="h-7 w-16 rounded-lg bg-gray-200" />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          </section>
+          </div>
         ) : (
           <div className="overflow-hidden rounded-xl border border-[#EEF2F7]">
             <div className="overflow-x-auto">
@@ -437,14 +512,24 @@ const MyQuotations = () => {
                         key={`${item.id}-${index}`}
                         className={`${index % 2 === 0 ? "bg-white" : "bg-[#F7F9FC]"} border-b border-[#EEF2F7] last:border-b-0`}
                       >
-                        <td className="px-4 py-4 text-sm font-medium text-[#003560]">
+                        <td className="px-4 py-4 text-sm font-medium text-[#003560] whitespace-nowrap">
                           {item.requestId}
                         </td>
-                        <td className="px-4 py-4 text-sm text-[#003560]">
-                          {item.productName}
+                        <td className="px-4 py-4 text-sm text-[#003560] max-w-[200px]">
+                          <span className="block truncate" title={item.productName}>
+                            {item.productName}
+                          </span>
                         </td>
-                        <td className="px-4 py-4 text-sm text-[#003560]">
-                          {item.quantity}
+                        <td className="px-4 py-4 text-sm text-[#003560] max-w-[220px]">
+                          {String(item.quantity || "").length > 20 ? (
+                            <Tooltip title={item.quantity} placement="top">
+                              <span className="block truncate cursor-pointer underline decoration-dotted decoration-gray-300">
+                                {item.quantity}
+                              </span>
+                            </Tooltip>
+                          ) : (
+                            <span>{item.quantity}</span>
+                          )}
                         </td>
                         <td className="px-4 py-4 text-sm">
                           <span

@@ -63,11 +63,23 @@ const NotificationSetting = () => {
 
       {/* Notifications List */}
       {loading ? (
-        <section className="relative w-full bg-transparent mx-auto px-5 md:px-8 lg:px-12 mt-15 mb-6">
-          <div className="flex justify-center items-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1C4FA8]"></div>
-          </div>
-        </section>
+        <div className="flex flex-col gap-3 mb-6 animate-pulse">
+          {Array.from({ length: 5 }).map((_, index) => (
+            <div
+              key={index}
+              className="p-4 flex justify-between items-start rounded-xl bg-white border border-[#E2E8F0]"
+            >
+              <div className="flex items-start gap-3 w-full">
+                <div className="h-10 w-10 rounded-full bg-gray-200 shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 w-1/4 rounded bg-gray-200" />
+                  <div className="h-3 w-3/4 rounded bg-gray-200" />
+                  <div className="h-3 w-28 rounded bg-gray-200 mt-1" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       ) : notifications.length === 0 ? (
         <div className="text-center py-10 text-sm text-gray-500 mb-6">
           No notifications found.

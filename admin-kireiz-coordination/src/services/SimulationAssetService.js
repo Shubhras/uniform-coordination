@@ -119,9 +119,21 @@ export async function apiReorderSimulationAssets(accessToken, order) {
   });
 }
 
-export async function apiGetSavedSimulations(accessToken) {
+export async function apiGetSavedSimulations(
+  accessToken,
+  { page = 1, pageSize = 10, search = "" } = {},
+) {
+  const params = new URLSearchParams({
+    page: String(page),
+    page_size: String(pageSize),
+  });
+
+  if (search) {
+    params.set("search", search);
+  }
+
   return ApiService.fetchDataWithAxios({
-    url: "/v1/uniformAdmin/simulations/saved/",
+    url: `/v1/uniformAdmin/simulations/saved/?${params.toString()}`,
     method: "get",
     headers: authHeader(accessToken),
   });

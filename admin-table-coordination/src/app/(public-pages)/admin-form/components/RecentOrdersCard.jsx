@@ -30,8 +30,8 @@ const RecentOrdersCard = ({ data }) => {
           <div>
             <h3 className="text-[17px] font-semibold text-[#2A211D] flex items-center gap-2">
               {t("title")}
-              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#FDF4EB] text-[#A0522D] border border-[#F3CDB6]">
-                {todayCount} {t("today")}
+              <span className="text-[#A0522D] font-bold">
+                ({t("today")} {todayCount})
               </span>
             </h3>
           </div>

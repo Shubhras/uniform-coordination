@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useCallback } from "react"
 import { useSession } from "next-auth/react"
 import {
   IoNotificationsOutline,
@@ -20,96 +20,172 @@ import {
 } from "@/services/AuthProfileService"
 import Pagination from "@/components/ui/Pagination"
 import Spinner from "@/components/ui/Spinner"
-
-const ITEMS_PER_PAGE = 5
+import toast from "@/components/ui/toast"
+import Notification from "@/components/ui/Notification"
+import useCurrentSession from "@/utils/hooks/useCurrentSession"
 
 const NotificationSetting = () => {
-  const { data: session } = useSession()
+  const { data: nextAuthSession } = useSession()
+  const { session: currentSession } = useCurrentSession()
+  const session = nextAuthSession || currentSession
   const token = session?.accessToken || session?.user?.accessToken
   const [notifications, setNotifications] = useState([])
   const [loading, setLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
+  const [totalCount, setTotalCount] = useState(0)
+  const [pageSize, setPageSize] = useState(10)
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async (page = 1) => {
     if (!token) {
       setNotifications([])
+      setTotalCount(0)
       setLoading(false)
       return
     }
 
     try {
       setLoading(true)
-      const res = await apiGetUserNotifications(token)
+      const params = {
+        page,
+        page_size: pageSize,
+      }
+      const res = await apiGetUserNotifications(token, params)
       if (res?.status && Array.isArray(res?.data)) {
         setNotifications(res.data)
+        setTotalCount(res.count ?? res.total ?? res.data.length)
+        if (res.page_size) setPageSize(res.page_size)
       } else if (Array.isArray(res?.data?.results)) {
         setNotifications(res.data.results)
-      } else if (Array.isArray(res?.data)) {
-        setNotifications(res.data)
+        setTotalCount(res?.data?.count ?? res.data.results.length)
       } else if (Array.isArray(res)) {
         setNotifications(res)
+        setTotalCount(res.length)
       } else {
         setNotifications([])
+        setTotalCount(0)
       }
     } catch (err) {
-      console.error("Failed to fetch notifications:", err)
       setNotifications([])
+      setTotalCount(0)
     } finally {
       setLoading(false)
     }
-  }
+  }, [token, pageSize])
 
   useEffect(() => {
-    fetchNotifications()
-  }, [token])
+    fetchNotifications(currentPage)
+  }, [fetchNotifications, currentPage])
 
   const handleMarkRead = async (id) => {
-    if (token && id !== undefined && id !== null) {
-      try {
-        await apiMarkNotificationRead(token, id)
-      } catch (err) {
-        console.error("Failed to mark read:", err)
-      }
+    if (id === undefined || id === null) return
+
+    if (!token) {
+      toast.push(
+        <Notification title="Notice" type="info">
+          Please sign in to update notifications.
+        </Notification>
+      )
+      return
     }
+
+    const previousNotifications = notifications
+
+    // Optimistically mark as read
     setNotifications((prev) =>
       prev.map((item) => (String(item.id) === String(id) ? { ...item, is_read: true } : item))
     )
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new Event('notificationsUpdated'))
+
+    try {
+      const res = await apiMarkNotificationRead(token, id)
+      if (res && res.status === false) {
+        throw new Error(res.message || "Failed to mark notification as read.")
+      }
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('notificationsUpdated'))
+      }
+    } catch (err) {
+      // Rollback optimistic state
+      setNotifications(previousNotifications)
+      toast.push(
+        <Notification title="Error" type="danger">
+          {err?.response?.data?.message || err?.message || "Failed to mark notification as read."}
+        </Notification>
+      )
     }
   }
 
   const handleMarkAllRead = async () => {
-    if (token) {
-      try {
-        await apiMarkNotificationRead(token, null)
-      } catch (err) {
-        console.error("Failed to mark all read:", err)
-      }
+    if (!token) {
+      toast.push(
+        <Notification title="Notice" type="info">
+          Please sign in to update notifications.
+        </Notification>
+      )
+      return
     }
+
+    const previousNotifications = notifications
+
+    // Optimistically mark all as read
     setNotifications((prev) => prev.map((item) => ({ ...item, is_read: true })))
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new Event('notificationsUpdated'))
+
+    try {
+      const res = await apiMarkNotificationRead(token, null)
+      if (res && res.status === false) {
+        throw new Error(res.message || "Failed to mark all notifications as read.")
+      }
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('notificationsUpdated'))
+      }
+    } catch (err) {
+      // Rollback optimistic state
+      setNotifications(previousNotifications)
+      toast.push(
+        <Notification title="Error" type="danger">
+          {err?.response?.data?.message || err?.message || "Failed to mark all notifications as read."}
+        </Notification>
+      )
     }
   }
 
   const handleDelete = async (id) => {
-    if (token && id !== undefined && id !== null) {
-      try {
-        await apiDeleteNotification(token, id)
-      } catch (err) {
-        console.error("Failed to delete notification:", err)
-      }
+    if (id === undefined || id === null) return
+
+    if (!token) {
+      toast.push(
+        <Notification title="Notice" type="info">
+          Please sign in to delete notifications.
+        </Notification>
+      )
+      return
     }
+
+    const previousNotifications = notifications
+
+    // Optimistically remove from list
     setNotifications((prev) => prev.filter((item) => String(item.id) !== String(id)))
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new Event('notificationsUpdated'))
+
+    try {
+      const res = await apiDeleteNotification(token, id)
+      if (res && res.status === false) {
+        throw new Error(res.message || "Failed to delete notification.")
+      }
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('notificationsUpdated'))
+      }
+      setTotalCount((prev) => Math.max(0, prev - 1))
+    } catch (err) {
+      // Rollback optimistic state
+      setNotifications(previousNotifications)
+      toast.push(
+        <Notification title="Error" type="danger">
+          {err?.response?.data?.message || err?.message || "Failed to delete notification. Please try again."}
+        </Notification>
+      )
     }
   }
 
-  const totalPages = Math.ceil(notifications.length / ITEMS_PER_PAGE) || 1
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
-  const currentNotifications = notifications.slice(startIndex, startIndex + ITEMS_PER_PAGE)
+  const totalPages = Math.ceil(totalCount / pageSize) || 1
 
   const handleNext = () => {
     if (currentPage < totalPages) setCurrentPage((prev) => prev + 1)
@@ -184,11 +260,11 @@ const NotificationSetting = () => {
         <div className="py-20 flex justify-center items-center">
           <Spinner size={40} customColorClass="text-[#A85A32]" />
         </div>
-      ) : currentNotifications.length === 0 ? (
+      ) : notifications.length === 0 ? (
         <div className="py-12 text-center text-gray-400">No notifications found</div>
       ) : (
         <div className="flex flex-col gap-3 mb-6">
-          {currentNotifications.map((item) => {
+          {notifications.map((item) => {
             const badge = getTypeBadge(item.notification_type || item.type)
             const BadgeIcon = badge.icon
             return (
@@ -263,12 +339,12 @@ const NotificationSetting = () => {
       )}
 
       {/* Pagination */}
-      {!loading && notifications.length > 0 && totalPages > 1 && (
+      {!loading && totalCount > 0 && totalPages > 1 && (
         <div className="mt-6 flex justify-end pt-4 border-t border-[#E2E8F0]">
           <Pagination
             currentPage={currentPage}
-            pageSize={ITEMS_PER_PAGE}
-            total={notifications.length}
+            pageSize={pageSize}
+            total={totalCount}
             onChange={(page) => setCurrentPage(page)}
           />
         </div>

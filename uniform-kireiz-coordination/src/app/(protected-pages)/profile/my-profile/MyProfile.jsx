@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Avatar from "@/components/ui/Avatar";
 import Button from "@/components/ui/Button";
 import Spinner from "@/components/ui/Spinner";
@@ -8,7 +8,7 @@ import Dialog from "@/components/ui/Dialog";
 import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import {
   FiBox,
   FiChevronRight,
@@ -125,6 +125,7 @@ const MyProfile = () => {
   const fileRef = useRef(null);
   const { data: session } = useSession();
   const router = useRouter();
+  const pathname = usePathname();
   const [profile, setProfile] = useState(null);
   const [quotationData, setQuotationData] = useState([]);
   const [image, setImage] = useState(null);
@@ -140,6 +141,28 @@ const MyProfile = () => {
   const [verifyEmailLoading, setVerifyEmailLoading] = useState(false);
   const activeQuotation = quotationData?.[0] || null;
   const visibleRecentSimulations = simulationData.slice(0, 3);
+
+  // Reset loading states on pathname change or back-navigation (popstate/pageshow)
+  useEffect(() => {
+    setQuotationDetailLoadingId(null);
+    setPdfLoadingId(null);
+    setViewDesignLoading(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    const handleNavigationReset = () => {
+      setQuotationDetailLoadingId(null);
+      setPdfLoadingId(null);
+      setViewDesignLoading(false);
+    };
+
+    window.addEventListener("pageshow", handleNavigationReset);
+    window.addEventListener("popstate", handleNavigationReset);
+    return () => {
+      window.removeEventListener("pageshow", handleNavigationReset);
+      window.removeEventListener("popstate", handleNavigationReset);
+    };
+  }, []);
 
   const handleRecentQuotationClick = (quotation) => {
     const quotationId =
@@ -159,7 +182,7 @@ const MyProfile = () => {
     router.push(`/profile/my-quotations/${quotationId}`);
   };
 
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
       if (!session?.accessToken) return;
       setProfileLoading(true);
@@ -173,9 +196,9 @@ const MyProfile = () => {
     } finally {
       setProfileLoading(false);
     }
-  };
+  }, [session?.accessToken]);
 
-  const fetchQuotation = async () => {
+  const fetchQuotation = useCallback(async () => {
     try {
       if (!session?.accessToken) return;
       setQuotationLoading(true);
@@ -219,9 +242,10 @@ const MyProfile = () => {
     } finally {
       setQuotationLoading(false);
     }
-  };
+  }, [session?.accessToken]);
+
   /* -------------------- FETCH SIMULATION HISTORY -------------------- */
-  const fetchSimulationHistory = async () => {
+  const fetchSimulationHistory = useCallback(async () => {
     try {
       if (!session?.accessToken) return;
       setSimulationLoading(true);
@@ -240,26 +264,19 @@ const MyProfile = () => {
     } finally {
       setSimulationLoading(false);
     }
-  };
+  }, [session?.accessToken]);
 
   useEffect(() => {
     if (!session?.accessToken) return;
     fetchProfile();
     fetchQuotation();
     fetchSimulationHistory();
-  }, [session?.accessToken]);
+  }, [session?.accessToken, fetchProfile, fetchQuotation, fetchSimulationHistory]);
 
   const handleSelectImage = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setImage(URL.createObjectURL(file));
-  };
-
-  const handleRemoveImage = () => {
-    setImage(null);
-    if (fileRef.current) {
-      fileRef.current.value = "";
-    }
   };
 
   const handleSimulationRedirect = (id) => {
@@ -301,6 +318,10 @@ const MyProfile = () => {
 
     setQuotationDetailLoadingId(quotationId);
     router.push(`/profile/my-profile/${quotationId}`);
+
+    setTimeout(() => {
+      setQuotationDetailLoadingId(null);
+    }, 1500);
   };
 
   const handleViewDesign = async () => {
@@ -420,11 +441,72 @@ const MyProfile = () => {
 
   if (profileLoading) {
     return (
-      <section className="relative mt-15 mx-auto w-full bg-white px-5 md:px-8 lg:px-12">
-        <div className="flex items-center justify-center py-20">
-          <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-[#1C4FA8]" />
+      <div className="mx-auto max-w-7xl space-y-6 bg-[#F9FAFB] animate-pulse">
+        {/* Personal Details Skeleton */}
+        <div className="rounded-[12px] border border-[#E2E8F0] bg-[#F6FAFF] p-4 md:px-5 md:py-4">
+          <div className="flex flex-col gap-4 md:flex-row md:items-start md:gap-4">
+            <div className="w-full max-w-[120px] rounded-[16px] border border-[#E5E7EB] bg-[#F6FAFF] p-5">
+              <div className="mx-auto h-[76px] w-[76px] rounded-full bg-gray-200" />
+            </div>
+            <div className="relative flex-1">
+              <div className="rounded-[16px] border border-[#E5E7EB] bg-[#F6FAFF] p-4 md:min-h-[132px] md:px-5 md:py-4">
+                <div className="mb-5 h-5 w-36 rounded bg-gray-200" />
+                <div className="grid grid-cols-1 gap-x-12 gap-y-4 sm:grid-cols-2">
+                  <div className="space-y-1">
+                    <div className="h-3 w-16 rounded bg-gray-200" />
+                    <div className="h-4 w-28 rounded bg-gray-200" />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="h-3 w-16 rounded bg-gray-200" />
+                    <div className="h-4 w-28 rounded bg-gray-200" />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="h-3 w-20 rounded bg-gray-200" />
+                    <div className="h-4 w-40 rounded bg-gray-200" />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="h-3 w-20 rounded bg-gray-200" />
+                    <div className="h-4 w-28 rounded bg-gray-200" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </section>
+
+        {/* Quotation Status Skeleton */}
+        <div className="overflow-hidden rounded-[10px] border border-[#8DB4E2] bg-white p-4 space-y-3">
+          <div className="flex items-center justify-between border-b border-[#E5EDF7] pb-3">
+            <div className="space-y-2">
+              <div className="h-5 w-32 rounded bg-gray-200" />
+              <div className="h-4 w-24 rounded bg-gray-200" />
+            </div>
+            <div className="h-8 w-24 rounded-md bg-gray-200" />
+          </div>
+          <div className="space-y-2 pt-2">
+            <div className="h-10 w-full rounded-lg bg-gray-100" />
+            <div className="h-10 w-full rounded-lg bg-gray-100" />
+          </div>
+        </div>
+
+        {/* Bottom 2 Columns Skeleton */}
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <div className="rounded-[10px] border border-[#E5EDF7] bg-white p-5 space-y-4">
+            <div className="h-5 w-36 rounded bg-gray-200" />
+            <div className="space-y-3">
+              <div className="h-14 w-full rounded-lg bg-gray-100" />
+              <div className="h-14 w-full rounded-lg bg-gray-100" />
+            </div>
+          </div>
+          <div className="rounded-[10px] border border-[#E5EDF7] bg-white p-5 space-y-4">
+            <div className="h-5 w-36 rounded bg-gray-200" />
+            <div className="space-y-3">
+              <div className="h-14 w-full rounded-lg bg-gray-100" />
+              <div className="h-14 w-full rounded-lg bg-gray-100" />
+            </div>
+          </div>
+        </div>
+      </div>
     );
   }
 
@@ -564,20 +646,31 @@ const MyProfile = () => {
             <h4 className="text-lg md:text-[20px] font-semibold text-[#1C4FA8]">
               Quotation Status
             </h4>
-            <p className="mt-1 text-sm font-medium text-[#003560]">
-              {activeQuotation?.quotationNo ||
-                activeQuotation?.quotation_id ||
-                "RQ-2025-0194"}
-            </p>
-            <p className="mt-1 text-xs text-[#4B5563] font-medium">
-              {formatDisplayDate(activeQuotation?.created_at)}
-            </p>
+            {activeQuotation ? (
+              <>
+                <p className="mt-1 text-sm font-medium text-[#003560]">
+                  {activeQuotation?.quotationNo ||
+                    activeQuotation?.quotation_id ||
+                    activeQuotation?.id ||
+                    "-"}
+                </p>
+                {activeQuotation?.created_at && (
+                  <p className="mt-1 text-xs text-[#4B5563] font-medium">
+                    {formatDisplayDate(activeQuotation?.created_at)}
+                  </p>
+                )}
+              </>
+            ) : (
+              <p className="mt-1 text-sm font-medium text-[#64748B]">
+                {quotationLoading ? "Loading..." : "No active quotation"}
+              </p>
+            )}
           </div>
 
           <Button
             loading={viewDesignLoading}
-            disabled={viewDesignLoading}
-            className="rounded-md h-8 bg-[#003560] px-4 py-1 text-xs md:text-sm text-white hover:bg-[#002a49]"
+            disabled={viewDesignLoading || !activeQuotation}
+            className="rounded-md h-8 bg-[#003560] px-4 py-1 text-xs md:text-sm text-white hover:bg-[#002a49] disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={handleViewDesign}
           >
             View Design
@@ -586,8 +679,10 @@ const MyProfile = () => {
 
         <div className="bg-white px-4 py-4 space-y-3">
           {quotationLoading ? (
-            <div className="flex items-center justify-center py-8">
-              <Spinner size={24} />
+            <div className="space-y-2 py-1 animate-pulse">
+              <div className="h-10 w-full rounded-lg bg-[#F1F5F9]" />
+              <div className="h-10 w-full rounded-lg bg-[#F1F5F9]" />
+              <div className="h-10 w-full rounded-lg bg-[#F1F5F9]" />
             </div>
           ) : quotationData.length ? (
             quotationData.slice(0, 3).map((quotation, index) => (
@@ -707,8 +802,10 @@ const MyProfile = () => {
 
           <div className="px-5 pb-5 pt-1">
             {simulationLoading ? (
-              <div className="flex items-center justify-center py-6">
-                <Spinner size={24} />
+              <div className="space-y-4 py-3 animate-pulse">
+                <div className="h-14 w-full rounded-lg bg-[#F8FBFF]" />
+                <div className="h-14 w-full rounded-lg bg-[#F8FBFF]" />
+                <div className="h-14 w-full rounded-lg bg-[#F8FBFF]" />
               </div>
             ) : simulationData.length > 0 ? (
               <div className="space-y-0">

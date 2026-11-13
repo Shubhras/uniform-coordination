@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
+import useCurrentSession from '@/utils/hooks/useCurrentSession'
 import {
     FiArrowLeft,
     FiShoppingBag,
@@ -90,9 +91,11 @@ const RentalTimelineView = () => {
     const params = useParams()
     const router = useRouter()
     const searchParams = useSearchParams()
-    const { data: session } = useSession()
+    const { data: nextAuthSession, status: authStatus } = useSession()
+    const { session: currentSession } = useCurrentSession()
+    const session = nextAuthSession || currentSession
 
-    const orderId = params?.id || searchParams?.get('orderId') || searchParams?.get('id') || 'ORD26-00055'
+    const orderId = params?.id || searchParams?.get('orderId') || searchParams?.get('id') || null
     const token = session?.accessToken || session?.user?.accessToken
 
     const [order, setOrder] = useState(null)
@@ -101,7 +104,22 @@ const RentalTimelineView = () => {
 
     // Fetch order details from API
     const fetchTimelineDetails = useCallback(async () => {
-        if (!token || !orderId) return
+        if (!orderId) {
+            setLoading(false)
+            setError('Order ID is required to view the rental timeline.')
+            return
+        }
+
+        if (authStatus === 'loading') {
+            return
+        }
+
+        if (!token) {
+            setLoading(false)
+            setError('Please sign in to view the rental timeline.')
+            return
+        }
+
         try {
             setLoading(true)
             setError(null)
@@ -111,6 +129,8 @@ const RentalTimelineView = () => {
                 setOrder(detailed)
             } else if (res && !res.data) {
                 setOrder(res)
+            } else {
+                setError('No timeline details found for this order.')
             }
         } catch (err) {
             console.error('Failed to load rental timeline details:', err)
@@ -118,11 +138,25 @@ const RentalTimelineView = () => {
         } finally {
             setLoading(false)
         }
-    }, [token, orderId])
+    }, [token, orderId, authStatus])
 
     useEffect(() => {
-        fetchTimelineDetails()
-    }, [fetchTimelineDetails])
+        if (!orderId) {
+            setLoading(false)
+            setError('Order ID is required to view the rental timeline.')
+            return
+        }
+
+        if (authStatus === 'unauthenticated' && !token) {
+            setLoading(false)
+            setError('Please sign in to view the rental timeline.')
+            return
+        }
+
+        if (token && orderId) {
+            fetchTimelineDetails()
+        }
+    }, [fetchTimelineDetails, token, orderId, authStatus])
 
     // Handle back button
     const handleBack = () => {
@@ -153,13 +187,13 @@ const RentalTimelineView = () => {
         order?.customer_name ||
         order?.user?.name ||
         session?.user?.name ||
-        'Keith Turner'
+        '—'
 
     const rawTotal =
         order?.total_amount ??
         order?.payment_summary?.total_amount ??
         order?.payment_summary?.amount ??
-        467.5
+        0
 
     const totalAmount = Number(rawTotal || 0).toLocaleString(undefined, {
         minimumFractionDigits: 2,
@@ -218,8 +252,8 @@ const RentalTimelineView = () => {
                                             {!isLast && (
                                                 <div
                                                     className={`absolute left-[19px] top-10 w-[2px] h-[calc(100%-12px)] transition-colors duration-300 ${index < currentStep
-                                                            ? 'bg-[#C96B34]'
-                                                            : 'bg-[#E5E5E5]'
+                                                        ? 'bg-[#C96B34]'
+                                                        : 'bg-[#E5E5E5]'
                                                         }`}
                                                 />
                                             )}
@@ -228,8 +262,8 @@ const RentalTimelineView = () => {
                                                 {/* Circle Icon */}
                                                 <div
                                                     className={`h-10 w-10 rounded-full flex items-center justify-center text-sm z-10 shrink-0 transition-all ${isCompleted
-                                                            ? 'bg-[#B8663A] text-white shadow-sm'
-                                                            : 'bg-white border border-[#D9D9D9] text-[#999999]'
+                                                        ? 'bg-[#B8663A] text-white shadow-sm'
+                                                        : 'bg-white border border-[#D9D9D9] text-[#999999]'
                                                         }`}
                                                 >
                                                     <IconComponent size={18} />
@@ -239,16 +273,16 @@ const RentalTimelineView = () => {
                                                 <div className="min-w-0 pt-0.5">
                                                     <h3
                                                         className={`font-semibold text-sm ${isCompleted
-                                                                ? 'text-[#2D241C]'
-                                                                : 'text-[#B8B8B8]'
+                                                            ? 'text-[#2D241C]'
+                                                            : 'text-[#B8B8B8]'
                                                             }`}
                                                     >
                                                         {step.title}
                                                     </h3>
                                                     <p
                                                         className={`text-xs mt-1 leading-snug ${isCompleted
-                                                                ? 'text-[#8D857D]'
-                                                                : 'text-[#C6C6C6]'
+                                                            ? 'text-[#8D857D]'
+                                                            : 'text-[#C6C6C6]'
                                                             }`}
                                                     >
                                                         {step.desc}
@@ -259,8 +293,8 @@ const RentalTimelineView = () => {
                                             {/* Right Badge */}
                                             <span
                                                 className={`text-xs shrink-0 whitespace-nowrap pt-1 font-medium ${isCompleted
-                                                        ? 'text-[#8B8B8B]'
-                                                        : 'text-[#BEBEBE]'
+                                                    ? 'text-[#8B8B8B]'
+                                                    : 'text-[#BEBEBE]'
                                                     }`}
                                             >
                                                 {isCompleted ? 'Completed' : 'Pending'}
@@ -297,7 +331,7 @@ const RentalTimelineView = () => {
                                     <div className="flex justify-between items-center gap-3">
                                         <span className="text-[#8C8177] shrink-0">Type</span>
                                         <span className="px-2 py-0.5 rounded bg-[#F0F9FF] border border-[#B8E6FE] text-[#0069A8] text-[11px] font-semibold shrink-0">
-                                            {order?.order_type?.toUpperCase() || 'B2C'}
+                                            {order?.order_type?.toUpperCase() || order?.type?.toUpperCase() || 'B2C'}
                                         </span>
                                     </div>
 

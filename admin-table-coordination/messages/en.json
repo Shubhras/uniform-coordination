@@ -318,7 +318,7 @@
             "allCaughtUpDesc": "No active alerts require your attention."
         },
         "recentOrders": {
-            "title": "Recent Orders (Today)",
+            "title": "Recent Orders",
             "today": "Today",
             "subtitle": "Orders placed by customers today",
             "viewall": "View All",
@@ -882,6 +882,7 @@
             "allStatus": "All Status",
             "statusDelivered": "Delivered",
             "statusConfirmed": "Confirmed",
+            "statusCancelled": "Cancelled",
             "statusReturned": "Returned",
             "statusShipped": "Shipped",
             "searchProducts": "Search products...",
@@ -1316,6 +1317,7 @@
             "reactivateConfirmation": "Are you sure you want to reactivate the account for",
             "reactivateConfirmationSuffix": "? The user will regain access to their account.",
             "deactivationReason": "Deactivation Reason",
+            "warning": "Warning",
             "deactivationReasonPlaceholder": "Please enter the reason for deactivating this user...",
             "reasonEmailNote": "An email containing this reason will be automatically sent to",
             "cancel": "Cancel",

@@ -24,12 +24,6 @@ import InventoryItemsModal from "../../../addTheme/components/InventoryItemsModa
 import { apiGetCategoryList } from "@/services/CategoryService";
 import { useTranslations } from "next-intl";
 
-const categoryOptions = [
-  { value: "Wedding", label: "Wedding" },
-  { value: "Corporate", label: "Corporate" },
-  { value: "Birthday", label: "Birthday" },
-];
-
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
 
 const Edit = () => {

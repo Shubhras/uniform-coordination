@@ -1,6 +1,6 @@
 @layer components {
   .avatar {
-    @apply inline-block relative bg-white dark:bg-white text-[#1C2C56];
+    @apply inline-block relative bg-white dark:bg-white text-[#1C2C56] overflow-hidden;
   }
 
   .avatar-sm {

@@ -1,8 +1,9 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import Button from '@/components/ui/Button'
 import Spinner from '@/components/ui/Spinner'
+import Dialog from '@/components/ui/Dialog'
 import {
     FiArrowLeft,
     FiDownload,
@@ -73,6 +74,138 @@ const statusStyles = {
         text: '#FF8D28',
         bg: '#1C4FA80F',
     },
+}
+
+const isImageUrl = (val) => {
+    if (typeof val !== 'string') return false
+    const trimmed = val.trim()
+    if (!trimmed) return false
+    return (
+        trimmed.startsWith('data:image/') ||
+        trimmed.startsWith('/img/') ||
+        trimmed.startsWith('/images/') ||
+        trimmed.startsWith('http://') ||
+        trimmed.startsWith('https://') ||
+        /\.(png|jpe?g|webp|svg|gif|avif)(\?.*)?$/i.test(trimmed)
+    )
+}
+
+const parseSizeQuantities = (sizesInput, rawQuantityInput) => {
+    const items = []
+    let total = 0
+
+    // 1. Check if array of objects or strings
+    const checkArray = (arr) => {
+        if (!Array.isArray(arr) || arr.length === 0) return false
+        let found = false
+        for (const it of arr) {
+            if (it && typeof it === 'object') {
+                const s = it.size || it.size_name || it.label || it.name
+                const q = Number(it.quantity || it.qty || it.count || it.value)
+                if (s && !isNaN(q) && q > 0) {
+                    items.push({ size: String(s).trim(), qty: q })
+                    total += q
+                    found = true
+                }
+            } else if (typeof it === 'string') {
+                const match = it.match(/^([A-Za-z0-9_\-./]+)\s*(?:x|:|-|\*)\s*(\d+)/i)
+                if (match) {
+                    const q = parseInt(match[2], 10)
+                    items.push({ size: match[1].trim(), qty: q })
+                    total += q
+                    found = true
+                }
+            }
+        }
+        return found
+    }
+
+    if (checkArray(sizesInput) || checkArray(rawQuantityInput)) {
+        return { items, total, hasBreakdown: items.length > 0 }
+    }
+
+    // 2. Check if object or JSON string
+    const checkObj = (input) => {
+        let obj = null
+        if (input && typeof input === 'object' && !Array.isArray(input)) {
+            obj = input
+        } else if (typeof input === 'string' && input.trim().startsWith('{')) {
+            try {
+                obj = JSON.parse(input)
+            } catch {
+                // ignore
+            }
+        }
+        if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
+            let found = false
+            for (const [key, val] of Object.entries(obj)) {
+                const num = Number(val)
+                if (!isNaN(num) && num > 0) {
+                    items.push({ size: String(key).trim(), qty: num })
+                    total += num
+                    found = true
+                }
+            }
+            return found
+        }
+        return false
+    }
+
+    if (checkObj(sizesInput) || checkObj(rawQuantityInput)) {
+        return { items, total, hasBreakdown: items.length > 0 }
+    }
+
+    // 3. String parsing for "XS x 1, S x 1, M x 2" etc.
+    const texts = [
+        typeof sizesInput === 'string' ? sizesInput : '',
+        typeof rawQuantityInput === 'string' ? rawQuantityInput : '',
+    ].filter((s) => s && s.trim().length > 0 && s !== '-')
+
+    for (const textToParse of texts) {
+        const parts = textToParse.split(/[,;\n]+/).map((p) => p.trim()).filter(Boolean)
+        for (const part of parts) {
+            const match1 = part.match(/^([A-Za-z0-9_\-./]+)\s*(?:x|:|-|\*)\s*(\d+)\s*(?:pcs|pc)?$/i)
+            const match2 = part.match(/^(\d+)\s*(?:x|\*)\s*([A-Za-z0-9_\-./]+)\s*(?:pcs|pc)?$/i)
+            if (match1) {
+                const size = match1[1].trim()
+                const qty = parseInt(match1[2], 10)
+                if (!isNaN(qty)) {
+                    items.push({ size, qty })
+                    total += qty
+                }
+            } else if (match2) {
+                const qty = parseInt(match2[1], 10)
+                const size = match2[2].trim()
+                if (!isNaN(qty)) {
+                    items.push({ size, qty })
+                    total += qty
+                }
+            }
+        }
+        if (items.length > 0) break
+    }
+
+    // 4. Numeric fallback if no size breakdown
+    if (items.length === 0) {
+        for (const input of [sizesInput, rawQuantityInput]) {
+            if (typeof input === 'number' && !isNaN(input)) {
+                total = input
+                break
+            } else if (typeof input === 'string') {
+                const clean = input.replace(/[^0-9]/g, '')
+                if (clean.length > 0) {
+                    total = parseInt(clean, 10)
+                    break
+                }
+            }
+        }
+    }
+
+    return {
+        items,
+        total: total || (items.length > 0 ? items.reduce((s, i) => s + i.qty, 0) : 0),
+        hasBreakdown: items.length > 0,
+    }
 }
 
 const StatusBadge = ({ statusKey, statusLabel, quotationStatus }) => {
@@ -578,6 +711,8 @@ const QuotationDetailContent = ({
     onAgree,
     actionLoading,
 }) => {
+    const [selectedSizesModal, setSelectedSizesModal] = useState(null)
+
     // Only use quotation_status, do not use workflow_status
     const rawStatus = String(
         quotation?.quotation_status ||
@@ -833,17 +968,22 @@ const QuotationDetailContent = ({
                                         {}
                                     const productId = item.product_id || quotation?.product_id || ''
 
+                                    const rawQuantity =
+                                        item.quantity ||
+                                        item.qty ||
+                                        item.size_quantity ||
+                                        quotation?.size_quantity ||
+                                        quotation?.quantity ||
+                                        quotation?.qty ||
+                                        ''
+
+                                    const parsedSizes = parseSizeQuantities(sizesObj, rawQuantity)
                                     const totalQty =
-                                        Object.values(sizesObj).length > 0
-                                            ? Object.values(sizesObj).reduce(
-                                                (sum, q) => sum + (Number(q) || 0),
-                                                0,
-                                            )
-                                            : item.quantity ||
-                                            item.qty ||
-                                            quotation?.size_quantity ||
-                                            quotation?.quantity ||
-                                            '-'
+                                        parsedSizes.total > 0
+                                            ? parsedSizes.total
+                                            : rawQuantity && rawQuantity !== '-'
+                                                ? rawQuantity
+                                                : '-'
 
                                     return (
                                         <div
@@ -900,18 +1040,7 @@ const QuotationDetailContent = ({
                                                     </div>
                                                 </div>
 
-                                                {/* Total Quantity Card */}
-                                                <div className="shrink-0 self-start rounded-xl border border-[#E2E8F0] bg-white px-4 py-2.5 text-left shadow-xs sm:self-auto sm:text-right">
-                                                    <p className="text-[10px] font-semibold uppercase tracking-wider text-[#64748B]">
-                                                        Total Quantity
-                                                    </p>
-                                                    <p className="text-lg font-bold text-[#003560]">
-                                                        {totalQty}{' '}
-                                                        <span className="text-xs font-normal text-[#64748B]">
-                                                            pcs
-                                                        </span>
-                                                    </p>
-                                                </div>
+
                                             </div>
 
                                             {/* Divider */}
@@ -988,50 +1117,144 @@ const QuotationDetailContent = ({
 
                                                 {/* Sizes Breakdown */}
                                                 <div className="rounded-lg border border-[#EDF2F7] bg-white p-3 shadow-xs">
-                                                    <p className="text-[11px] font-semibold uppercase tracking-wider text-[#64748B]">
-                                                        Sizes Breakdown
-                                                    </p>
-                                                    <div className="mt-1.5 flex flex-wrap gap-1.5">
-                                                        {Object.keys(sizesObj).length > 0 ? (
-                                                            Object.entries(sizesObj).map(([sizeName, qty]) => (
-                                                                <span
-                                                                    key={sizeName}
-                                                                    className="inline-flex items-center gap-1 rounded-md border border-[#DCE7F8] bg-[#EEF4FF] px-2.5 py-1 text-xs font-semibold text-[#003560]"
-                                                                >
-                                                                    <span>Size {sizeName}:</span>
-                                                                    <span className="font-bold text-[#003560]">
-                                                                        {qty} pcs
+                                                    <div className="flex items-center justify-between">
+                                                        <p className="text-[11px] font-semibold uppercase tracking-wider text-[#64748B]">
+                                                            Sizes Breakdown
+                                                        </p>
+                                                        {parsedSizes.items.length > 0 && parsedSizes.total > 0 ? (
+                                                            <span className="rounded-full bg-[#EEF4FF] px-2 py-0.5 text-[10px] font-bold text-[#003560]">
+                                                                {parsedSizes.total} pcs
+                                                            </span>
+                                                        ) : null}
+                                                    </div>
+                                                    <div className="mt-2 flex flex-wrap gap-1.5">
+                                                        {parsedSizes.items.length > 0 ? (
+                                                            <>
+                                                                {(parsedSizes.items.length > 6
+                                                                    ? parsedSizes.items.slice(0, 6)
+                                                                    : parsedSizes.items
+                                                                ).map((sz) => (
+                                                                    <span
+                                                                        key={sz.size}
+                                                                        className="inline-flex items-center overflow-hidden rounded-md border border-[#DCE7F8] bg-white text-xs shadow-2xs"
+                                                                    >
+                                                                        <span className="border-r border-[#DCE7F8] bg-[#EEF4FF] px-2 py-0.5 font-bold uppercase text-[#003560]">
+                                                                            {sz.size}
+                                                                        </span>
+                                                                        <span className="px-2 py-0.5 font-semibold text-[#1E293B]">
+                                                                            {sz.qty}{' '}
+                                                                            <span className="text-[10px] font-normal text-[#64748B]">
+                                                                                {sz.qty === 1 ? 'pc' : 'pcs'}
+                                                                            </span>
+                                                                        </span>
                                                                     </span>
+                                                                ))}
+
+                                                                {parsedSizes.items.length > 6 ? (
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() =>
+                                                                            setSelectedSizesModal({
+                                                                                productName,
+                                                                                items: parsedSizes.items,
+                                                                                total: parsedSizes.total,
+                                                                            })
+                                                                        }
+                                                                        className="inline-flex items-center gap-1 rounded-md border border-[#DCE7F8] bg-[#EEF4FF] px-2 py-0.5 text-xs font-semibold text-[#003560] hover:bg-[#E0EDFD] hover:text-[#002747] transition-colors"
+                                                                    >
+                                                                        <span>See more</span>
+                                                                        <span className="text-[10px] font-bold text-[#003560]">
+                                                                            (+{parsedSizes.items.length - 6})
+                                                                        </span>
+                                                                    </button>
+                                                                ) : null}
+                                                            </>
+                                                        ) : parsedSizes.total > 0 ? (
+                                                            <span className="inline-flex items-center gap-1.5 rounded-md border border-[#E2E8F0] bg-[#F8FAFC] px-2.5 py-1 text-xs font-medium text-[#334155]">
+                                                                <span className="text-[#64748B]">Total:</span>
+                                                                <span className="font-bold text-[#003560]">
+                                                                    {parsedSizes.total} pcs
                                                                 </span>
-                                                            ))
+                                                            </span>
                                                         ) : (
                                                             <span className="text-xs text-[#94A3B8]">
-                                                                {totalQty} pcs
+                                                                {rawQuantity && rawQuantity !== '-'
+                                                                    ? rawQuantity
+                                                                    : 'Standard'}
                                                             </span>
                                                         )}
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            {/* Additional Options (if present) */}
-                                            {optionsObj && Object.keys(optionsObj).length > 0 ? (
-                                                <div className="mt-3 rounded-lg border border-[#EDF2F7] bg-white p-3">
-                                                    <p className="text-[11px] font-semibold uppercase tracking-wider text-[#64748B]">
-                                                        Options & Parameters
-                                                    </p>
-                                                    <div className="mt-1 flex flex-wrap gap-2">
-                                                        {Object.entries(optionsObj).map(([optKey, optVal]) => (
-                                                            <span
-                                                                key={optKey}
-                                                                className="inline-flex items-center gap-1 rounded bg-[#F1F5F9] px-2 py-0.5 text-xs text-[#334155]"
-                                                            >
-                                                                <span className="font-medium capitalize">{optKey}:</span>
-                                                                <span>{String(optVal)}</span>
-                                                            </span>
-                                                        ))}
+                                            {/* Additional Options & Parameters (Render Image Thumbnails for image paths) */}
+                                            {(() => {
+                                                const validOptions = Object.entries(optionsObj || {}).filter(
+                                                    ([_, val]) => {
+                                                        if (val === null || val === undefined) return false
+                                                        if (typeof val === 'string' && val.trim() === '') return false
+                                                        return true
+                                                    },
+                                                )
+
+                                                if (validOptions.length === 0) return null
+
+                                                return (
+                                                    <div className="mt-3 rounded-lg border border-[#EDF2F7] bg-white p-3 shadow-xs">
+                                                        <p className="text-[11px] font-semibold uppercase tracking-wider text-[#64748B]">
+                                                            Options & Parameters
+                                                        </p>
+                                                        <div className="mt-2 flex flex-wrap items-center gap-2.5">
+                                                            {validOptions.map(([optKey, optVal]) => {
+                                                                const isImg = isImageUrl(optVal)
+
+                                                                if (isImg) {
+                                                                    return (
+                                                                        <div
+                                                                            key={optKey}
+                                                                            className="group flex items-center gap-2.5 rounded-xl border border-[#E2E8F0] bg-white p-2 pr-3.5 shadow-2xs transition-all hover:border-[#CBD5E1] hover:shadow-xs"
+                                                                        >
+                                                                            <div className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[#EDF2F7] bg-[#F8FAFC] p-1 group-hover:bg-[#F1F5F9] transition-colors">
+                                                                                <img
+                                                                                    src={optVal}
+                                                                                    alt={optKey}
+                                                                                    className="h-full w-full object-contain transition-transform group-hover:scale-105"
+                                                                                    onError={(e) => {
+                                                                                        e.currentTarget.style.display =
+                                                                                            'none'
+                                                                                    }}
+                                                                                />
+                                                                            </div>
+                                                                            <div className="min-w-0">
+                                                                                <p className="text-[10px] font-semibold uppercase tracking-wider text-[#64748B]">
+                                                                                    Option
+                                                                                </p>
+                                                                                <p className="text-xs font-bold capitalize text-[#111827]">
+                                                                                    {optKey}
+                                                                                </p>
+                                                                            </div>
+                                                                        </div>
+                                                                    )
+                                                                }
+
+                                                                return (
+                                                                    <span
+                                                                        key={optKey}
+                                                                        className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-2.5 py-1.5 text-xs text-[#334155]"
+                                                                    >
+                                                                        <span className="font-semibold capitalize text-[#64748B]">
+                                                                            {optKey}:
+                                                                        </span>
+                                                                        <span className="font-medium text-[#111827]">
+                                                                            {String(optVal)}
+                                                                        </span>
+                                                                    </span>
+                                                                )
+                                                            })}
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            ) : null}
+                                                )
+                                            })()}
                                         </div>
                                     )
                                 })}
@@ -1040,6 +1263,77 @@ const QuotationDetailContent = ({
                     </section>
                 )
             })()}
+
+            {/* Sizes Breakdown Modal (Shown when clicking "See more") */}
+            <Dialog
+                isOpen={Boolean(selectedSizesModal)}
+                onClose={() => setSelectedSizesModal(null)}
+                onRequestClose={() => setSelectedSizesModal(null)}
+                width={500}
+                contentClassName="p-0"
+            >
+                <div className="rounded-2xl bg-white p-5 md:p-6">
+                    {/* Header */}
+                    <div className="flex items-start justify-between border-b border-[#EDF2F7] pb-3.5">
+                        <div>
+                            <div className="flex items-center gap-2">
+                                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#EEF4FF] text-[#003560]">
+                                    <FiPackage size={15} />
+                                </span>
+                                <h3 className="text-base font-bold text-[#111827]">
+                                    All Sizes Breakdown
+                                </h3>
+                            </div>
+                            {selectedSizesModal?.productName ? (
+                                <p className="mt-1 text-xs text-[#64748B]">
+                                    {selectedSizesModal.productName}
+                                </p>
+                            ) : null}
+                        </div>
+                        {selectedSizesModal?.total ? (
+                            <span className="rounded-full bg-[#EEF4FF] px-2.5 py-1 text-xs font-bold text-[#003560]">
+                                Total: {selectedSizesModal.total} pcs
+                            </span>
+                        ) : null}
+                    </div>
+
+                    {/* All Size Badges List */}
+                    <div className="my-5 max-h-[55vh] overflow-y-auto pr-1">
+                        <p className="mb-3 text-xs font-medium text-[#64748B]">
+                            Showing all {selectedSizesModal?.items?.length || 0} sizes:
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                            {selectedSizesModal?.items?.map((sz) => (
+                                <span
+                                    key={sz.size}
+                                    className="inline-flex items-center overflow-hidden rounded-lg border border-[#DCE7F8] bg-white text-xs shadow-2xs"
+                                >
+                                    <span className="border-r border-[#DCE7F8] bg-[#EEF4FF] px-2.5 py-1 font-bold uppercase text-[#003560]">
+                                        {sz.size}
+                                    </span>
+                                    <span className="px-2.5 py-1 font-semibold text-[#1E293B]">
+                                        {sz.qty}{' '}
+                                        <span className="text-[10px] font-normal text-[#64748B]">
+                                            {sz.qty === 1 ? 'pc' : 'pcs'}
+                                        </span>
+                                    </span>
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Footer */}
+                    <div className="flex justify-end border-t border-[#EDF2F7] pt-3.5">
+                        <Button
+                            size="sm"
+                            className="h-8.5 rounded-lg bg-[#003560] px-4 text-xs font-semibold text-white hover:bg-[#002747]"
+                            onClick={() => setSelectedSizesModal(null)}
+                        >
+                            Close
+                        </Button>
+                    </div>
+                </div>
+            </Dialog>
         </div>
     )
 }

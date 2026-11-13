@@ -206,6 +206,10 @@ const PersonalInformation = () => {
                 setValue('img', res.profileImage)
             }
 
+            if (typeof window !== 'undefined') {
+                window.dispatchEvent(new Event('profileUpdated'))
+            }
+
             toast.push(
                 <Notification title="Profile success!" type="success">
                     Profile updated successfully
@@ -254,6 +258,9 @@ const PersonalInformation = () => {
             if (fileInputRef.current) fileInputRef.current.value = ''
 
             if (res?.status === true || res?.statusCode === 200) {
+                if (typeof window !== 'undefined') {
+                    window.dispatchEvent(new Event('profileUpdated'))
+                }
                 toast.push(
                     <Notification title="Success" type="success">
                         {res?.message || 'Profile image removed successfully'}
@@ -326,7 +333,7 @@ const PersonalInformation = () => {
                                 </div>
 
                                 <p className="text-[#A0522D] text-xs text-center sm:text-left">
-                                    Supported: JPG/PNG/WEBP up to 5MB (auto-cropped to circle)
+                                    Supported: JPG/PNG/WEBP up to 5MB
                                 </p>
                             </div>
                         </div>

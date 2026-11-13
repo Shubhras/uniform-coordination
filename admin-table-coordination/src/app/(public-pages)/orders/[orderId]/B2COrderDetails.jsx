@@ -13,6 +13,8 @@ import {
 import Spinner from "@/components/ui/Spinner";
 import StatusModal from "./StatusModal";
 import CancelOrderModal from "./CancelOrderModal";
+import toast from "@/components/ui/toast";
+import Notification from "@/components/ui/Notification";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
 import { useTranslations, useLocale } from "next-intl";
 
@@ -104,7 +106,24 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
     "shipped",
   ].includes(order?.status?.toLowerCase());
 
+  const isPending = order?.status?.toLowerCase() === "pending";
+  const paymentStatus = (
+    order?.payment_summary?.payment_status ||
+    order?.payment_status ||
+    ""
+  ).toLowerCase();
+  const isPaid = paymentStatus === "success" || paymentStatus === "paid";
+
   const handleAction = () => {
+    if (isPending && !isPaid) {
+      toast.push(
+        <Notification title="Warning" type="warning" duration={4000}>
+          This order has not payment yet please wait for user payment
+        </Notification>,
+      );
+      return;
+    }
+
     if (currentAction.isProcessReturn) {
       router.push(`/orders/${orderId}/return`);
       return;
@@ -141,13 +160,12 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
 
               <span
                 className={`px-3 py-1 rounded-lg border text-xs font-semibold capitalize whitespace-nowrap
-    ${
-      order?.status === "completed"
-        ? "bg-[#E9F9F0] text-[#22A06B] border-[#22A06B]"
-        : order?.status === "pending"
-          ? "bg-[#FFF4E5] text-[#BB4D00] border-[#FEE685]"
-          : "bg-[#FEE2E2] text-[#DC2626] border-[#DC2626]"
-    }`}
+    ${order?.status === "completed"
+                    ? "bg-[#E9F9F0] text-[#22A06B] border-[#22A06B]"
+                    : order?.status === "pending"
+                      ? "bg-[#FFF4E5] text-[#BB4D00] border-[#FEE685]"
+                      : "bg-[#FEE2E2] text-[#DC2626] border-[#DC2626]"
+                  }`}
               >
                 {order?.status}
               </span>
@@ -176,7 +194,7 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
               <button
                 type="button"
                 onClick={handleAction}
-                className="flex-1 sm:flex-none rounded-lg bg-[#A85A32] px-4 sm:px-5 py-2.5 text-sm font-medium text-white whitespace-nowrap"
+                className="flex-1 sm:flex-none rounded-lg bg-[#A85A32] hover:bg-[#8F4824] px-4 sm:px-5 py-2.5 text-sm font-medium text-white whitespace-nowrap transition cursor-pointer"
               >
                 {currentAction.action}
               </button>
@@ -413,11 +431,10 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
                 </p>
 
                 <span
-                  className={`px-3 py-1 rounded-md text-[11px] font-semibold uppercase ${
-                    order?.payment_summary?.payment_status === "success"
+                  className={`px-3 py-1 rounded-md text-[11px] font-semibold uppercase ${order?.payment_summary?.payment_status === "success"
                       ? "bg-[#EAF9F0] text-[#22A06B] border border-[#B7E8C9]"
                       : "bg-[#FEE2E2] text-[#DC2626]"
-                  }`}
+                    }`}
                 >
                   {order?.payment_summary?.payment_status === "success"
                     ? t("paid")
@@ -434,12 +451,12 @@ export default function B2COrderDetails({ orderId, order, fetchOrder }) {
                 <p className="text-[14px] text-[#6B7280]">
                   {order?.payment_summary?.paid_at
                     ? new Date(
-                        order.payment_summary.paid_at,
-                      ).toLocaleDateString(locale, {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                      })
+                      order.payment_summary.paid_at,
+                    ).toLocaleDateString(locale, {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    })
                     : t("na")}
                 </p>
               </div>

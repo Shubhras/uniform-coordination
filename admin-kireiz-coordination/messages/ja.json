@@ -586,8 +586,9 @@
       "inactive": "無効"
     },
     "recentOrders": {
-      "recentOrders": "最近の見積もり（本日）",
+      "recentOrders": "最近の見積もり",
       "todayBadge": "本日 {count}件",
+      "today": "今日",
       "subtitle": "本日顧客から受け付けた注文",
       "viewAll": "すべて表示",
       "orderId": "注文ID",

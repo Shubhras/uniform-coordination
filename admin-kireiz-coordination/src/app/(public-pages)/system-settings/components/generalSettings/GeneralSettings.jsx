@@ -5,13 +5,11 @@ import dayjs from "dayjs";
 import { useTranslations } from "next-intl";
 import { FiImage, FiUpload } from "react-icons/fi";
 import useCurrentSession from "@/utils/hooks/useCurrentSession";
-import Skeleton from "@/components/ui/Skeleton";
 import DatePicker from "@/components/ui/DatePicker";
 import {
   apiGeneralSettingList,
   apiUpdateGeneralSetting,
 } from "@/services/SystemSettings";
-import Spinner from "@/components/ui/Spinner";
 import toast from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
  
@@ -20,7 +18,7 @@ const GeneralSettings = () => {
   const { session } = useCurrentSession();
   const accessToken = session?.user?.accessToken;
  
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [logoFile, setLogoFile] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
  
@@ -93,8 +91,30 @@ const GeneralSettings = () => {
   return (
     <div className="py-6">
       {loading ? (
-        <div className="flex items-center justify-center p-10">
-          <Spinner />
+        <div className="space-y-8 animate-pulse">
+          {/* Inputs Grid Skeleton */}
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            {Array.from({ length: 8 }).map((_, index) => (
+              <div key={index}>
+                <div className="mb-2 h-4 w-32 rounded bg-gray-200" />
+                <div className="h-10 w-full rounded-xl border border-[#E9DDD4] bg-gray-100/70" />
+              </div>
+            ))}
+          </div>
+
+          {/* Upload Logo Skeleton */}
+          <div className="mt-8">
+            <div className="mb-2 h-4 w-28 rounded bg-gray-200" />
+            <div className="flex h-64 flex-col items-center justify-center rounded-2xl border border-dashed border-[#E6D4C8] bg-[#FFFDFC]">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-200" />
+              <div className="mt-3 h-4 w-36 rounded bg-gray-200" />
+            </div>
+          </div>
+
+          {/* Footer Button Skeleton */}
+          <div className="mt-10 flex justify-end">
+            <div className="h-10 w-24 rounded-lg bg-gray-200" />
+          </div>
         </div>
       ) : (
         <div>

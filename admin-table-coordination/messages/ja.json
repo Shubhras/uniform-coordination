@@ -318,7 +318,7 @@
             "allCaughtUpDesc": "対応が必要なアラートはありません。"
         },
         "recentOrders": {
-            "title": "最近の注文（今日）",
+            "title": "最近の注文",
             "today": "今日",
             "subtitle": "今日お客様が行った注文",
             "viewall": "すべて表示",
@@ -886,6 +886,7 @@
             "statusConfirmed": "確認済み",
             "statusReturned": "返却済み",
             "statusShipped": "発送済み",
+            "statusCancelled": "キャンセル済み",
             "searchProducts": "商品を検索...",
             "reset": "リセット",
             "status": "ステータス",
@@ -1312,6 +1313,7 @@
             "reactivateConfirmation": "このアカウントを再有効化してもよろしいですか？対象ユーザー：",
             "reactivateConfirmationSuffix": "。再有効化するとアカウントにアクセスできるようになります。",
             "deactivationReason": "無効化の理由",
+            "warning": "警告",
             "deactivationReasonPlaceholder": "このユーザーを無効化する理由を入力してください...",
             "reasonEmailNote": "この理由を記載したメールが次のアドレスに自動的に送信されます",
             "cancel": "キャンセル",
