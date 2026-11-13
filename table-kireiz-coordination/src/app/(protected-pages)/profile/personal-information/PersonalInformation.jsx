@@ -281,7 +281,7 @@ const PersonalInformation = () => {
 
     return (
         <>
-            <div className="bg-[#F5F0EE30] p-4 sm:p-5 md:p-8 rounded-2xl max-w-7xl mx-auto shadow-md">
+            <div className="w-full bg-[#F5F0EE30] p-4 sm:p-5 md:p-8 rounded-2xl shadow-md">
                 <h4 className="mb-6 sm:mb-8 text-base sm:text-lg font-semibold">
                     Personal information
                 </h4>
@@ -314,7 +314,7 @@ const PersonalInformation = () => {
                                         variant="solid"
                                         size="sm"
                                         type="button"
-                                        className="w-full sm:w-auto bg-[#A0522D] hover:bg-[#8a5a75] text-white py-2 rounded-md px-6"
+                                        className="w-full sm:w-auto bg-[#A0522D] text-white py-2 rounded-md px-6"
                                         onClick={() => fileInputRef.current?.click()}
                                     >
                                         Upload Image

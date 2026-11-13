@@ -28,7 +28,7 @@ const OrdersList = () => {
     }, [])
 
     return (
-        <div className="mx-auto w-full max-w-7xl py-6 px-4 md:px-8">
+        <div className="w-full bg-[#F5F0EE30] p-4 sm:p-5 md:p-8 rounded-2xl">
             <div className="mb-5">
                 <h2 className="text-2xl font-bold text-[#2C1810]">My Order & Rentals</h2>
                 <p className="text-sm text-[#8D7769]">

@@ -109,7 +109,7 @@ const ChangePassword = () => {
     const progressPercent = (progressValue / 3) * 100
 
     return (
-        <div className="bg-[#F5F0EE30] md:p-8 p-5 rounded-2xl max-w-7xl mx-auto shadow-md">
+        <div className="w-full bg-[#F5F0EE30] p-4 sm:p-5 md:p-8 rounded-2xl shadow-md">
             <Form onSubmit={handleSubmit(onSubmit)}>
                 {/* Form Header */}
                 <h4 className="text-lg font-semibold mb-1 flex items-center gap-1">

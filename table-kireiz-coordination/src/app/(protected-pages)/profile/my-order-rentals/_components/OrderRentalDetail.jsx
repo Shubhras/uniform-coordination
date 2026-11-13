@@ -239,7 +239,7 @@ const OrderRentalDetail = ({ backPath = '/profile/my-order-rentals' }) => {
     }
 
     return (
-        <div className="mx-auto w-full max-w-7xl py-6 px-4 md:px-8">
+        <div className="w-full bg-[#F5F0EE30] p-4 sm:p-5 md:p-8 rounded-2xl">
             {/* Header */}
             <div className="mb-6 flex items-center gap-3">
                 <button

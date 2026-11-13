@@ -66,7 +66,7 @@ const BrowseCards = () => {
         );
         toast.push(
           <Notification title="Success" type="success">
-            {response.data.is_favourite ? "Added to favorites." : "Removed from favorites."}
+            {response.data.is_favourite ? "Added to favourites." : "Removed from favorites."}
           </Notification>
         );
       }

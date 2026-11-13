@@ -7,6 +7,7 @@ import { useSession } from 'next-auth/react'
 import { PiHeartThin } from 'react-icons/pi'
 import { FiTrash2 } from 'react-icons/fi'
 import Button from '@/components/ui/Button'
+import Spinner from '@/components/ui/Spinner'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
 import {
@@ -208,7 +209,7 @@ const FavouritesList = () => {
                         {/* Header & Filter Tabs */}
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-[#F3D3C8]/60">
                             <h2 className="text-lg sm:text-xl font-medium text-gray-900">
-                                Items in your Favorites ({displayedItems.length})
+                                Items in your favourites ({displayedItems.length})
                             </h2>
 
                             <div className="flex items-center gap-2 flex-wrap">
@@ -248,7 +249,7 @@ const FavouritesList = () => {
                         {/* Loading State */}
                         {loading ? (
                             <div className="flex justify-center items-center py-16 sm:py-24">
-                                <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-[#8B4513]"></div>
+                                <Spinner size={40} customColorClass="text-[#8B4513]" />
                             </div>
                         ) : displayedItems.length === 0 ? (
                             /* Empty State matching CartSummary */
@@ -340,7 +341,7 @@ const FavouritesList = () => {
                                                     >
                                                         {removingId === item.id ? (
                                                             <>
-                                                                <span className="inline-block w-3.5 h-3.5 rounded-full border-2 border-red-600 border-t-transparent animate-spin" />
+                                                                <Spinner size={14} customColorClass="text-red-600" className="shrink-0" />
                                                                 <span>Removing...</span>
                                                             </>
                                                         ) : (

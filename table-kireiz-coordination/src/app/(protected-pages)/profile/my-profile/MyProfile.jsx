@@ -258,7 +258,7 @@ const MyProfile = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="w-full p-2 space-y-6">
       {/* Profile Card */}
       <div className="relative bg-[#F8F3EF] rounded-2xl shadow-md md:p-6 p-2 flex flex-col lg:flex-row gap-6">
         {/* Avatar Section */}
