@@ -1095,9 +1095,11 @@ class QuotationSummarySerializer(serializers.ModelSerializer):
 
 
 class UserNotificationSerializer(serializers.ModelSerializer):
+    is_read = serializers.BooleanField(source="is_seen", read_only=True)
+
     class Meta:
         model = UserNotification
-        fields = ["id", "title", "message", "is_seen", "created_at"]
+        fields = ["id", "title", "message", "is_seen", "is_read", "created_at"]
 
         
             

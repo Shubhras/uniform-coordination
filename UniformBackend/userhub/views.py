@@ -2740,8 +2740,14 @@ class UserNotificationListAPIView(APIView):
 
     def get(self, request):
         try:
-            notifications = UserNotification.objects.filter(user=request.user)
-            unread_count = notifications.filter(is_read=False).count()
+            target_user = request.user
+            if not isinstance(target_user, Users):
+                user_obj = Users.objects.filter(Q(email=getattr(request.user, 'email', None)) | Q(id=getattr(request.user, 'id', None))).first()
+                if user_obj:
+                    target_user = user_obj
+
+            notifications = UserNotification.objects.filter(user=target_user)
+            unread_count = notifications.filter(is_seen=False).count()
             paginator = NotificationPagination()
             page = paginator.paginate_queryset(notifications, request)
             serializer = UserNotificationSerializer(page, many=True)
@@ -2751,6 +2757,7 @@ class UserNotificationListAPIView(APIView):
                 "message": "Notifications fetched successfully",
                 "count": paginator.page.paginator.count if paginator.page else notifications.count(),
                 "unread_count": unread_count,
+                "unseen_count": unread_count,
                 "page": paginator.page.number if paginator.page else 1,
                 "current_page": paginator.page.number if paginator.page else 1,
                 "total_pages": paginator.page.paginator.num_pages if paginator.page else 1,
